@@ -1,0 +1,12 @@
+{
+    "name": "Fabrice/oda_sandbox",
+    "require": {
+        "happykiller/oda_api": "dev-master"
+    },
+    "authors": [
+        {
+            "name": "Happykiller",
+            "email": "fabrice.rosito@gmail.com"
+        }
+    ]
+}
