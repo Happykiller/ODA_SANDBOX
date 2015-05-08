@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+http://krasimirtsonev.com/blog/article/A-modern-JavaScript-router-in-100-lines-history-api-pushState-hash-url
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="lib/Bootstrap/css/bootstrap.min.css">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="lib/Bootstrap/css/bootstrap-theme.min.css">
+    </head>
+    <body>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+              <!-- Brand and toggle get grouped for better mobile display -->
+              <div class="navbar-header">
+                <a class="navbar-brand" href="javascript:$.Oda.router.navigateTo({'route':'home','args':[]});">Projet CLient ODA V2</a>
+              </div>
+
+              <!-- Collect the nav links, forms, and other content for toggling -->
+              <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                  <li class="active"><a href="javascript:$.Oda.router.navigateTo({'route':'support','args':[{'name':'var','value':14}]});">Support<span class="sr-only">(current)</span></a></li>
+                  <li><a href="javascript:$.Oda.router.navigateTo({'route':'chart','args':[{'name':'var','value':14}]});">Chart</a></li>
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Menu<span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="javascript:$.Oda.router.navigateTo({'route':'hello','args':[{'name':'var','value':'vroe'}]});">Hello</a></li>
+                      <li><a href="#">Another action</a></li>
+                      <li><a href="#">Something else here</a></li>
+                      <li class="divider"></li>
+                      <li><a href="#">Separated link</a></li>
+                      <li class="divider"></li>
+                      <li><a href="#">One more separated link</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+          </nav>
+        
+        
+        <div id="content">Loading...</div>
+        
+        <!-- Latest compiled and minified JavaScript -->
+        <script type="text/javascript" src="lib/Jquery/jquery-2.1.4.min.js"></script>
+        
+        <!-- Latest compiled and minified JavaScript -->
+        <script type="text/javascript" src="lib/Bootstrap/bootstrap.min.js"></script>
+        
+        <script src="Oda.js"></script>
+    </body>
+</html>
