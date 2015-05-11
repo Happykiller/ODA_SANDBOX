@@ -1,0 +1,13 @@
+<input type="text" class="form-control" oda-id="log" />
+<input type="text" class="form-control" oda-id="pass" />
+<button type="button" oda-id="submit" onclick="$.Oda.auth({});" class="btn btn-info disabled">submit</button >
+
+<script>
+    $.Oda.Scope.refresh = function(){
+        if(($("#log").val().length > 2) && ($("#pass").val().length > 2)){
+            $("#submit").removeClass("disabled");
+        }else{
+            $("#submit").addClass("disabled");
+        }
+    };
+</script>
