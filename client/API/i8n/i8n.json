@@ -2,10 +2,12 @@
     {
         "groupName" : "main"
         , "fr" : {
-            "btMenu" : "Le menu" 
+            "authentification" : "Authentification" 
+            , "login" : "Indentifiant :"
         }
         , "en" : {
-            "btMenu" : "The menu"
+            "authentification" : "Authentification" 
+            , "login" : "Login:"
         }
     }
 ]
