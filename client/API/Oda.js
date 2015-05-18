@@ -572,14 +572,27 @@
              */
             init : function(){
                 try {
-                    $('[oda-id]').each(function(index, value){
-                        $(value).attr("id",$(value).attr("oda-id"));
+                    $('[oda-io-text]').each(function(index, value){
+                        $(value).attr("id",$(value).attr("oda-io-text"));
                         $(value).change(function(elt){
                            $.Oda.Scope.refresh();
                         });
                         $(value).keyup(function(elt){
                            $.Oda.Scope.refresh();
                         });
+                        var placeHolder = $(value).attr("placeholder");
+                        if(placeHolder !== undefined){
+                            var tab = placeHolder.split(".");
+                            if((tab.length > 1) && ($.Oda.getI8n(tab[0], tab[1]) !== "Not define")){
+                                $(value).attr("placeholder", $.Oda.getI8n(tab[0], tab[1]));
+                            }
+                        }
+                    });
+                    
+                    $('[oda-label]').each(function(index, value){
+                        var labelName = $(value).attr("oda-label");
+                        var tab = labelName.split(".");
+                        $(value).html($.Oda.getI8n(tab[0], tab[1]));
                     });
                 } catch (er) {
                     console.log("ERROR($.Oda.Scope.init):" + er.message);

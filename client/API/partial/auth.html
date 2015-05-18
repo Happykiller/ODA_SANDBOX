@@ -1,15 +1,15 @@
 <div class="container">
-  <h2>Authentification</h2>
+  <h2 oda-label="main.authentification">Authentification</h2>
   <form role="form">
     <div class="form-group">
-      <label for="login">Login :</label>
-      <input type="text" class="form-control" oda-id="login"  placeholder="Enter login">
+      <label for="login" oda-label="main.login">Login :</label>
+      <input type="text" class="form-control" oda-io-text="login" placeholder="main.io-login">
     </div>
     <div class="form-group">
-      <label for="mdp">Password :</label>
-      <input type="password" class="form-control" oda-id="mdp" placeholder="Enter password">
+      <label for="mdp" oda-label="main.password">Password :</label>
+      <input type="password" class="form-control" oda-io-text="mdp" placeholder="main.io-pass" style="border-color: #cfdc00;">
     </div>
-    <button type="button" oda-id="submit" onclick="$.Oda.login({'login' : $('#login').val(), 'mdp' : $('#mdp').val()});" class="btn btn-info disabled">Submit</button >
+    <button type="button" oda-label="main.bt-submit" id="submit" onclick="$.Oda.login({'login' : $('#login').val(), 'mdp' : $('#mdp').val()});" class="btn btn-info disabled">Submit</button >
   </form>
 </div>
 

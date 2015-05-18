@@ -1,1 +1,11 @@
-{"attributes":{"oda-id":{}},"elements":{}}
+{
+    "attributes": {
+        "oda-io-text": {},
+        "oda-label": {
+            "context": "h2"
+        },
+        "oda-id": {},
+        "oda-bt": {}
+    },
+    "elements": {}
+}
