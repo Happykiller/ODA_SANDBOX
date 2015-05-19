@@ -18,6 +18,8 @@
      * @desc Initialize
      */
     function _init() {
+        $.Oda.Context.projectLabel = "ODA HOW";
+        
         $.Oda.Router.addDependencies("angular", function(){
             console.log("Angular loading !"); 
             $.Oda.Router.dependencieLoaded("angular");

@@ -11,17 +11,21 @@
         /* version */
         VERSION = '0.1'
         
-        , _projectLabel = "Project"
-        
         , _debug = true
         
         , _dependecies = null
         
-        , _dependeciesFeedback = null
-        
         , _connectionRest = false
         
+        , _dependeciesFeedback = null
+        
+        , _menuSlide = false
+        
+        , _menu = false
+        
         , _i8n = []
+        
+        , _routesAllowed = ["contact","404","auth","support","home"]
         
         , _session = {
             "code_user" : ""
@@ -107,6 +111,7 @@
                     };
                     var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/checkSession.php", tabSetting, tabInput); 
                     if(retour.data){
+                        _session = session;
                         return true;
                     }
                 }
@@ -302,6 +307,25 @@
         try {
             _trace("RouterGo : ");
             _trace(p_params);
+            
+            //rewrite hash
+            if(!p_params.system){
+                var urlRoute = _routeCurrent.route;
+                var urlArg = "";
+                if(_routeCurrent.args.length > 0){
+                    if(urlArg === ""){
+                        urlArg += "?";
+                    }else{
+                        urlArg += "&";
+                    }
+                    for(var indice in _routeCurrent.args){
+                        urlArg += _routeCurrent.args[indice].name + "=" + _routeCurrent.args[indice].value;
+                    }
+                }
+                $.Oda.Context.window.location.hash = urlRoute + urlArg;
+                $.Oda.Context.window.document.title = $.Oda.Context.projectLabel + " " + p_params.routeDef.title;
+            }
+            
             //load dependencies
             if(p_params.routeDef.dependencies.length > 0){
                 for(var indice in p_params.routeDef.dependencies){
@@ -328,27 +352,14 @@
             if((_RouterExit)&&(!p_params.system)){
                 return this;
             }
+            
+            if((!_RouterExit)&&(!p_params.system)){
+                $.Oda.MenuSlide.show();
+                $.Oda.Menu.show();
+            }
 
             //call content
              _loadPartial({"routeDef" : p_params.routeDef});
-
-            //rewrite hash
-            if(!p_params.system){
-                var urlRoute = _routeCurrent.route;
-                var urlArg = "";
-                if(_routeCurrent.args.length > 0){
-                    if(urlArg === ""){
-                        urlArg += "?";
-                    }else{
-                        urlArg += "&";
-                    }
-                    for(var indice in _routeCurrent.args){
-                        urlArg += _routeCurrent.args[indice].name + "=" + _routeCurrent.args[indice].value;
-                    }
-                }
-                $.Oda.Context.window.location.hash = urlRoute + urlArg;
-                $.Oda.Context.window.document.title = _projectLabel + " " + p_params.routeDef.title;
-            }
             return true;
         } catch (er) {
             $.Oda.log(0,"ERROR(_RouterGo):" + er.message);
@@ -366,6 +377,7 @@
             $.get(p_params.routeDef.name+".html", function(data) {
                 $('#content').html(data);
                 $.Oda.Scope.init();
+                $.Oda.Tuto.start();
             });
             return true;
         } catch (er) {
@@ -556,7 +568,8 @@
         /* Version number */
         version: VERSION
         , Context : {
-            host : ""
+            projectLabel : "Project"
+            , host : ""
             , rest : ""
             , resources : ""
             , window : window
@@ -565,6 +578,101 @@
         //for the application project
         , App : {}
         
+        , Tuto : {
+            enable : true
+            
+            , currentElt : ""
+            
+            , listElt : []
+            
+            , start : function (){
+                try {
+                    if($.Oda.Tuto.enable){
+                        $('[oda-tuto]').each(function(index, value){
+                            var theTuto = {};
+                            var def = $(value).attr("oda-tuto");
+                            var tabDef = def.split(";");
+                            for(var indice in tabDef){
+                                var elt = tabDef[indice];
+                                var prop = elt.split(":");
+                                if(prop[1] !== undefined){
+                                    theTuto[prop[0]] = prop[1];
+                                }
+                            }
+
+                            if(!$.Oda.Tuto.listElt.hasOwnProperty(theTuto.id)){
+                                $.Oda.Tuto.listElt[theTuto.id] = {"id" : theTuto.id, "enable" : true, "props" : theTuto};
+                            }
+                            
+                            var sessionTuto = $.Oda.Storage.get("ODA-SESSION-TUTO-"+_session.code_user, {});
+                            if(sessionTuto.hasOwnProperty(theTuto.id)){
+                                $.Oda.Tuto.listElt[theTuto.id].enable = sessionTuto[theTuto.id];
+                            }else{
+                                sessionTuto[theTuto.id] = true;
+                                $.Oda.Storage.set("ODA-SESSION-TUTO-"+_session.code_user, sessionTuto);
+                            }
+                            
+                            if(($.Oda.Tuto.listElt[theTuto.id].enable)&&($.Oda.Tuto.currentElt === "")){
+                                $.Oda.Tuto.show(theTuto.id);
+                            }
+                        });
+                    }
+                } catch (er) {
+                    console.log("ERROR($.Oda.Tuto.start):" + er.message);
+                }
+            }
+            
+            , readed : function(id){
+                try {
+                    $.Oda.Tuto.listElt[id].enable = false;
+                    
+                    var sessionTuto = $.Oda.Storage.get("ODA-SESSION-TUTO-"+_session.code_user);
+                    sessionTuto[id] = false;
+                    $.Oda.Storage.set("ODA-SESSION-TUTO-"+_session.code_user, sessionTuto);
+                    
+                    $("[oda-tuto^='id:"+id+"']").tooltip('destroy');
+                    for(var elt in $.Oda.Tuto.listElt){
+                        if($.Oda.Tuto.listElt[elt].enable){
+                            this.show(elt);
+                            break;
+                        }
+                    }
+                } catch (er) {
+                    console.log("ERROR($.Oda.Tuto.readed):" + er.message);
+                }
+            }
+            
+            , show : function (id){
+                try {
+                    var elt = $("[oda-tuto^='id:"+id+"']");
+                    
+                    $.Oda.Tuto.currentElt = id;
+                                
+                    elt.attr("data-toggle","tooltip");
+                    if($.Oda.Tuto.listElt[id].props.hasOwnProperty("location")){
+                        elt.attr("data-placement",$.Oda.Tuto.listElt[id].props.location);
+                    }
+                    elt.attr("data-html",true);
+
+                    var strHtml = $('[oda-tuto-content='+id+']').html();
+
+                    if($.Oda.Tuto.listElt[id].props.hasOwnProperty("bt-next")){
+                        strHtml += "";
+                    }
+                    strHtml += '<br><button type="button" onclick="$.Oda.Tuto.readed(\''+id+'\');" class="btn btn-info btn-xs">Readed</button >';
+                    elt.attr("title",strHtml);
+                    elt.on('hidden.bs.tooltip', function () {
+                        $.Oda.Tuto.enable = false;
+                        elt.tooltip('destroy');
+                    });
+
+                    elt.tooltip('show');
+                } catch (er) {
+                    console.log("ERROR($.Oda.Tuto.show):" + er.message);
+                }
+            }
+        }
+        
         , Scope : {
             /**
              * 
@@ -572,19 +680,47 @@
              */
             init : function(){
                 try {
-                    $('[oda-io-text]').each(function(index, value){
-                        $(value).attr("id",$(value).attr("oda-io-text"));
-                        $(value).change(function(elt){
-                           $.Oda.Scope.refresh();
-                        });
+                    $('[oda-input-text]').each(function(index, value){
+                        var id = $(value).attr("oda-input-text");
+                        
+                        $(value).attr("id",id);
+                        
                         $(value).keyup(function(elt){
-                           $.Oda.Scope.refresh();
+                            $.Oda.Scope.refresh();
+                           
+                            var odaCheck = $(value).attr("oda-input-text-check");
+                            if(odaCheck !== undefined){
+                                var patt = new RegExp(odaCheck, "g");
+                                var res = patt.test($(value).val());
+                                if(res){
+                                    $(value).data("isOk", true);
+                                    $(value).css("border-color","#04B404");
+                                }else{
+                                    $(value).data("isOk", false);
+                                    $(value).css("border-color","#FF0000");
+                                }
+                            }
                         });
-                        var placeHolder = $(value).attr("placeholder");
+                        
+                        var placeHolder = $(value).attr("oda-input-text-placeholder");
                         if(placeHolder !== undefined){
                             var tab = placeHolder.split(".");
                             if((tab.length > 1) && ($.Oda.getI8n(tab[0], tab[1]) !== "Not define")){
                                 $(value).attr("placeholder", $.Oda.getI8n(tab[0], tab[1]));
+                            }
+                        }
+                        
+                        var odaTips = $(value).attr("oda-input-text-tips");
+                        if(odaTips !== undefined){
+                            var tab = odaTips.split(".");
+                            if((tab.length > 1) && ($.Oda.getI8n(tab[0], tab[1]) !== "Not define")){
+                                $(value).after('<span style="color : #a1a1a1;" id="span-'+id+'">&nbsp;</span>');
+                                $(value).focus(function() {
+                                    $("#span-"+id).html($.Oda.getI8n(tab[0], tab[1]));
+                                });
+                                $(value).focusout(function() {
+                                    $("#span-"+id).html("&nbsp;");
+                                });
                             }
                         }
                     });
@@ -593,6 +729,20 @@
                         var labelName = $(value).attr("oda-label");
                         var tab = labelName.split(".");
                         $(value).html($.Oda.getI8n(tab[0], tab[1]));
+                    });
+                    
+                    $('[oda-submit]').each(function(index, value){
+                        var id = $(value).attr("oda-submit");
+                        
+                        $(value).attr("id",id);
+                        
+                        $(document).keypress(function(e) {
+                            if(e.which == 13) {
+                                if(!$(value).hasClass("disabled")){
+                                    $(value).click();
+                                }
+                            }
+                        });
                     });
                 } catch (er) {
                     console.log("ERROR($.Oda.Scope.init):" + er.message);
@@ -835,21 +985,23 @@
                         for(var indice in _routes[name].urls){
                             var url = _routes[name].urls[indice];
                             if(url === p_request.route){
+                                
+                                if(!$.Oda.isInArray(name, _routesAllowed)){
+                                    $.Oda.logout();
+                                    return this;
+                                }
+                                
                                 _routeCurrent = p_request;
                                 _routes[name].go(p_request);
-                                founded = true;
-                                break;
+                                
+                                $("#wrapper").removeClass("toggled");
+                                return this;
                             }
-                        }
-                        if(founded){
-                            break;
                         }
                     }
 
-                    if(founded === false){
-                        $.Oda.log(0, p_request.route + " not found.");
-                        _routes["404"].go(p_request);
-                    }
+                    $.Oda.log(0, p_request.route + " not found.");
+                    _routes["404"].go(p_request);
                     return this;
                 } catch (er) {
                     $.Oda.log(0,"ERROR($.ODa.Router.navigateTo):" + er.message);
@@ -946,6 +1098,8 @@
              */
             , startRooter : function() {
                 try {
+                    $("#projectLabel").text($.Oda.Context.projectLabel);
+                    
                     var hash = $.Oda.Context.window.location.hash;
                     
                     _routeCurrent = {
@@ -1094,7 +1248,7 @@
             try {
                 var tabInput = { "login" : p_params.login, "mdp" : p_params.mdp };
                 var returns = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getAuth.php", {}, tabInput); 
-                if(returns["strErreur"] == ""){
+                if(returns["strErreur"] === ""){
                     var code_user = returns["data"]["resultat"]["code_user"].toUpperCase();
                     var key = returns["data"]["resultat"]["keyAuthODA"];
 
@@ -1102,15 +1256,13 @@
                         "code_user" : code_user
                         , "key" : key
                     };
-
-                    $.Oda.Storage.set("ODA-SESSION",session,43200);
                     
                     var tabSetting = { };
                     var tabInput = { 
                         code_user : code_user
                     };
                     var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getAuthInfo.php", tabSetting, tabInput);
-                    if(retour.strErreur == ""){
+                    if(retour.strErreur === ""){
                         var userInfo = {
                             "locale" : "fr"
                             , "firstName" : retour.data.resultat.nom
@@ -1121,6 +1273,7 @@
                             , "showTooltip" : retour.data.resultat.montrer_aide_ihm
                         };
                         session.userInfo = userInfo;
+                        $.Oda.Storage.set("ODA-SESSION",session,43200);
                         _session = session;
                     }else{
                         $.Oda.Storage.remove("ODA-SESSION");
@@ -1132,7 +1285,7 @@
                 }else {
                    $.Oda.Notification.create(returns["strErreur"],$.Oda.Notification.danger());
                 }
-                return this;
+                return false;
             } catch (er) {
                 this.log(0, "ERROR($.Oda.auth):" + er.message);
                 return null;
@@ -1170,10 +1323,104 @@
                     var retour = this.callRest(this.Context.rest+"API/phpsql/deleteSession.php", {}, tabInput); 
                     $.Oda.Storage.remove("ODA-SESSION");
                 }
+                $.Oda.MenuSlide.remove();
+                $.Oda.Menu.remove();
                 _routes.auth.go();
            } catch (er) {
                this.log(0, "ERROR($.Oda.logout):" + er.message);
            }
+        }
+        
+        , MenuSlide : {
+            /**
+            * @name : show
+            */
+            show : function(){
+                try {
+                    if(!_menuSlide){
+                        var strHtml = "";
+                        strHtml += '<li class="sidebar-brand"><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'profile\',\'args\':[]});">'+_session.userInfo.firstName + " " + _session.userInfo.lastName+'</a></li>';
+                        strHtml += '<li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'profile\',\'args\':[]});" oda-label="oda-main.profile">Your profile</a></li>';
+                        strHtml += '<li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'contact\',\'args\':[]});" oda-label="oda-main.contact">Contact</a></li>';
+                        strHtml += '<li><a href="javascript:$.Oda.logout();" oda-label="oda-main.logout">Logout</a></li>';
+                        $('#menuSlide').html(strHtml);
+                        _menuSlide = true;
+                    }
+                } catch (er) {
+                    this.log(0, "ERROR($.Oda.MenuSlide.show):" + er.message);
+                }
+            }
+
+            /**
+            * @name : remove
+            */
+            , remove : function(){
+                try {
+                    $("#wrapper").removeClass("toggled");
+                    $('#menuSlide').html('<li class="sidebar-brand" id="profileDisplay"><span oda-label="oda-project.userLabel">Profile Name</span></li><li class="divider"></li><li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'contact\',\'args\':[]});" oda-label="oda-main.contact">Contact</a></li>');
+                    _menuSlide = false;
+                } catch (er) {
+                   this.log(0, "ERROR($.Oda.MenuSlide.remove):" + er.message);
+                }
+            }
+        }
+        
+        
+        
+        , Menu : {
+            /**
+            * @name : show
+            */
+            show : function(){
+                try {
+                    if(!_menu){
+                        var tabInput = { rang : _session.userInfo.profile, id_page : 0 };
+                        var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getMenu.php", {"functionRetour" : function(retour){
+                                var strHTML = "";
+                                console.log(retour);
+                                if(retour["strErreur"] === ""){
+                                    var datas = retour["data"]["resultat"]["data"];
+
+                                    var cate = "";
+                                    
+                                    for (var indice in datas) {
+                                        if((datas[indice]["id_categorie"] !== "98") && ((datas[indice]["id_categorie"] !== "1"))){
+                                            if(datas[indice]["id_categorie"] != cate){
+                                                cate = datas[indice]["id_categorie"];
+                                                if(indice != "0"){
+                                                    strHTML += "</ul></li>";
+                                                }
+                                                
+                                                strHTML += '<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">'+datas[indice]["Description_cate"]+'<span class="caret"></span></a><ul class="dropdown-menu" role="menu">';
+                                            }else{
+                                                strHTML += "<li><a href=\"javascript:$.Oda.Router.navigateTo({'route':'"+datas[indice]["Lien"]+"','args':[]});\">"+datas[indice]["Description_courte"]+"</a></li>";
+                                                _routesAllowed[datas[indice]["Lien"]] = true;
+                                            }
+                                        }
+                                    }
+                                    
+                                    $('#menu').html(strHTML);
+                                }
+                            }
+                        }, tabInput);
+                        _menu = true;
+                    }
+                } catch (er) {
+                    $.Oda.log(0, "ERROR($.Oda.Menu.show):" + er.message);
+                }
+            }
+
+            /**
+            * @name : remove
+            */
+            , remove : function(){
+                try {
+                    $('#menu').html('');
+                    _menu = false;
+                } catch (er) {
+                   $.Oda.log.log(0, "ERROR($.Oda.Menu.remove):" + er.message);
+                }
+            }
         }
         
         , Notification : {
@@ -1284,7 +1531,7 @@
                         }
                     } catch (er) {
                         var msg = "ERROR($.Oda.callRest.success):" + er.message;
-                        this.log(0, msg);
+                        $.Oda.log(0, msg);
                     }
                 };
 

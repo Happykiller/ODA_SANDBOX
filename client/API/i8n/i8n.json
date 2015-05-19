@@ -1,13 +1,18 @@
 [
     {
-        "groupName" : "main"
+        "groupName" : "oda-main"
         , "fr" : {
             "authentification" : "Authentification" 
             , "login" : "Indentifiant :"
             , "password" : "Mot de passe :"
             , "io-login" : "Entrer votre identifiant"
             , "io-pass" : "Entrer votre mot de passe"
+            , "io-login-tips" : "Au moins 3 lettres"
+            , "io-pass-tips" : "Au moins 4 lettres"
             , "bt-submit" : "Soumettre"
+            , "logout" : "Quitter"
+            , "profile" : "Mon profile"
+            , "contact" : "Contactez-nous"
         }
         , "en" : {
             "authentification" : "Authentification" 
@@ -15,7 +20,24 @@
             , "password" : "Password :"
             , "io-login" : "Entrer your login"
             , "io-pass" : "Entrer your password"
+            , "io-login-tips" : "More than 3 letters"
+            , "io-pass-tips" : "More than 4 letters"
             , "bt-submit" : "Submit"
+            , "bt-submit" : "Soumettre"
+            , "logout" : "Logout"
+            , "profile" : "Your profile"
+            , "contact" : "Contact us"
+        }
+    }
+    , {
+        "groupName" : "oda-project"
+        , "fr" : {
+            "projectName" : "Mon Projet"
+            ,"userLabel" : "L'utillisateur"
+        }
+        , "en" : {
+            "projectName" : "My Project"
+            ,"userLabel" : "The user"
         }
     }
 ]
