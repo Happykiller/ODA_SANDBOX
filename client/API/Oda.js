@@ -27,20 +27,6 @@
         
         , _routesAllowed = ["contact","404","auth","support","home"]
         
-        , _session = {
-            "code_user" : ""
-            , "key" : ""
-            , "userInfo" : {
-                "locale" : "fr"
-                , "firstName" : ""
-                , "lastName" : ""
-                , "mail" : ""
-                , "profile" : 0
-                , "profileLabel" : ""
-                , "showTooltip" : 0
-            }
-        }
-        
         , _routes = {
             "contact" : {
                 "name" : "API/partial/contact"
@@ -111,7 +97,7 @@
                     };
                     var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/checkSession.php", tabSetting, tabInput); 
                     if(retour.data){
-                        _session = session;
+                        $.Oda.Session = session;
                         return true;
                     }
                 }
@@ -567,6 +553,28 @@
     $.Oda = {
         /* Version number */
         version: VERSION
+        
+        , Color : {
+            INFO : "#5882FA",
+            WARNING : "#f7931e",
+            ERROR : "#B9121B",
+            SUCCESS : "#AEEE00"
+        }
+        
+        , Session : {
+            "code_user" : ""
+            , "key" : ""
+            , "userInfo" : {
+                "locale" : "fr"
+                , "firstName" : ""
+                , "lastName" : ""
+                , "mail" : ""
+                , "profile" : 0
+                , "profileLabel" : ""
+                , "showTooltip" : 0
+            }
+        }
+        
         , Context : {
             projectLabel : "Project"
             , host : ""
@@ -604,12 +612,12 @@
                                 $.Oda.Tuto.listElt[theTuto.id] = {"id" : theTuto.id, "enable" : true, "props" : theTuto};
                             }
                             
-                            var sessionTuto = $.Oda.Storage.get("ODA-SESSION-TUTO-"+_session.code_user, {});
+                            var sessionTuto = $.Oda.Storage.get("ODA-SESSION-TUTO-"+$.Oda.Session.code_user, {});
                             if(sessionTuto.hasOwnProperty(theTuto.id)){
                                 $.Oda.Tuto.listElt[theTuto.id].enable = sessionTuto[theTuto.id];
                             }else{
                                 sessionTuto[theTuto.id] = true;
-                                $.Oda.Storage.set("ODA-SESSION-TUTO-"+_session.code_user, sessionTuto);
+                                $.Oda.Storage.set("ODA-SESSION-TUTO-"+$.Oda.Session.code_user, sessionTuto);
                             }
                             
                             if(($.Oda.Tuto.listElt[theTuto.id].enable)&&($.Oda.Tuto.currentElt === "")){
@@ -626,9 +634,9 @@
                 try {
                     $.Oda.Tuto.listElt[id].enable = false;
                     
-                    var sessionTuto = $.Oda.Storage.get("ODA-SESSION-TUTO-"+_session.code_user);
+                    var sessionTuto = $.Oda.Storage.get("ODA-SESSION-TUTO-"+$.Oda.Session.code_user);
                     sessionTuto[id] = false;
-                    $.Oda.Storage.set("ODA-SESSION-TUTO-"+_session.code_user, sessionTuto);
+                    $.Oda.Storage.set("ODA-SESSION-TUTO-"+$.Oda.Session.code_user, sessionTuto);
                     
                     $("[oda-tuto^='id:"+id+"']").tooltip('destroy');
                     for(var elt in $.Oda.Tuto.listElt){
@@ -1224,7 +1232,7 @@
                 for (var grpId in _i8n) {
                     var grp = _i8n[grpId];
                     if(grp.groupName == p_group){
-                        var trad = grp[_session.userInfo.locale][p_tag];
+                        var trad = grp[$.Oda.Session.userInfo.locale][p_tag];
                         if(!$.Oda.isUndefined(trad)){
                             returnvalue = trad;
                         }
@@ -1274,7 +1282,7 @@
                         };
                         session.userInfo = userInfo;
                         $.Oda.Storage.set("ODA-SESSION",session,43200);
-                        _session = session;
+                        $.Oda.Session = session;
                     }else{
                         $.Oda.Storage.remove("ODA-SESSION");
                         $.Oda.Notification.create(returns["strErreur"],$.Oda.Notification.danger());
@@ -1339,7 +1347,7 @@
                 try {
                     if(!_menuSlide){
                         var strHtml = "";
-                        strHtml += '<li class="sidebar-brand"><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'profile\',\'args\':[]});">'+_session.userInfo.firstName + " " + _session.userInfo.lastName+'</a></li>';
+                        strHtml += '<li class="sidebar-brand"><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'profile\',\'args\':[]});">'+$.Oda.Session.userInfo.firstName + " " + $.Oda.Session.userInfo.lastName+'</a></li>';
                         strHtml += '<li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'profile\',\'args\':[]});" oda-label="oda-main.profile">Your profile</a></li>';
                         strHtml += '<li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'contact\',\'args\':[]});" oda-label="oda-main.contact">Contact</a></li>';
                         strHtml += '<li><a href="javascript:$.Oda.logout();" oda-label="oda-main.logout">Logout</a></li>';
@@ -1365,8 +1373,6 @@
             }
         }
         
-        
-        
         , Menu : {
             /**
             * @name : show
@@ -1374,10 +1380,9 @@
             show : function(){
                 try {
                     if(!_menu){
-                        var tabInput = { rang : _session.userInfo.profile, id_page : 0 };
+                        var tabInput = { rang : $.Oda.Session.userInfo.profile, id_page : 0 };
                         var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getMenu.php", {"functionRetour" : function(retour){
                                 var strHTML = "";
-                                console.log(retour);
                                 if(retour["strErreur"] === ""){
                                     var datas = retour["data"]["resultat"]["data"];
 
@@ -1603,6 +1608,30 @@
                 return d.getTime();
             } catch (er) {
                 this.log(0, "ERROR($.Oda.getMilise):" + er.message);
+                return null;
+            }
+        }
+        
+        /**
+        * arrondir
+        * @param {float|int} p_value
+        * @param {int} p_precision
+        * @returns {float|int}
+        */
+        , arrondir : function(p_value, p_precision){
+            try {
+                var retour = 0;
+                var coef = Math.pow(10, p_precision);
+
+                if(coef != 0){
+                    retour = Math.round(p_value*coef)/coef;
+                }else{
+                    retour = Math.round(p_value);
+                }
+
+                return retour;
+            } catch (er) {
+                this.log(0, "ERROR($.Oda.arrondir):" + er.message);
                 return null;
             }
         }
