@@ -29,7 +29,7 @@
         
         , _routes = {
             "contact" : {
-                "name" : "API/partial/contact"
+                "path" : "API/partial/contact.html"
                 , "title" : "Contact"
                 , "urls" : ["contact"]
                 , "middleWares" : ["support", "auth"]
@@ -39,7 +39,7 @@
                 }
             },
             "404" : {
-                "name" : "API/partial/404"
+                "path" : "API/partial/404.html"
                 , "title" : "Not found !"
                 , "urls" : ["404"]
                 , "middleWares" : []
@@ -49,7 +49,7 @@
                 }
             },
             "auth" : {
-                "name" : "API/partial/auth"
+                "path" : "API/partial/auth.html"
                 , "title" : "Login"
                 , "urls" : ["auth"]
                 , "middleWares" : ["support"]
@@ -59,7 +59,7 @@
                 }
             },
             "support" : {
-                "name" : "API/partial/support"
+                "path" : "API/partial/support.html"
                 , "title" : "Support"
                 , "urls" : ["support"]
                 , "middleWares" : []
@@ -69,7 +69,7 @@
                 }
             },
             "home" : {
-                "name" : "partial/home"
+                "path" : "API/partial/home.html"
                 , "title" : "Home"
                 , "urls" : ["","home"]
                 , "middleWares" : ["support", "auth"]
@@ -147,8 +147,17 @@
                 , "statut" : _routeDependenciesStatus.notLoaded()
                 , "load" : function(){
                     if(this.statut === _routeDependenciesStatus.notLoaded()){
-                        _trace(this.name + " loaded.");
-                        this.statut = _routeDependenciesStatus.loaded();
+                        this.statut = _routeDependenciesStatus.loading();
+                        $('<link/>', {
+                            rel: 'stylesheet',
+                            type: 'text/css',
+                            href: "API/lib/DataTables/css/dataTables.bootstrap.css"
+                        }).appendTo('head');
+                        $.getScript("API/lib/DataTables/js/jquery.dataTables.min.js",function(){
+                            $.getScript("API/lib/DataTables/js/dataTables.bootstrap.js",function(){
+                                $.Oda.Router.dependencieLoaded("dataTables");
+                            });
+                        });
                     }else if(this.statut === _routeDependenciesStatus.loading()){
                         _trace(this.name +  " loading.");
                     }else{
@@ -360,7 +369,7 @@
      */
     function _loadPartial(p_params) {
         try {
-            $.get(p_params.routeDef.name+".html", function(data) {
+            $.get(p_params.routeDef.path, function(data) {
                 $('#content').html(data);
                 $.Oda.Scope.init();
                 $.Oda.Tuto.start();
@@ -586,6 +595,222 @@
         //for the application project
         , App : {}
         
+        , Worker : {
+            
+            lib : function(){
+                var $ = {};
+                $.Oda = {
+                    Context : {
+                        rest : "$$REST$$"
+                    }
+                    
+                    , Session : {
+                        code_user : "$$CODEUSER$$"
+                        , key : "$$ODAKEY$$"
+                    }
+                    
+                    ,message : function(cmd, parameter){
+                        try {
+                            this.cmd = cmd;
+                            this.parameter = parameter;
+                        } catch (er) {
+                            this.log("ERROR($Oda.message):" + er.message);
+                        }
+                    }   
+                    
+                    , log : function(msg){
+                        console.log(msg);
+                    } 
+                    
+                    , callRest: function(p_url, p_tabSetting, p_tabInput) {
+                        try {
+                            var jsonAjaxParam = {
+                                url : p_url
+                                , contentType : 'application/x-www-form-urlencoded; charset=UTF-8'
+                                , dataType : 'json'
+                                , type : 'GET'
+                            };
+
+                            p_tabInput.milis = this.getMilise();
+                            p_tabInput.ctrl = "OK";
+                            p_tabInput.keyAuthODA = this.Session.key;
+
+                            jsonAjaxParam.data = p_tabInput;
+
+                            //traitement determinant async ou pas
+                            var async = true;
+                            if(p_tabSetting.functionRetour == null){
+                                async = false;
+                                jsonAjaxParam.async = false;        
+                            }
+
+                            for(var indice in p_tabSetting){
+                                jsonAjaxParam[indice] = p_tabSetting[indice];
+                            }
+
+                            //si retour synchron init retour
+                            var v_retourSync = null;
+
+                            //Utilisé notament pour les workers qui ne peuvent avoir Jquey et donc Ajax
+                            var xhr_object = new XMLHttpRequest();
+
+                            switch (jsonAjaxParam.type){ 
+                                case "GET": 
+                                case "get": 
+                                    var url = jsonAjaxParam.url+"?tag=1";
+                                    
+                                    for(var key in jsonAjaxParam.data){
+                                       var param = jsonAjaxParam.data[key].toString();
+                                       url += "&"+key+"="+(param.replace(new RegExp("&", "g"), '%26'));
+                                    }
+
+                                    xhr_object.open(jsonAjaxParam.type, url, false);
+                                    xhr_object.send(null);
+                                    break;  
+                                case "POST": 
+                                case "post": 
+                                default: 
+                                    var params = "tag=1";
+                                    for(var key in jsonAjaxParam.data){
+                                       var param = jsonAjaxParam.data[key].toString();
+                                        params += "&"+key+"="+(param.replace(new RegExp("&", "g"), '%26'));
+                                    }
+
+                                    xhr_object.open(jsonAjaxParam.type,jsonAjaxParam.url, false);
+                                    xhr_object.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+                                    xhr_object.send(params);
+                                    break; 
+                            }
+
+                            v_retourSync = "Vide";
+                            switch (jsonAjaxParam.dataType) { 
+                                case "json": 
+                                    if (xhr_object.readyState == 4 && xhr_object.status == 200) {
+                                        v_retourSync = JSON.parse(xhr_object.responseText);
+                                    } else {
+                                        v_retourSync = "ERROR";
+                                    }
+                                    break;   
+                                case "text": 
+                                default: 
+                                    if (xhr_object.readyState == 4) {
+                                        v_retourSync = xhr_object.responseText;
+                                    } else {
+                                        v_retourSync = "ERROR";
+                                    }
+                                break; 
+                            }
+
+                            delete self.xhr_object;
+
+                            return v_retourSync;
+                        } catch (er) {
+                            var msg = "ERROR($.Oda.callRest):" + er.message;
+                            this.log(msg);
+                            return null;
+                        }
+                    },
+
+                    /**
+                    * @name getMilise
+                    * @returns {string}
+                    */
+                    getMilise : function() {
+                        try {
+                            var d = new Date();
+                            return d.getTime();
+                        } catch (er) {
+                            this.log("ERROR(µ.functionsOda.getMilise):" + er.message);
+                            return null;
+                        }
+                    }
+                    
+                    /**
+                    * arrondir
+                    * @param {float|int} p_value
+                    * @param {int} p_precision
+                    * @returns {float|int}
+                    */
+                    , arrondir : function(p_value, p_precision){
+                        try {
+                            var retour = 0;
+                            var coef = Math.pow(10, p_precision);
+
+                            if(coef != 0){
+                                retour = Math.round(p_value*coef)/coef;
+                            }else{
+                                retour = Math.round(p_value);
+                            }
+
+                            return retour;
+                        } catch (er) {
+                            this.log("ERROR($.Oda.arrondir):" + er.message);
+                            return null;
+                        }
+                    }
+                };
+            }
+            
+            , message : function(cmd, parameter){
+                try {
+                    this.cmd = cmd;
+                    this.parameter = parameter;
+                } catch (er) {
+                    this.log("ERROR($Oda.message):" + er.message);
+                }
+            }  
+            
+            /**
+            * @name initWorker
+            * @desc pour initialiser un worker 
+            * @param {string} p_nameWorker
+            * @param {string} p_fonctionRetour
+            * @returns {Worker}
+            */
+            , initWorker : function(p_nameWorker, p_dataInit, p_functionCore, p_fonctionRetour) {
+                try {
+                    var strFunctionLib = $.Oda.Worker.lib.toString();
+                    strFunctionLib = strFunctionLib.substring(12);
+                    strFunctionLib = strFunctionLib.substring(0, strFunctionLib.length - 1);
+                    strFunctionLib = strFunctionLib.replace("$$CODEUSER$$",$.Oda.Session.code_user);
+                    strFunctionLib = strFunctionLib.replace("$$ODAKEY$$",$.Oda.Session.key);
+                    strFunctionLib = strFunctionLib.replace("$$REST$$",$.Oda.Context.rest);
+                    
+                    var strFunctionCore = p_functionCore.toString();
+                    strFunctionCore = strFunctionCore.substring(12);
+                    strFunctionCore = strFunctionCore.substring(0, strFunctionCore.length - 1);
+                    
+                    var blob = new Blob([strFunctionLib+strFunctionCore], {type: 'application/javascript'});
+
+                    var monWorker = new Worker(window.URL.createObjectURL(blob));
+
+                    monWorker.addEventListener("message", function (event) {
+                        p_fonctionRetour(event.data);
+                    }, false);
+
+                    return monWorker;
+                } catch (er) {
+                    $.Oda.log(0, "ERROR($.Oda.Worker.initWorker):" + er.message);
+                }
+            }
+
+            /**
+            * @name terminateWorker
+            * @desc pour finir le worker
+            * @param {type} p_worker
+            * @returns {undefined}
+            */
+            , terminateWorker : function(p_worker) {
+                try {
+                    // On aurait pu créer une commande 'stop' qui aurait été traitée
+                    // au sein du worker qui se serait fait hara-kiri via .close()
+                    p_worker.terminate();
+                } catch (er) {
+                    $.Oda.log(0, "ERROR($.Oda.Worker.terminateWorker):" + er.message);
+                }
+            }
+        }
+        
         , Tuto : {
             enable : true
             
@@ -626,7 +851,7 @@
                         });
                     }
                 } catch (er) {
-                    console.log("ERROR($.Oda.Tuto.start):" + er.message);
+                    $.Oda.log(0,"ERROR($.Oda.Tuto.start):" + er.message);
                 }
             }
             
@@ -646,7 +871,7 @@
                         }
                     }
                 } catch (er) {
-                    console.log("ERROR($.Oda.Tuto.readed):" + er.message);
+                    $.Oda.log(0,"ERROR($.Oda.Tuto.readed):" + er.message);
                 }
             }
             
@@ -676,7 +901,7 @@
 
                     elt.tooltip('show');
                 } catch (er) {
-                    console.log("ERROR($.Oda.Tuto.show):" + er.message);
+                    $.Oda.log(0,"ERROR($.Oda.Tuto.show):" + er.message);
                 }
             }
         }
@@ -753,7 +978,7 @@
                         });
                     });
                 } catch (er) {
-                    console.log("ERROR($.Oda.Scope.init):" + er.message);
+                    $.Oda.log.log(0,"ERROR($.Oda.Scope.init):" + er.message);
                 }
             }
             /**
@@ -764,7 +989,7 @@
                 try {
                     
                 } catch (er) {
-                    console.log("ERROR($.Oda.Scope.refresh):" + er.message);
+                    $.Oda.log.log(0,"ERROR($.Oda.Scope.refresh):" + er.message);
                 }
             }
             
@@ -1024,7 +1249,6 @@
              */
             , addRoute : function(p_name, p_routeDef) {
                 try {
-                    p_routeDef.name = p_name;
                     p_routeDef.go = function(p_request){
                         _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
                     };
@@ -1643,7 +1867,7 @@
         * @returns { int|varchar }
         */
         , getParameter : function(p_param_name) {
-           try {
+            try {
                 var strResponse;
 
                 var tabInput = { param_name : p_param_name };
@@ -1668,10 +1892,62 @@
                 } 
 
                return strResponse;
-           } catch (er) {
+            } catch (er) {
                this.log(0, "ERROR($.Oda.getParameter):" + er.message);
                return null;
-           }
+            }
+        }
+        
+        /**
+        * objDataTableFromJsonArray
+        * 
+        * @param {object} p_JsonArray
+        * @returns {object}
+        */
+        , objDataTableFromJsonArray : function(p_JsonArray){
+            try {
+                var objRetour = { statut : "ok"};
+
+                var arrayEntete = {};
+                var i = 0;
+                for(var key in p_JsonArray[0]){
+                    arrayEntete[key] = i;
+                    i++;
+                }
+                objRetour.entete = arrayEntete;
+
+                var arrayData = new Array();
+                for(var indice in p_JsonArray){
+                    var subArrayData = new Array();
+                    for(var key in p_JsonArray[indice]){
+                        subArrayData[subArrayData.length] = p_JsonArray[indice][key];
+                    } 
+                    arrayData[arrayData.length] = subArrayData;
+                }
+
+                objRetour.data = arrayData;
+
+                return objRetour;
+            } catch (er) {
+                this.log(0, "ERROR($.Oda.objDataTableFromJsonArray):" + er.message);
+                var objRetour = { statut : "ko"};
+                return objRetour;
+            }
+        }
+        
+        /**
+        * affichePopUp
+        * @param {type} p_label
+        * @param {type} p_details
+        */
+        , affichePopUp : function(p_label, p_details){
+            try {
+                $('#oda-popup_label').html("<b>"+p_label+"</b>");
+                $('#oda-popup_content').html(p_details);
+                $('#oda-popup').modal("show");
+            } catch (er) {
+                this.log(0, "ERROR($.functionsLib.affichePopUp):" + er.message);
+            }
         }
     };
 

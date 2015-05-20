@@ -12,6 +12,7 @@
         <link rel="stylesheet" href="API/lib/Bootstrap/css/simple-sidebar.css">
     </head>
     <body>
+        <!-- tuto -->
         <div style="display: none">
             <div oda-tuto-content="oda-avatar">
                 For display system menu click.
@@ -20,7 +21,28 @@
                 To go home click.
             </div>
         </div>
-        
+        <!-- /tuto -->
+
+        <!-- popup -->
+        <div class="modal fade" role="dialog" aria-labelledby="gridSystemModalLabel" aria-hidden="true" id="oda-popup">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="oda-popup_label">Modal title</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid" id="oda-popup_content">
+                            Hello World
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-primary" id="oda-popup_btSave">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /popup -->
         
         <!-- #wrapper -->
         <div id="wrapper">
@@ -61,7 +83,7 @@
             </nav>
         
             <!-- content -->
-            <div id="content" class="container">Loading...</div>
+            <div id="content" class="container"><IMG SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement"></div>
         
         </div>
         <!-- /#wrapper -->

@@ -20,22 +20,17 @@
     function _init() {
         $.Oda.Context.projectLabel = "ODA HOW";
         
-        $.Oda.Router.addDependencies("angular", function(){
-            console.log("Angular loading !"); 
-            $.Oda.Router.dependencieLoaded("angular");
+        $.Oda.Router.addDependencies("wowhead", function(){
+            $.getScript("http://wowjs.zamimg.com/widgets/power.js?1389797934",function(){
+                $.Oda.Router.dependencieLoaded("wowhead");
+            }); 
         });
         
-        $.Oda.Router.addRoute("partial/chart", {
-            "title" : "Chart"
-            , "urls" : ["chart"]
-            , "dependencies" : ["dataTables", "hightcharts"]
-            , "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
-        });
-        
-        $.Oda.Router.addRoute("partial/hello", {
-            "title" : "Hello"
-            , "urls" : ["hello", "truc/hello"]
-            , "dependencies" : ["angular"]
+        $.Oda.Router.addRoute("home", {
+            "path" : "partial/home.html"
+            , "title" : "Home"
+            , "urls" : ["","home"]
+            , "dependencies" : ["dataTables","wowhead"]
             , "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
         });
         
@@ -46,6 +41,34 @@
     $.Oda.App = {
         /* Version number */
         version: VERSION
+        
+        , colorCard : {
+            Commune : "#848484",
+            Commune_inv : "#B0B0B0",
+            Rare : "#2E2EFE",
+            Rare_inv : "#5A5AFF",
+            Épique : "#8904B1",
+            Épique_inv : "#AA61C1",
+            Légendaire : "#FF8000",
+            Légendaire_inv : "#FFB163"
+        }
+        , colorClasse : {
+            Death_Knight : "#C41F3B",
+            Druide : "#FF7D0A",
+            Chasseur : "#ABD473",
+            Mage : "#69CCF0",
+            Moine : "#00FF96",
+            Paladin : "#F58CBA",
+            Prêtre : "#FFFFFF",
+            Voleur : "#FFF569",
+            Chaman : "#0070DE",
+            Démoniste : "#9482C9",
+            Guerrier : "#C79C6E"
+        }
+        
+        , chosenClass : ""
+
+        , tab_sets : ['Tous', 'Expert' , 'La Malédiction de Naxxramas', 'Gobelins et Gnomes', 'Mont Rochenoire']
         
         /**
          * @name exemple
