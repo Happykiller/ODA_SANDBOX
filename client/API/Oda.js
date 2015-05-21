@@ -1,3 +1,4 @@
+/* global er */
 // Library of tools for the exemple
 
 /**
@@ -25,14 +26,14 @@
         
         , _i8n = []
         
-        , _routesAllowed = ["contact","404","auth","support","home"]
+        , _routesAllowed = ["contact","404","auth","support","home","forgot","subscrib"]
         
         , _routes = {
             "contact" : {
                 "path" : "API/partial/contact.html"
-                , "title" : "Contact"
+                , "title" : "oda-main.contact"
                 , "urls" : ["contact"]
-                , "middleWares" : ["support", "auth"]
+                , "middleWares" : ["support"]
                 , "dependencies" : []
                 , "go" : function(p_request){
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
@@ -40,7 +41,7 @@
             },
             "404" : {
                 "path" : "API/partial/404.html"
-                , "title" : "Not found !"
+                , "title" : "oda-main.404-title"
                 , "urls" : ["404"]
                 , "middleWares" : []
                 , "dependencies" : []
@@ -50,7 +51,7 @@
             },
             "auth" : {
                 "path" : "API/partial/auth.html"
-                , "title" : "Login"
+                , "title" : "oda-main.authentification"
                 , "urls" : ["auth"]
                 , "middleWares" : ["support"]
                 , "dependencies" : []
@@ -58,9 +59,29 @@
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : true});
                 }
             },
+            "forgot" : {
+                "path" : "API/partial/forgot.html"
+                , "title" : "oda-main.forgot-title"
+                , "urls" : ["forgot"]
+                , "middleWares" : ["support"]
+                , "dependencies" : []
+                , "go" : function(p_request){
+                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
+                }
+            },
+            "subscrib" : {
+                "path" : "API/partial/forgot.html"
+                , "title" : "oda-main.subscrib-title"
+                , "urls" : ["subscrib"]
+                , "middleWares" : ["subscrib"]
+                , "dependencies" : []
+                , "go" : function(p_request){
+                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
+                }
+            },
             "support" : {
                 "path" : "API/partial/support.html"
-                , "title" : "Support"
+                , "title" : "oda-main.support-title"
                 , "urls" : ["support"]
                 , "middleWares" : []
                 , "dependencies" : []
@@ -70,7 +91,7 @@
             },
             "home" : {
                 "path" : "API/partial/home.html"
-                , "title" : "Home"
+                , "title" : "oda-main.home-title"
                 , "urls" : ["","home"]
                 , "middleWares" : ["support", "auth"]
                 , "dependencies" : []
@@ -104,7 +125,7 @@
                 //check if log by url
                 var params = $.Oda.Router.getParams();
                 if((params.hasOwnProperty("getUser"))&&(params.hasOwnProperty("getPass"))){
-                    var auth = $.Oda.auth({"login" : params.getUser, "mdp" : params.getPass});
+                    var auth = $.Oda.auth({"login" : params.getUser, "mdp" : params.getPass, "reload" : false});
                     if(auth){
                         return true;
                     }
@@ -113,6 +134,7 @@
                 //session ko
                 _RouterExit = true;
                 $.Oda.logout();
+                return false;
             }
             , "support" : function(args){
                 _trace("MiddleWares : support");
@@ -308,17 +330,22 @@
                 var urlRoute = _routeCurrent.route;
                 var urlArg = "";
                 if(_routeCurrent.args.length > 0){
-                    if(urlArg === ""){
-                        urlArg += "?";
-                    }else{
-                        urlArg += "&";
-                    }
                     for(var indice in _routeCurrent.args){
-                        urlArg += _routeCurrent.args[indice].name + "=" + _routeCurrent.args[indice].value;
+                        if((_routeCurrent.args[indice].name !== "getUser")&&(_routeCurrent.args[indice].name !== "getPass")){
+                            if(urlArg === ""){
+                                urlArg += "?";
+                            }else{
+                                urlArg += "&";
+                            }
+                            urlArg += _routeCurrent.args[indice].name + "=" + _routeCurrent.args[indice].value;
+                        }
                     }
                 }
                 $.Oda.Context.window.location.hash = urlRoute + urlArg;
-                $.Oda.Context.window.document.title = $.Oda.Context.projectLabel + " " + p_params.routeDef.title;
+                
+                var decoded = $('<div/>').html($.Oda.getI8nByString(p_params.routeDef.title)).text();
+                
+                $.Oda.Context.window.document.title = $.Oda.Context.projectLabel + " - " + decoded;
             }
             
             //load dependencies
@@ -331,6 +358,7 @@
             if(p_params.routeDef.dependencies.length > 0){
                 for(var indice in p_params.routeDef.dependencies){
                     if(_routeDependencies[p_params.routeDef.dependencies[indice]].statut !== _routeDependenciesStatus.loaded()){
+                        _trace("Waiting : "+p_params.routeDef.dependencies[indice]);
                         setTimeout(function(){_routerGo(p_params);}, 100);
                         return true;
                     }
@@ -348,7 +376,7 @@
                 return this;
             }
             
-            if((!_RouterExit)&&(!p_params.system)){
+            if($.Oda.Session.code_user !== ""){
                 $.Oda.MenuSlide.show();
                 $.Oda.Menu.show();
             }
@@ -554,6 +582,46 @@
             return retour;
         } catch (er) {
             $.Oda.log(0, "ERROR(_allDependsLoaded):" + er.message);
+            return null;
+        }
+    };
+    
+    /**
+    * _checkParams
+    * @param {json} p_params
+    * @param {json} p_def ex : {attr1 : null, attr2 : "truc"}
+    */
+    function _checkParams(p_params, p_def) {
+        try {
+            var params = $.Oda.clone(p_params);
+            
+            var param_return = {};
+            
+            for (var key in p_def) {
+                if(p_def[key] == null){
+                    if(typeof params[key] == "undefined"){
+                        var myUserException = new UserException("Param : "+key+" missing");
+                        throw myUserException;
+                    }else{
+                        param_return[key] = params[key];
+                    }
+                }else{
+                    if(typeof params[key] == "undefined"){
+                        param_return[key] = p_def[key];
+                    }else{
+                        param_return[key] = params[key];
+                    }
+                }
+                delete params[key];
+            }
+            
+            for (var key in params) {
+                param_return[key] = params[key];
+            }
+            
+            return param_return;
+        } catch (er) {
+            $.Oda.log(0, "ERROR(_checkParams):" + er.message);
             return null;
         }
     };
@@ -1209,6 +1277,9 @@
              */
             , navigateTo : function(p_request) {
                 try {
+                    $('#oda-popup').modal("hide");
+                    _RouterExit = false;
+                    
                     if($.Oda.isUndefined(p_request)){
                         p_request = _routeCurrent;
                     }
@@ -1366,6 +1437,129 @@
             }
         }
         
+        , Google : {
+            
+            gapi : false
+            
+            , clientId : "249758124548-fgt33dblm1r8jm0nh9snn53pkghpjtsu.apps.googleusercontent.com"
+            
+            , apiKey : "PgCsKeWAsVGdOj3KjPn-JPS3"
+            
+            , scopes : 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email'
+            
+            , methodeSessionAuthKo : null
+            
+            , methodeSessionAuthOk : null
+            
+            , sessionInfo : null
+            
+            , gaips : []
+            
+            , init : function () {
+                try {
+                    if(!$.Oda.Google.gapi) {
+                        $.getScript("https://apis.google.com/js/client.js?onload=handleClientLoad",$.Oda.Google.handleClientLoad);
+                    }else{
+                        _trace("gapi.client already load.");
+                    }
+                    _trace("$.Oda.Google.init finish.");
+                } catch (er) {
+                    $.Oda.log(0, "ERROR - $.Oda.Google.init :" + er.message);
+                }
+            },
+            handleClientLoad : function() {
+                try {
+                    if(gapi.client === null) {
+                        $.Oda.Context.window.setTimeout($.Oda.Google.handleClientLoad,500);
+                    }else{
+                        $.Oda.Google.gapi = gapi;
+                    }
+                    _trace("$.Oda.Google.handleClientLoad finish.");
+                } catch (er) {
+                    $.Oda.log(0, "ERROR - $.Oda.Google.handleClientLoad :" + er.message);
+                }
+            },
+            startSessionAuth : function(methodOk, methodKo){
+                try {
+                    if(!$.Oda.isUndefined(methodOk)){
+                        $.Oda.Google.methodeSessionAuthOk = methodOk;
+                    }
+                    if(!$.Oda.isUndefined(methodKo)){
+                        $.Oda.Google.methodeSessionAuthKo = methodKo;
+                    }
+                    if($.Oda.Google.gapi) {
+                        $.Oda.Google.loadGapis([{"api":"oauth2","version":"v2"}], $.Oda.Google.callbackAuthSession);
+                    }else{
+                        setTimeout($.Oda.Google.startSessionAuth,500);
+                    }
+                    _trace("$.Oda.Google.startSessionAuth finish.");
+                } catch (er) {
+                    $.Oda.log(0, "ERROR - $.Oda.Google.startSessionAuth :" + er.message);
+                }
+            },
+            loadGapis : function(tabApi, callbackFunction) {
+                try {
+                    if(tabApi.length>0){
+                        for(var indice in $.Oda.Google.gaips){
+                            if(($.Oda.Google.gaips[indice].api === tabApi[0].api) && ($.Oda.Google.gaips[indice].version === tabApi[0].version)){
+                                _trace('Already ok pour : '+tabApi[0].api + " en "+tabApi[0].version);
+                                tabApi.splice(0,1);
+                                $.Oda.Google.loadGapis(tabApi,callbackFunction);
+                                return true;
+                            }
+                        }
+                        
+                        $.Oda.Google.gapi.client.load(tabApi[0].api, tabApi[0].version,function(resp){
+                            if(typeof resp == "undefined"){
+                                $.Oda.Google.gaips.push({"api":tabApi[0].api, "version" : tabApi[0].version});
+                                _trace('Chargement ok pour : '+tabApi[0].api + " en "+tabApi[0].version);
+                                tabApi.splice(0,1);
+                                $.Oda.Google.loadGapis(tabApi,callbackFunction);
+                            }else{
+                                _trace('Chargement ko pour : '+tabApi[0].api + " en "+tabApi[0].version + "("+resp.error.message+")");
+                            }
+                        });
+                    }else{
+                        callbackFunction();
+                    }
+                    _trace("$.Oda.Google.loadGapis finish.");
+                } catch (er) {
+                    $.Oda.log(0, "ERROR - $.Oda.Google.loadGapis :" + er.message);
+                }
+            },
+            callbackAuthSession : function(){
+                try {
+                    $.Oda.Google.gapi.client.setApiKey($.Oda.Google.apiKey);
+                    $.Oda.Google.gapi.auth.authorize({"client_id": $.Oda.Google.clientId, "scope": $.Oda.Google.scopes, "immediate": true}, $.Oda.Google.handleAuthResult);
+                    _trace("$.Oda.Google.callbackLaodGapis finish.");
+                } catch (er) {
+                    $.Oda.log(0, "ERROR - $.Oda.Google.callbackLaodGapis :" + er.message);
+                }
+            },
+            handleAuthResult : function(authResult) {
+                try {
+                    if ((authResult) && (!authResult.error) && (authResult.access_token != undefined)) {
+                        $.Oda.Google.sessionInfo = authResult;
+                        $.Oda.Google.methodeSessionAuthOk();
+                    } else {
+                        $.Oda.Google.methodeSessionAuthKo();
+                    }
+                    _trace("$.Oda.Google.handleAuthResult finish.");
+                } catch (er) {
+                    $.Oda.log(0, "ERROR - $.Oda.Google.handleAuthResult :" + er.message);
+                }
+            },
+            callServiceGoogleAuth : function(callMethodeOk) {
+                try {
+                    $.Oda.Google.methodeSessionAuthOk = callMethodeOk;
+                    $.Oda.Google.gapi.auth.authorize({"client_id": $.Oda.Google.clientId, "scope": $.Oda.Google.scopes, "immediate": false}, $.Oda.Google.handleAuthResult);
+                    _trace("$.Oda.Google.callServiceGoogleAuth finish.");
+                } catch (er) {
+                    $.Oda.log(0, "ERROR - $.Oda.Google.callServiceGoogleAuth :" + er.message);
+                }
+            }
+        }
+        
         /**
         * log
         * @param {int} p_type
@@ -1384,8 +1578,11 @@
         }
         
         /**
-        * @name : loadDepends
-        */
+         * 
+         * @param {type} p_depends
+         * @param {type} p_functionFeedback
+         * @returns {Boolean}
+         */
         , loadDepends : function(p_depends, p_functionFeedback){
             try {
                 if(_dependecies == null){
@@ -1439,6 +1636,27 @@
                 return boolReturn;
             } catch (er) {
                 this.log(0, "ERROR($.Oda.isUndefined):" + er.message);
+                return null;
+            }
+        }
+        
+        /**
+         * @name getI8nByString
+         * @param {string} p_group
+         * @returns {String}
+        */
+        , getI8nByString: function(p_tag) {
+            try {
+                var returnvalue = p_tag;
+                
+                var tab = p_tag.split(".");
+                if((tab.length > 1) && ($.Oda.getI8n(tab[0], tab[1]) !== "Not define")){
+                    return $.Oda.getI8n(tab[0], tab[1]);
+                }
+
+                return returnvalue;
+            } catch (er) {
+                this.log(0, "ERROR($.Oda.getI8nByString):" + er.message);
                 return null;
             }
         }
@@ -1510,14 +1728,14 @@
                     }else{
                         $.Oda.Storage.remove("ODA-SESSION");
                         $.Oda.Notification.create(returns["strErreur"],$.Oda.Notification.danger());
-                        return this;
                     }
                     _RouterExit = false;
-                    $.Oda.Router.navigateTo();
+                    if(p_params.reload){
+                        $.Oda.Router.navigateTo();
+                    }
                 }else {
                    $.Oda.Notification.create(returns["strErreur"],$.Oda.Notification.danger());
                 }
-                return false;
             } catch (er) {
                 this.log(0, "ERROR($.Oda.auth):" + er.message);
                 return null;
@@ -1555,6 +1773,19 @@
                     var retour = this.callRest(this.Context.rest+"API/phpsql/deleteSession.php", {}, tabInput); 
                     $.Oda.Storage.remove("ODA-SESSION");
                 }
+                $.Oda.Session = {
+                    "code_user" : ""
+                    , "key" : ""
+                    , "userInfo" : {
+                        "locale" : "fr"
+                        , "firstName" : ""
+                        , "lastName" : ""
+                        , "mail" : ""
+                        , "profile" : 0
+                        , "profileLabel" : ""
+                        , "showTooltip" : 0
+                    }
+                };
                 $.Oda.MenuSlide.remove();
                 $.Oda.Menu.remove();
                 _routes.auth.go();
@@ -1672,7 +1903,7 @@
             * notification
             * @Desc Show notification
             * @param {string} p_message
-            * @param {string} p_color
+            * @param {string} p_type
             * @returns {boolean}
             */
             ,create : function(p_message, p_type) {
@@ -1937,17 +2168,106 @@
         
         /**
         * affichePopUp
-        * @param {type} p_label
-        * @param {type} p_details
+        * @param {object} p_params
         */
-        , affichePopUp : function(p_label, p_details){
+        , affichePopUp : function(p_params){
             try {
-                $('#oda-popup_label').html("<b>"+p_label+"</b>");
-                $('#oda-popup_content').html(p_details);
+                $('#oda-popup_label').html("<b>"+p_params.label+"</b>");
+                $('#oda-popup_content').html(p_params.details);
+                
+                if(p_params.hasOwnProperty("footer")){
+                    $('#oda-popup_footer').html(p_params.footer);
+                }
+                
                 $('#oda-popup').modal("show");
             } catch (er) {
-                this.log(0, "ERROR($.functionsLib.affichePopUp):" + er.message);
+                this.log(0, "ERROR($.Oda.affichePopUp):" + er.message);
             }
+        }
+        
+        /**
+         * saisirContact
+         * 
+         * @param {type} p_reponse
+         * @param {type} p_message
+         */
+        , contact : function(p_reponse, p_message) {
+            try {
+                var contact_mail_administrateur = this.getParameter("contact_mail_administrateur");
+                if(contact_mail_administrateur != ""){
+                    var tabInput = { "reponse" : p_reponse, "message" : p_message, "code_user" : $.Oda.Session.code_user };
+                    var result = this.callRest(this.Context.rest+"API/phpsql/insertContact.php", {}, tabInput);
+                    if(result["strErreur"] === ""){
+                        var message_html = "";
+                        var sujet = "";
+
+                        message_html = "";
+                        message_html += "<html><head></head><body>";
+                        message_html += "De : <pre>"+$.Oda.Session.code_user+"</pre>";
+                        message_html += "</br></br>";
+                        message_html += "Contact : <pre>"+p_reponse+"</pre>";
+                        message_html += "</br></br>";
+                        message_html += "Message : <pre>"+p_message+"</pre>";
+                        message_html += "</body></html>";
+
+                        sujet = "[ODA-"+this.getParameter("nom_site")+"]Nouveau contact.";
+
+                        var paramsMail = {
+                            email_mail_ori : contact_mail_administrateur
+                            , email_labelle_ori : "Service Mail ODA"
+                            , email_mail_reply : contact_mail_administrateur
+                            , email_labelle_reply : "Service Mail ODA"
+                            , email_mails_dest : contact_mail_administrateur
+                            , message_html : message_html
+                            , sujet : sujet
+                        };
+
+                        var retour = this.sendMail(paramsMail);
+
+                        $("#mail").val("");
+                        $("#name").val("");
+                        $("#msg").val("");
+
+                        if(retour){
+                            this.Notification.create("Demande bien soummise sous l'identifiant n&ordm;"+result["data"]["resultat"]+".",this.Notification.success());
+                        }
+                    }else{
+                        this.Notification.create(result["strErreur"],this.Notification.danger());
+                    }
+                }else{
+                    this.Notification.create("Mail du service non définie.",this.Notification.danger());
+                }
+            } catch (er) {
+                this.log(0, "ERROR($.Oda.contact()):" + er.message);
+            }
+        }
+        
+        /**
+        * sendMail
+        * @ex $.Oda.sendMail({email_mails_dest:'fabrice.rosito@gmail.com',message_html:'HelloContent',sujet:'HelloSujet'});
+        * @param {json} p_params
+        * @returns {boolean}
+        */
+        , sendMail : function(p_params) {
+           try {
+                var params_attempt = {
+                     email_mails_dest : null
+                     , message_html : null
+                     , sujet : null
+                 };
+
+                var params = _checkParams(p_params, params_attempt);
+                if(params == null){
+                    return false;
+                }
+
+                var returns = this.callRest(this.Context.rest+"API/scriptphp/send_mail.php", {type : 'POST'}, params);
+
+                return returns;
+           } catch (er) {
+               this.log(0, "ERROR($.Oda.sendMail) :" + er.message);
+               return null;
+           }
         }
     };
 

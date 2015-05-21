@@ -28,7 +28,7 @@
         
         $.Oda.Router.addRoute("home", {
             "path" : "partial/home.html"
-            , "title" : "Home"
+            , "title" : "oda-main.home-title"
             , "urls" : ["","home"]
             , "dependencies" : ["dataTables","wowhead"]
             , "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]

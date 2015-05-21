@@ -9,7 +9,7 @@
     </div>
     <div class="col-md-6">
         <div class="panel panel-default">
-            <div class="panel-heading">Maitrique des paquets</div>
+            <div class="panel-heading">Métrique des paquets</div>
             <div id="div_metrics_dropRate" class="panel-body">
                 <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
             </div>
@@ -126,7 +126,7 @@
     function afficherCool(p_params){
         try {
             var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $.Oda.affichePopUp('Cartes cools !',strhtml);
+            $.Oda.affichePopUp({"label" : 'Cartes cools !', "details" : strhtml});
 
             var myReturn = true;
 
