@@ -3,19 +3,19 @@
     <div class="row">
         <div class="col-md-6">
             <div class="form-group">
-              <label for="login" oda-label="oda-main.login">Login :</label>
+              <label for="login" oda-label="oda-main.login">Login :</label>*
               <input type="text" class="form-control" oda-input-text="login" oda-input-text-tips="oda-main.io-login-tips" oda-input-text-placeholder="oda-main.io-login" oda-input-text-check="^[a-zA-Z0-9]{3,}$">
             </div>
         </div>
         <div class="col-md-6">
             <div class="form-group">
-              <label for="mdp" oda-label="oda-main.password">Password :</label>
+              <label for="mdp" oda-label="oda-main.password">Password :</label>*
               <input type="password" class="form-control" oda-input-text="mdp" oda-input-text-tips="oda-main.io-pass-tips" oda-input-text-placeholder="oda-main.io-pass" oda-input-text-check="^[a-zA-Z0-9]{4,}$">
             </div>
         </div>
         <div class="col-md-12">
             <p>
-                <button type="button" oda-label="oda-main.bt-submit" oda-submit="submit" onclick="$.Oda.login({'login' : $('#login').val(), 'mdp' : $('#mdp').val(), 'reload' : true});" class="btn btn-primary disabled">Submit</button >
+                <button type="button" oda-label="oda-main.bt-submit" oda-submit="submit" onclick="$.Oda.auth({'login' : $('#login').val(), 'mdp' : $('#mdp').val(), 'reload' : true});" class="btn btn-primary disabled">Submit</button >
                 <button type="button" oda-label="oda-main.bt-forgot" onclick="$.Oda.Router.navigateTo({'route':'forgot','args':[]});" class="btn btn-info">Forgot</button >
                 <button type="button" oda-label="oda-main.bt-subscrib" onclick="$.Oda.Router.navigateTo({'route':'subscrib','args':[]});" class="btn btn-info">Subscrib</button >
             </p>
@@ -42,7 +42,7 @@
                     if(retour.data.nombre == 0){
                         $.Oda.Notification.create("Pas de compte rattach&eacute; à l'email : "+resp.email,$.Oda.Notification.warning());
                     }else if(retour.data.nombre == 1){
-                        $.Oda.auth({"login" : retour.data[0].code_user, "mdp" : "authByGoogle-"+resp.email, "reload" : true});
+                        $.Oda.auth({"login" : retour.data.data[0].code_user, "mdp" : "authByGoogle-"+resp.email, "reload" : true});
                     }else {
                         var strHtml = '<div class="list-group"">';
                         for (var indice in retour.data.data) {

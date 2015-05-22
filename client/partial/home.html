@@ -96,7 +96,7 @@
                             "mRender": function ( data, type, row ) {
                                 var strHtml = "";
                                 if(row[objDataTable.entete["cool"]] != "0"){
-                                    return "<a href='#' onclick=\"afficherCool({'date':'"+row[objDataTable.entete["date"]]+"','code_user':'"+row[objDataTable.entete["code_user"]]+"','mode':'"+row[objDataTable.entete["mode"]]+"'})\">Cool!</a>";
+                                    return "<a onclick=\"afficherCool({'date':'"+row[objDataTable.entete["date"]]+"','code_user':'"+row[objDataTable.entete["code_user"]]+"','mode':'"+row[objDataTable.entete["mode"]]+"'})\">Cool!</a>";
                                 }
                                 return strHtml;
                             },

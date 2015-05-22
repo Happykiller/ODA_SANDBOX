@@ -26,19 +26,9 @@
         
         , _i8n = []
         
-        , _routesAllowed = ["contact","404","auth","support","home","forgot","subscrib"]
+        , _routesAllowed = ["contact","404","auth","support","home","forgot","subscrib","profile"]
         
         , _routes = {
-            "contact" : {
-                "path" : "API/partial/contact.html"
-                , "title" : "oda-main.contact"
-                , "urls" : ["contact"]
-                , "middleWares" : ["support"]
-                , "dependencies" : []
-                , "go" : function(p_request){
-                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
-                }
-            },
             "404" : {
                 "path" : "API/partial/404.html"
                 , "title" : "oda-main.404-title"
@@ -59,6 +49,26 @@
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : true});
                 }
             },
+            "support" : {
+                "path" : "API/partial/support.html"
+                , "title" : "oda-main.support-title"
+                , "urls" : ["support"]
+                , "middleWares" : []
+                , "dependencies" : []
+                , "go" : function(p_request){
+                    _routerGo({"routeDef" : this, "request" : p_request, "system" : true});
+                }
+            },
+            "contact" : {
+                "path" : "API/partial/contact.html"
+                , "title" : "oda-main.contact"
+                , "urls" : ["contact"]
+                , "middleWares" : ["support"]
+                , "dependencies" : []
+                , "go" : function(p_request){
+                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
+                }
+            },
             "forgot" : {
                 "path" : "API/partial/forgot.html"
                 , "title" : "oda-main.forgot-title"
@@ -70,29 +80,29 @@
                 }
             },
             "subscrib" : {
-                "path" : "API/partial/forgot.html"
+                "path" : "API/partial/subscrib.html"
                 , "title" : "oda-main.subscrib-title"
                 , "urls" : ["subscrib"]
-                , "middleWares" : ["subscrib"]
+                , "middleWares" : ["support"]
                 , "dependencies" : []
                 , "go" : function(p_request){
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
-                }
-            },
-            "support" : {
-                "path" : "API/partial/support.html"
-                , "title" : "oda-main.support-title"
-                , "urls" : ["support"]
-                , "middleWares" : []
-                , "dependencies" : []
-                , "go" : function(p_request){
-                    _routerGo({"routeDef" : this, "request" : p_request, "system" : true});
                 }
             },
             "home" : {
                 "path" : "API/partial/home.html"
                 , "title" : "oda-main.home-title"
                 , "urls" : ["","home"]
+                , "middleWares" : ["support", "auth"]
+                , "dependencies" : []
+                , "go" : function(p_request){
+                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
+                }
+            },
+            "profile" : {
+                "path" : "API/partial/profile.html"
+                , "title" : "oda-main.profile-title"
+                , "urls" : ["profile"]
                 , "middleWares" : ["support", "auth"]
                 , "dependencies" : []
                 , "go" : function(p_request){
@@ -662,6 +672,69 @@
         
         //for the application project
         , App : {}
+        
+        , Tooling : {
+            
+        }
+        
+        , Business : {
+            /**
+             * saisirContact
+             * 
+             * @param {type} p_reponse
+             * @param {type} p_message
+             */
+            contact : function(p_reponse, p_message) {
+                try {
+                    var contact_mail_administrateur = $.ODA.getParameter("contact_mail_administrateur");
+                    if(contact_mail_administrateur != ""){
+                        var tabInput = { "reponse" : p_reponse, "message" : p_message, "code_user" : $.Oda.Session.code_user };
+                        var result = $.ODA.callRest($.ODA.Context.rest+"API/phpsql/insertContact.php", {}, tabInput);
+                        if(result["strErreur"] === ""){
+                            var message_html = "";
+                            var sujet = "";
+
+                            message_html = "";
+                            message_html += "<html><head></head><body>";
+                            message_html += "De : <pre>"+$.Oda.Session.code_user+"</pre>";
+                            message_html += "</br></br>";
+                            message_html += "Contact : <pre>"+p_reponse+"</pre>";
+                            message_html += "</br></br>";
+                            message_html += "Message : <pre>"+p_message+"</pre>";
+                            message_html += "</body></html>";
+
+                            sujet = "[ODA-"+$.ODA.getParameter("nom_site")+"]Nouveau contact.";
+
+                            var paramsMail = {
+                                email_mail_ori : contact_mail_administrateur
+                                , email_labelle_ori : "Service Mail ODA"
+                                , email_mail_reply : contact_mail_administrateur
+                                , email_labelle_reply : "Service Mail ODA"
+                                , email_mails_dest : contact_mail_administrateur
+                                , message_html : message_html
+                                , sujet : sujet
+                            };
+
+                            var retour = $.ODA.sendMail(paramsMail);
+
+                            $("#mail").val("");
+                            $("#name").val("");
+                            $("#msg").val("");
+
+                            if(retour){
+                                $.ODA.Notification.create("Demande bien soummise sous l'identifiant n&ordm;"+result["data"]["resultat"]+".",$.ODA.Notification.success());
+                            }
+                        }else{
+                            $.ODA.Notification.create(result["strErreur"],$.ODA.Notification.danger());
+                        }
+                    }else{
+                        $.ODA.Notification.create("Mail du service non définie.",$.ODA.Notification.danger());
+                    }
+                } catch (er) {
+                    $.ODA.log(0, "ERROR($.Oda.contact()):" + er.message);
+                }
+            }
+        }
         
         , Worker : {
             
@@ -1743,24 +1816,6 @@
         }
         
         /**
-         * login
-         * @param {object} p_params
-         * @returns {$.Oda}
-         */
-        , login : function(p_params) {
-            try {
-                var auth = $.Oda.auth({ "login" : p_params.login, "mdp" : p_params.mdp });
-                if(auth){
-                    $.Oda.Router.navigateTo();
-                }
-                return true;
-            } catch (er) {
-                this.log(0, "ERROR($.Oda.login):" + er.message);
-                return null;
-            }
-        }
-        
-        /**
         * @name : logout
         */
         , logout : function(){
@@ -2177,68 +2232,13 @@
                 
                 if(p_params.hasOwnProperty("footer")){
                     $('#oda-popup_footer').html(p_params.footer);
+                }else{
+                    $('#oda-popup_footer').html('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
                 }
                 
                 $('#oda-popup').modal("show");
             } catch (er) {
                 this.log(0, "ERROR($.Oda.affichePopUp):" + er.message);
-            }
-        }
-        
-        /**
-         * saisirContact
-         * 
-         * @param {type} p_reponse
-         * @param {type} p_message
-         */
-        , contact : function(p_reponse, p_message) {
-            try {
-                var contact_mail_administrateur = this.getParameter("contact_mail_administrateur");
-                if(contact_mail_administrateur != ""){
-                    var tabInput = { "reponse" : p_reponse, "message" : p_message, "code_user" : $.Oda.Session.code_user };
-                    var result = this.callRest(this.Context.rest+"API/phpsql/insertContact.php", {}, tabInput);
-                    if(result["strErreur"] === ""){
-                        var message_html = "";
-                        var sujet = "";
-
-                        message_html = "";
-                        message_html += "<html><head></head><body>";
-                        message_html += "De : <pre>"+$.Oda.Session.code_user+"</pre>";
-                        message_html += "</br></br>";
-                        message_html += "Contact : <pre>"+p_reponse+"</pre>";
-                        message_html += "</br></br>";
-                        message_html += "Message : <pre>"+p_message+"</pre>";
-                        message_html += "</body></html>";
-
-                        sujet = "[ODA-"+this.getParameter("nom_site")+"]Nouveau contact.";
-
-                        var paramsMail = {
-                            email_mail_ori : contact_mail_administrateur
-                            , email_labelle_ori : "Service Mail ODA"
-                            , email_mail_reply : contact_mail_administrateur
-                            , email_labelle_reply : "Service Mail ODA"
-                            , email_mails_dest : contact_mail_administrateur
-                            , message_html : message_html
-                            , sujet : sujet
-                        };
-
-                        var retour = this.sendMail(paramsMail);
-
-                        $("#mail").val("");
-                        $("#name").val("");
-                        $("#msg").val("");
-
-                        if(retour){
-                            this.Notification.create("Demande bien soummise sous l'identifiant n&ordm;"+result["data"]["resultat"]+".",this.Notification.success());
-                        }
-                    }else{
-                        this.Notification.create(result["strErreur"],this.Notification.danger());
-                    }
-                }else{
-                    this.Notification.create("Mail du service non définie.",this.Notification.danger());
-                }
-            } catch (er) {
-                this.log(0, "ERROR($.Oda.contact()):" + er.message);
             }
         }
         
