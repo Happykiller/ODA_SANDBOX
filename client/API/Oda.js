@@ -686,10 +686,10 @@
              */
             contact : function(p_reponse, p_message) {
                 try {
-                    var contact_mail_administrateur = $.ODA.getParameter("contact_mail_administrateur");
+                    var contact_mail_administrateur = $.Oda.getParameter("contact_mail_administrateur");
                     if(contact_mail_administrateur != ""){
                         var tabInput = { "reponse" : p_reponse, "message" : p_message, "code_user" : $.Oda.Session.code_user };
-                        var result = $.ODA.callRest($.ODA.Context.rest+"API/phpsql/insertContact.php", {}, tabInput);
+                        var result = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/insertContact.php", {}, tabInput);
                         if(result["strErreur"] === ""){
                             var message_html = "";
                             var sujet = "";
@@ -703,7 +703,7 @@
                             message_html += "Message : <pre>"+p_message+"</pre>";
                             message_html += "</body></html>";
 
-                            sujet = "[ODA-"+$.ODA.getParameter("nom_site")+"]Nouveau contact.";
+                            sujet = "[ODA-"+$.Oda.getParameter("nom_site")+"]Nouveau contact.";
 
                             var paramsMail = {
                                 email_mail_ori : contact_mail_administrateur
@@ -715,23 +715,23 @@
                                 , sujet : sujet
                             };
 
-                            var retour = $.ODA.sendMail(paramsMail);
+                            var retour = $.Oda.sendMail(paramsMail);
 
                             $("#mail").val("");
                             $("#name").val("");
                             $("#msg").val("");
 
                             if(retour){
-                                $.ODA.Notification.create("Demande bien soummise sous l'identifiant n&ordm;"+result["data"]["resultat"]+".",$.ODA.Notification.success());
+                                $.Oda.Notification.create("Demande bien soummise sous l'identifiant n&ordm;"+result["data"]["resultat"]+".",$.Oda.Notification.success());
                             }
                         }else{
-                            $.ODA.Notification.create(result["strErreur"],$.ODA.Notification.danger());
+                            $.Oda.Notification.create(result["strErreur"],$.Oda.Notification.danger());
                         }
                     }else{
-                        $.ODA.Notification.create("Mail du service non définie.",$.ODA.Notification.danger());
+                        $.Oda.Notification.create("Mail du service non définie.",$.Oda.Notification.danger());
                     }
                 } catch (er) {
-                    $.ODA.log(0, "ERROR($.Oda.contact()):" + er.message);
+                    $.Oda.log(0, "ERROR($.Oda.contact()):" + er.message);
                 }
             }
         }
