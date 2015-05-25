@@ -1787,7 +1787,7 @@
                     var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getAuthInfo.php", tabSetting, tabInput);
                     if(retour.strErreur === ""){
                         var userInfo = {
-                            "locale" : "fr"
+                            "locale" : retour.data.resultat.langue
                             , "firstName" : retour.data.resultat.nom
                             , "lastName" : retour.data.resultat.prenom
                             , "mail" : retour.data.resultat.mail

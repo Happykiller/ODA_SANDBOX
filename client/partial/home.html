@@ -49,66 +49,40 @@
             var myReturn = true;
             
             if(p_retour["strErreur"] == ""){
-                var objDataTable = $.Oda.objDataTableFromJsonArray(p_retour["data"]["activitePaquets"]["data"]);
-                var strhtml = '<table cellpadding="0" cellspacing="0" border="0" class="display" id="table_activitePaquets">';
-                $('#div_activitePaquets').html(strhtml);
                 
-                var oTable = $('#table_activitePaquets').dataTable( {
-                    "bLengthChange": false,
-                    "bSort": false,
-                    "bFilter": false,
-                    "bInfo":false,
-                    "bPaginate": false,
-                    "aaData": objDataTable.data,
-                    "aoColumns": [
-                        { "sTitle": "Date", "width": "5em", "sClass": "dataTableColCenter" },
-                        { "sTitle": "Utilisateur", "width": "4em", "sClass": "dataTableColCenter" },
-                        { "sTitle": "Mode", "width": "10em", "sClass": "dataTableColCenter" },
-                        { "sTitle": "Poussière", "width": "5em", "sClass": "dataTableColCenter" },
-                        { "sTitle": "Cool", "width": "4em", "sClass": "dataTableColCenter" }
-                    ],
-                    "aoColumnDefs": [
-                        {
-                            "mRender": function ( data, type, row ) {
-                                return row[objDataTable.entete["date"]];
-                            },
-                            "aTargets": [ 0 ]
-                        },
-                        {
-                            "mRender": function ( data, type, row ) {
-                                return row[objDataTable.entete["code_user"]];
-                            },
-                            "aTargets": [ 1 ]
-                        },
-                        {
-                            "mRender": function ( data, type, row ) {
-                                return row[objDataTable.entete["mode"]];
-                            },
-                            "aTargets": [ 2 ]
-                        },
-                        {
-                            "mRender": function ( data, type, row ) {
-                                return row[objDataTable.entete["cout"]];
-                            },
-                            "aTargets": [ 3 ]
-                        },
-                        {
-                            "mRender": function ( data, type, row ) {
-                                var strHtml = "";
-                                if(row[objDataTable.entete["cool"]] != "0"){
-                                    return "<a onclick=\"afficherCool({'date':'"+row[objDataTable.entete["date"]]+"','code_user':'"+row[objDataTable.entete["code_user"]]+"','mode':'"+row[objDataTable.entete["mode"]]+"'})\">Cool!</a>";
-                                }
-                                return strHtml;
-                            },
-                            "aTargets": [ 4 ]
-                        }
-                    ]
-                    , "fnDrawCallback": function( oSettings ) {
-                        $('#table_activitePaquets')
-                            .removeClass( 'display' )
-                            .addClass('table table-striped table-bordered');
-                    } 
-                });
+                var strHtml = '<div class="table-responsive">';
+                strHtml += '<table class="table table-hover">';
+                strHtml += '<thead>';
+                strHtml += '<tr>';
+                strHtml += '<th>Date</th>';
+                strHtml += '<th>Utilisateur</th>';
+                strHtml += '<th>Mode</th>';
+                strHtml += '<th>Poussière</th>';
+                strHtml += '<th>Cool</th>';
+                strHtml += '</tr>';
+                strHtml += '</thead>';
+                strHtml += '<tbody>';
+                
+                var datas = p_retour["data"]["activitePaquets"]["data"];
+                for(var indice in datas){
+                    strHtml += '<tr>';
+                    strHtml += '<td>'+datas[indice]["date"]+'</td>';
+                    strHtml += '<td>'+datas[indice]["code_user"]+'</td>';
+                    strHtml += '<td>'+datas[indice]["mode"]+'</td>';
+                    strHtml += '<td>'+datas[indice]["cout"]+'</td>';
+                    if(datas[indice]["cool"] !== "0"){
+                        strHtml += '<td><a href="javascript:afficherCool({\'date\':\''+datas[indice]["date"]+'\',\'code_user\':\''+datas[indice]["code_user"]+'\',\'mode\':\''+datas[indice]["mode"]+'\'})\">Cool!</a></td>';
+                    }else{
+                        strHtml += '<td>&nbsp;</td>';
+                    }
+                    strHtml += '</tr>';
+                }
+                
+                strHtml += '</tbody>';
+                strHtml += '</table>';
+                strHtml += '</div>';
+                
+                $('#div_activitePaquets').html(strHtml);
             } else{
                 $.Oda.Notification.create()("Erreur : "+p_retour["strErreur"], $.Oda.Notification.danger());
             }

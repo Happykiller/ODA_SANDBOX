@@ -40,12 +40,13 @@
      */
     function retourInformations(p_retour){
         try {
-            if(p_retour["strErreur"] == ""){
+            if(p_retour["strErreur"] === ""){
                 var mail = p_retour["data"]["detailsUser"]["mail"];
                 var code_user = p_retour["data"]["detailsUser"]["code_user"];
                 var nom = p_retour["data"]["detailsUser"]["nom"];
                 var prenom = p_retour["data"]["detailsUser"]["prenom"];
                 var password = p_retour["data"]["detailsUser"]["password"];
+                var langue = p_retour["data"]["detailsUser"]["langue"];
                 
                 var strhtml = '<table class="table table-hover">';
                 strhtml += '<tr>';
@@ -75,8 +76,8 @@
                 strhtml += '</tr>';
                 strhtml += '<tr>';
                 strhtml += '<td>Langue :</td>';
-                strhtml += '<td><label id="lab_lang">'+$.Oda.Session.userInfo.locale+'</label></td>';
-                strhtml += '<td> <button type="button" class="btn btn-default" aria-label="Left Align" id="bt_ch-mail" title="Mise &agrave; jour de l\'eMail" onclick="updateChamps(this);"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button></td>';
+                strhtml += '<td><label id="lab_langue">'+langue+'</label></td>';
+                strhtml += '<td> <button type="button" class="btn btn-default" aria-label="Left Align" id="bt_ch-langue" title="Mise &agrave; jour de la langue" onclick="updateChamps(this);"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button></td>';
                 strhtml += '</tr>';
                 strhtml += "</table>";
                 $('#div_infos').html(strhtml);
@@ -136,7 +137,18 @@
                     details += '<input class="form-control" type="email" name="input_mail" id="input_mail" value="" />';
                     details += '</div>';
                     footer += '<a class="btn btn-info" id="bt_soumettreChange" onclick="soumettreChange(\'mail\');" class="ui-btn ui-icon-check ui-btn-icon-left ui-shadow ui-corner-all">Soumettre</a>';
-                break; 
+                break;
+                case "bt_ch-langue": 
+                    label = "Mise &agrave; jour de la langue";
+                    details += '<div data-role="fieldcontain">';
+                    details += '<label for="input_langue">Choix langue :</label>';
+                    details += '<select id="input_langue" class="form-control">';
+                    details += '<option value="fr">Fran&ccedil;ais</option>';
+                    details += '<option value="en">English</option>';
+                    details += '</select>';
+                    details += '</div>';
+                    footer += '<a class="btn btn-info" id="bt_soumettreChange" onclick="soumettreChange(\'langue\');" class="ui-btn ui-icon-check ui-btn-icon-left ui-shadow ui-corner-all">Soumettre</a>';
+                break;  
             }
             $.Oda.affichePopUp({"label" : label, "details" : details, "footer" : footer});
         } catch (er) {
@@ -150,8 +162,6 @@
      */
     function soumettreChange(p_champs){
         try {
-            
-            
             var mdp = $('#input_old_password').val();
             var value = $('#input_'+p_champs).val();
             var tabInput = { "code_user" : $.Oda.Session.code_user, "mdp" : mdp, "champs" : p_champs, "value" : value };
@@ -162,6 +172,27 @@
                 $('#input_old_password').val("");
                 $('#input_'+p_champs).val("");
                 $('#oda-popup').modal("hide");
+                
+                var tabInput = { 
+                    code_user : $.Oda.Session.code_user
+                };
+                var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getAuthInfo.php", {}, tabInput);
+                if(retour.strErreur === ""){
+                    var userInfo = {
+                        "locale" : retour.data.resultat.langue
+                        , "firstName" : retour.data.resultat.nom
+                        , "lastName" : retour.data.resultat.prenom
+                        , "mail" : retour.data.resultat.mail
+                        , "profile" : retour.data.resultat.profile
+                        , "profileLabel" : retour.data.resultat.labelle
+                        , "showTooltip" : retour.data.resultat.montrer_aide_ihm
+                    };
+                    $.Oda.Session.userInfo = userInfo;
+                    $.Oda.Storage.set("ODA-SESSION",$.Oda.Session,43200);
+                }else{
+                    $.Oda.Notification.create(retour["strErreur"],$.Oda.Notification.danger());
+                }
+                
                 $.Oda.Notification.create("Mise &agrave; jour r&eacute;ussi",$.Oda.Notification.success());
             }else{
                 $.Oda.Notification.create(retour["strErreur"],$.Oda.Notification.danger());
