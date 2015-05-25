@@ -1,11 +1,13 @@
 [
     {
-        "groupName" : "project"
+        "groupName" : "home"
         , "fr" : {
-            "ex" : "Un exemple" 
+            "activity" : "Activit&eacute; de la communaut&eacute;"
+            , "mectrics" : "M&eacute;trique des paquets" 
         }
         , "en" : {
-            "ex" : "Example"
+            "activity" : "Community activity"
+            , "mectrics" : "Metric packets"
         }
     }
 ]
