@@ -1746,7 +1746,7 @@
                 
                 for (var grpId in _i8n) {
                     var grp = _i8n[grpId];
-                    if(grp.groupName == p_group){
+                    if(grp.groupName === p_group){
                         var trad = grp[$.Oda.Session.userInfo.locale][p_tag];
                         if(!$.Oda.isUndefined(trad)){
                             returnvalue = trad;
