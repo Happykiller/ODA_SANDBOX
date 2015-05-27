@@ -80,7 +80,7 @@
             try {
                 return true;
             } catch (er) {
-                $.Oda.log(0, "ERROR($.functionsApp.exemple):" + er.message);
+                $.Oda.log("ERROR($.functionsApp.exemple):" + er.message);
                 return false;
             }
         }

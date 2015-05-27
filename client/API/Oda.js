@@ -116,7 +116,7 @@
         }
         , _routeMiddleWares = {
             "auth" : function(args){
-                _trace("MiddleWares : auth");
+                $.Oda.Log.trace("MiddleWares : auth");
                 var checkLogGet = false;
                 var session = $.Oda.Storage.get("ODA-SESSION");
                 if(session != null){
@@ -147,7 +147,7 @@
                 return false;
             }
             , "support" : function(args){
-                _trace("MiddleWares : support");
+                $.Oda.Log.trace("MiddleWares : support");
                 var maintenance = $.Oda.getParameter("maintenance");
                 if(typeof maintenance === "undefined"){
                     _connectionRest = false;
@@ -191,9 +191,9 @@
                             });
                         });
                     }else if(this.statut === _routeDependenciesStatus.loading()){
-                        _trace(this.name +  " loading.");
+                        $.Oda.Log.trace(this.name +  " loading.");
                     }else{
-                        _trace(this.name +  " already loaded.");
+                        $.Oda.Log.trace(this.name +  " already loaded.");
                     }
                 }
             }
@@ -207,9 +207,9 @@
                             $.Oda.Router.dependencieLoaded("hightcharts");
                         });
                     }else if(this.statut === _routeDependenciesStatus.loading()){
-                        _trace(this.name +  " loading.");
+                        $.Oda.Log.trace(this.name +  " loading.");
                     }else{
-                        _trace(this.name +  " already loaded.");
+                        $.Oda.Log.trace(this.name +  " already loaded.");
                     }
                 }
             }
@@ -240,7 +240,7 @@
                 ]}
             ],_loaded);
         } catch (er) {
-           $.Oda.log(0, "ERROR(_init):" + er.message);
+           $.Oda.log("ERROR(_init):" + er.message);
         }
     };
     
@@ -269,7 +269,7 @@
                 ]}
             ],_appStarted);
         } catch (er) {
-           $.Oda.log(0, "ERROR(_loaded):" + er.message);
+           $.Oda.log("ERROR(_loaded):" + er.message);
         }  
     };
     
@@ -280,7 +280,7 @@
         try {
             
         } catch (er) {
-           $.Oda.log(0, "ERROR(_appStarted):" + er.message);
+           $.Oda.log("ERROR(_appStarted):" + er.message);
         }  
     };
     
@@ -293,7 +293,7 @@
         try {
             return path.toString().replace(/\/$/, '').replace(/^\//, '');
         } catch (er) {
-            $.Oda.log(0, "ERROR(_clearSlashes):" + er.message);
+            $.Oda.log("ERROR(_clearSlashes):" + er.message);
             return null;
         }
     };
@@ -320,7 +320,7 @@
             }
             return result;
         } catch (er) {
-            $.Oda.log(0, "ERROR(_getListParamsGet):" + er.message);
+            $.Oda.log("ERROR(_getListParamsGet):" + er.message);
             return null;
         }
     };
@@ -332,8 +332,8 @@
      */
     function _routerGo(p_params) {
         try {
-            _trace("RouterGo : ");
-            _trace(p_params);
+            $.Oda.Log.trace("RouterGo : ");
+            $.Oda.Log.trace(p_params);
             
             //rewrite hash
             if(!p_params.system){
@@ -368,7 +368,7 @@
             if(p_params.routeDef.dependencies.length > 0){
                 for(var indice in p_params.routeDef.dependencies){
                     if(_routeDependencies[p_params.routeDef.dependencies[indice]].statut !== _routeDependenciesStatus.loaded()){
-                        _trace("Waiting : "+p_params.routeDef.dependencies[indice]);
+                        $.Oda.Log.trace("Waiting : "+p_params.routeDef.dependencies[indice]);
                         setTimeout(function(){_routerGo(p_params);}, 100);
                         return true;
                     }
@@ -421,21 +421,6 @@
     
     /**
      * 
-     * @param {type} p_msg
-     * @returns {}
-     */
-    function _trace(p_msg) {
-        try {
-            if(_debug){
-                console.log(p_msg);
-            }
-        } catch (er) {
-            console.log("ERROR(_trace):" + er.message);
-        }
-    };
-    
-    /**
-     * 
      * @param {type} p_elt
      * @param {type} p_mode
      * @returns {Boolean}
@@ -444,7 +429,7 @@
         try {
             var retour = true;
 
-            _trace("Loading : "+p_elt.elt);
+            $.Oda.Log.trace("Loading : "+p_elt.elt);
             
             switch(p_elt.type) {
                 case "css":
@@ -454,7 +439,7 @@
                         href: p_elt.elt
                     }).appendTo('head');
                     p_elt.status = "done";
-                    _trace( "Sucess for : "+p_elt.elt );
+                    $.Oda.Log.trace( "Sucess for : "+p_elt.elt );
                     
                     if(p_mode == "serie"){
                         _loadListDependsOrdoned();
@@ -467,7 +452,7 @@
                     dataType: "script",
                     context : {"lib" : p_elt.elt},
                     success: function( script, textStatus, jqxhr) {
-                        _trace( "Sucess for : "+$(this)[0].lib+" ("+textStatus+")" );
+                        $.Oda.Log.trace( "Sucess for : "+$(this)[0].lib+" ("+textStatus+")" );
                         p_elt.status = "done";
                     
                         if(p_mode == "serie"){
@@ -476,7 +461,7 @@
                         _allDependsLoaded();
                     },
                     error : function( jqxhr, settings, exception ) {
-                        _trace( "Triggered ajaxError handler for : "+$(this)[0].lib+"." );
+                        $.Oda.Log.trace( "Triggered ajaxError handler for : "+$(this)[0].lib+"." );
                         p_elt.status = "fail";
                     
                         if(p_mode == "serie"){
@@ -493,7 +478,7 @@
                     context : {"lib" : p_elt.elt},
                     success: function( json, textStatus, jqxhr) {
                         p_elt.target(json);
-                        _trace( "Sucess for : "+$(this)[0].lib+" ("+textStatus+")" );
+                        $.Oda.Log.trace( "Sucess for : "+$(this)[0].lib+" ("+textStatus+")" );
                         p_elt.status = "done";
                         
                         if(p_mode == "serie"){
@@ -502,7 +487,7 @@
                         _allDependsLoaded();
                     },
                     error : function( jqxhr, settings, exception ) {
-                        _trace( "Triggered ajaxError handler for : "+$(this)[0].lib+"." );
+                        $.Oda.Log.trace( "Triggered ajaxError handler for : "+$(this)[0].lib+"." );
                         p_elt.status = "fail";
                         
                         if(p_mode == "serie"){
@@ -513,12 +498,12 @@
                     });
                     break;
                 default:
-                    _trace( "Type unknown for : "+p_elt.elt+"." );
+                    $.Oda.Log.trace( "Type unknown for : "+p_elt.elt+"." );
             }
 
             return retour;
         } catch (er) {
-            $.Oda.log(0, "ERROR(_loadDepend):" + er.message);
+            $.Oda.log("ERROR(_loadDepend):" + er.message);
             return null;
         }
     };
@@ -552,7 +537,7 @@
 
             return retour;
         } catch (er) {
-            $.Oda.log(0, "ERROR(_loadListDependsOrdoned):" + er.message);
+            $.Oda.log("ERROR(_loadListDependsOrdoned):" + er.message);
             return null;
         }
     };
@@ -591,7 +576,7 @@
 
             return retour;
         } catch (er) {
-            $.Oda.log(0, "ERROR(_allDependsLoaded):" + er.message);
+            $.Oda.log("ERROR(_allDependsLoaded):" + er.message);
             return null;
         }
     };
@@ -631,7 +616,7 @@
             
             return param_return;
         } catch (er) {
-            $.Oda.log(0, "ERROR(_checkParams):" + er.message);
+            $.Oda.log("ERROR(_checkParams):" + er.message);
             return null;
         }
     };
@@ -668,6 +653,7 @@
             , rest : ""
             , resources : ""
             , window : window
+            , console : console
         }
         
         //for the application project
@@ -722,16 +708,16 @@
                             $("#msg").val("");
 
                             if(retour){
-                                $.Oda.Notification.create("Demande bien soummise sous l'identifiant n&ordm;"+result["data"]["resultat"]+".",$.Oda.Notification.success());
+                                $.Oda.Notification.success("Demande bien soummise sous l'identifiant n&ordm;"+result["data"]["resultat"]+".");
                             }
                         }else{
-                            $.Oda.Notification.create(result["strErreur"],$.Oda.Notification.danger());
+                            $.Oda.Notification.error(result["strErreur"]);
                         }
                     }else{
-                        $.Oda.Notification.create("Mail du service non définie.",$.Oda.Notification.danger());
+                        $.Oda.Notification.error("Mail du service non définie.");
                     }
                 } catch (er) {
-                    $.Oda.log(0, "ERROR($.Oda.contact()):" + er.message);
+                    $.Oda.log("ERROR($.Oda.contact()):" + er.message);
                 }
             }
         }
@@ -755,7 +741,7 @@
                             this.cmd = cmd;
                             this.parameter = parameter;
                         } catch (er) {
-                            this.log("ERROR($Oda.message):" + er.message);
+                            this.Log.trace("ERROR($Oda.message):" + er.message);
                         }
                     }   
                     
@@ -847,7 +833,7 @@
                             return v_retourSync;
                         } catch (er) {
                             var msg = "ERROR($.Oda.callRest):" + er.message;
-                            this.log(msg);
+                            this.Log.trace(msg);
                             return null;
                         }
                     },
@@ -861,7 +847,7 @@
                             var d = new Date();
                             return d.getTime();
                         } catch (er) {
-                            this.log("ERROR(µ.functionsOda.getMilise):" + er.message);
+                            this.Log.trace("ERROR(µ.functionsOda.getMilise):" + er.message);
                             return null;
                         }
                     }
@@ -885,7 +871,7 @@
 
                             return retour;
                         } catch (er) {
-                            this.log("ERROR($.Oda.arrondir):" + er.message);
+                            this.Log.trace("ERROR($.Oda.arrondir):" + er.message);
                             return null;
                         }
                     }
@@ -897,7 +883,7 @@
                     this.cmd = cmd;
                     this.parameter = parameter;
                 } catch (er) {
-                    this.log("ERROR($Oda.message):" + er.message);
+                    this.Log.trace("ERROR($Oda.message):" + er.message);
                 }
             }  
             
@@ -931,7 +917,7 @@
 
                     return monWorker;
                 } catch (er) {
-                    $.Oda.log(0, "ERROR($.Oda.Worker.initWorker):" + er.message);
+                    $.Oda.log("ERROR($.Oda.Worker.initWorker):" + er.message);
                 }
             }
 
@@ -947,7 +933,7 @@
                     // au sein du worker qui se serait fait hara-kiri via .close()
                     p_worker.terminate();
                 } catch (er) {
-                    $.Oda.log(0, "ERROR($.Oda.Worker.terminateWorker):" + er.message);
+                    $.Oda.log("ERROR($.Oda.Worker.terminateWorker):" + er.message);
                 }
             }
         }
@@ -1156,7 +1142,7 @@
 
                     return boolRetour;
                 } catch (er) {
-                    $.Oda.log(0, "ERROR(Oda.Storage.isStorageAvaible):" + er.message);
+                    $.Oda.log("ERROR(Oda.Storage.isStorageAvaible):" + er.message);
                     return null;
                 }
             },
@@ -1194,7 +1180,7 @@
 
                     return boolRetour;
                 } catch (er) {
-                    $.Oda.log(0, "ERROR($.Oda.Storage.set):" + er.message);
+                    $.Oda.log("ERROR($.Oda.Storage.set):" + er.message);
                     return null;
                 }
             },
@@ -1231,7 +1217,7 @@
 
                     return myValue;
                 } catch (er) {
-                    $.Oda.log(0, "ERROR($.Oda.Storage.get):" + er.message);
+                    $.Oda.log("ERROR($.Oda.Storage.get):" + er.message);
                     return null;
                 }
             },
@@ -1253,7 +1239,7 @@
 
                     return myReturn;
                 } catch (er) {
-                    $.Oda.log(0, "ERROR(Oda.Storage.setTtl):" + er.message);
+                    $.Oda.log("ERROR(Oda.Storage.setTtl):" + er.message);
                     return null;
                 }
             },
@@ -1280,7 +1266,7 @@
 
                     return myReturn;
                 } catch (er) {
-                    $.Oda.log(0, "ERROR(Oda.Storage.getTtl):" + er.message);
+                    $.Oda.log("ERROR(Oda.Storage.getTtl):" + er.message);
                     return null;
                 }
             },
@@ -1293,7 +1279,7 @@
 
                     return myReturn;
                 } catch (er) {
-                    $.Oda.log(0, "ERROR(Oda.Storage.setTtl):" + er.message);
+                    $.Oda.log("ERROR(Oda.Storage.setTtl):" + er.message);
                     return null;
                 }
             },
@@ -1308,7 +1294,7 @@
 
                     return myReturn;
                 } catch (er) {
-                    $.Oda.log(0, "ERROR(Oda.Storage.reset):" + er.message);
+                    $.Oda.log("ERROR(Oda.Storage.reset):" + er.message);
                     return null;
                 }
             },
@@ -1328,7 +1314,7 @@
 
                     return myReturn;
                 } catch (er) {
-                    $.Oda.log(0, "ERROR(Oda.Storage.getIndex):" + er.message);
+                    $.Oda.log("ERROR(Oda.Storage.getIndex):" + er.message);
                     return null;
                 }
             }
@@ -1377,7 +1363,7 @@
                         }
                     }
 
-                    $.Oda.log(0, p_request.route + " not found.");
+                    $.Oda.log(p_request.route + " not found.");
                     _routes["404"].go(p_request);
                     return this;
                 } catch (er) {
@@ -1441,9 +1427,9 @@
                                 this.statut = _routeDependenciesStatus.loading();
                                 p_dependenciesLoad();
                             }else if(this.statut === _routeDependenciesStatus.loading()){
-                                _trace(this.name +  " loading.");
+                                $.Oda.Log.trace(this.name +  " loading.");
                             }else{
-                                _trace(this.name +  " already loaded.");
+                                $.Oda.Log.trace(this.name +  " already loaded.");
                             }
                         }
                     } 
@@ -1461,7 +1447,7 @@
             , dependencieLoaded : function(p_name) {
                 try {
                     _routeDependencies[p_name].statut = _routeDependenciesStatus.loaded();
-                    _trace(p_name+" loaded");
+                    $.Oda.Log.trace(p_name+" loaded");
                     return this;
                 } catch (er) {
                     $.Oda.log(0,"ERROR($.ODa.Router.dependencieLoaded):" + er.message);
@@ -1533,11 +1519,11 @@
                     if(!$.Oda.Google.gapi) {
                         $.getScript("https://apis.google.com/js/client.js?onload=handleClientLoad",$.Oda.Google.handleClientLoad);
                     }else{
-                        _trace("gapi.client already load.");
+                        $.Oda.Log.trace("gapi.client already load.");
                     }
-                    _trace("$.Oda.Google.init finish.");
+                    $.Oda.Log.trace("$.Oda.Google.init finish.");
                 } catch (er) {
-                    $.Oda.log(0, "ERROR - $.Oda.Google.init :" + er.message);
+                    $.Oda.log("ERROR - $.Oda.Google.init :" + er.message);
                 }
             },
             handleClientLoad : function() {
@@ -1547,9 +1533,9 @@
                     }else{
                         $.Oda.Google.gapi = gapi;
                     }
-                    _trace("$.Oda.Google.handleClientLoad finish.");
+                    $.Oda.Log.trace("$.Oda.Google.handleClientLoad finish.");
                 } catch (er) {
-                    $.Oda.log(0, "ERROR - $.Oda.Google.handleClientLoad :" + er.message);
+                    $.Oda.log("ERROR - $.Oda.Google.handleClientLoad :" + er.message);
                 }
             },
             startSessionAuth : function(methodOk, methodKo){
@@ -1565,9 +1551,9 @@
                     }else{
                         setTimeout($.Oda.Google.startSessionAuth,500);
                     }
-                    _trace("$.Oda.Google.startSessionAuth finish.");
+                    $.Oda.Log.trace("$.Oda.Google.startSessionAuth finish.");
                 } catch (er) {
-                    $.Oda.log(0, "ERROR - $.Oda.Google.startSessionAuth :" + er.message);
+                    $.Oda.log("ERROR - $.Oda.Google.startSessionAuth :" + er.message);
                 }
             },
             loadGapis : function(tabApi, callbackFunction) {
@@ -1575,7 +1561,7 @@
                     if(tabApi.length>0){
                         for(var indice in $.Oda.Google.gaips){
                             if(($.Oda.Google.gaips[indice].api === tabApi[0].api) && ($.Oda.Google.gaips[indice].version === tabApi[0].version)){
-                                _trace('Already ok pour : '+tabApi[0].api + " en "+tabApi[0].version);
+                                $.Oda.Log.trace('Already ok pour : '+tabApi[0].api + " en "+tabApi[0].version);
                                 tabApi.splice(0,1);
                                 $.Oda.Google.loadGapis(tabApi,callbackFunction);
                                 return true;
@@ -1585,28 +1571,28 @@
                         $.Oda.Google.gapi.client.load(tabApi[0].api, tabApi[0].version,function(resp){
                             if(typeof resp == "undefined"){
                                 $.Oda.Google.gaips.push({"api":tabApi[0].api, "version" : tabApi[0].version});
-                                _trace('Chargement ok pour : '+tabApi[0].api + " en "+tabApi[0].version);
+                                $.Oda.Log.trace('Chargement ok pour : '+tabApi[0].api + " en "+tabApi[0].version);
                                 tabApi.splice(0,1);
                                 $.Oda.Google.loadGapis(tabApi,callbackFunction);
                             }else{
-                                _trace('Chargement ko pour : '+tabApi[0].api + " en "+tabApi[0].version + "("+resp.error.message+")");
+                                $.Oda.Log.trace('Chargement ko pour : '+tabApi[0].api + " en "+tabApi[0].version + "("+resp.error.message+")");
                             }
                         });
                     }else{
                         callbackFunction();
                     }
-                    _trace("$.Oda.Google.loadGapis finish.");
+                    $.Oda.Log.trace("$.Oda.Google.loadGapis finish.");
                 } catch (er) {
-                    $.Oda.log(0, "ERROR - $.Oda.Google.loadGapis :" + er.message);
+                    $.Oda.log("ERROR - $.Oda.Google.loadGapis :" + er.message);
                 }
             },
             callbackAuthSession : function(){
                 try {
                     $.Oda.Google.gapi.client.setApiKey($.Oda.Google.apiKey);
                     $.Oda.Google.gapi.auth.authorize({"client_id": $.Oda.Google.clientId, "scope": $.Oda.Google.scopes, "immediate": true}, $.Oda.Google.handleAuthResult);
-                    _trace("$.Oda.Google.callbackLaodGapis finish.");
+                    $.Oda.Log.trace("$.Oda.Google.callbackLaodGapis finish.");
                 } catch (er) {
-                    $.Oda.log(0, "ERROR - $.Oda.Google.callbackLaodGapis :" + er.message);
+                    $.Oda.log("ERROR - $.Oda.Google.callbackLaodGapis :" + er.message);
                 }
             },
             handleAuthResult : function(authResult) {
@@ -1617,18 +1603,18 @@
                     } else {
                         $.Oda.Google.methodeSessionAuthKo();
                     }
-                    _trace("$.Oda.Google.handleAuthResult finish.");
+                    $.Oda.Log.trace("$.Oda.Google.handleAuthResult finish.");
                 } catch (er) {
-                    $.Oda.log(0, "ERROR - $.Oda.Google.handleAuthResult :" + er.message);
+                    $.Oda.log("ERROR - $.Oda.Google.handleAuthResult :" + er.message);
                 }
             },
             callServiceGoogleAuth : function(callMethodeOk) {
                 try {
                     $.Oda.Google.methodeSessionAuthOk = callMethodeOk;
                     $.Oda.Google.gapi.auth.authorize({"client_id": $.Oda.Google.clientId, "scope": $.Oda.Google.scopes, "immediate": false}, $.Oda.Google.handleAuthResult);
-                    _trace("$.Oda.Google.callServiceGoogleAuth finish.");
+                    $.Oda.Log.trace("$.Oda.Google.callServiceGoogleAuth finish.");
                 } catch (er) {
-                    $.Oda.log(0, "ERROR - $.Oda.Google.callServiceGoogleAuth :" + er.message);
+                    $.Oda.log("ERROR - $.Oda.Google.callServiceGoogleAuth :" + er.message);
                 }
             }
         }
@@ -1639,15 +1625,45 @@
         * @param {string} p_msg
         * @returns {boolean}
         */
-        , log : function(p_type, p_msg) {
-           try {
-                _trace(p_msg);
-               
-                return this;
-           } catch (er) {
-                throw new Error("ERROR($.Oda.log):" + er.message);
-                return null;
-           }
+        , Log : {
+            "info" : function(p_msg) {
+                try {
+                    $.Oda.Context.console.info(p_msg);
+                    return this;
+                } catch (er) {
+                    throw new Error("ERROR($.Oda.log.info):" + er.message);
+                    return null;
+                }
+            }
+            , "trace" : function(p_msg) {
+                try {
+                    $.Oda.Context.console.log(p_msg);
+                    return this;
+                } catch (er) {
+                    throw new Error("ERROR($.Oda.log.trace):" + er.message);
+                    return null;
+                }
+            }
+            , "debug" : function(p_msg) {
+                try {
+                    if(_debug){
+                        $.Oda.Context.console.debug(p_msg);
+                    }
+                    return this;
+                } catch (er) {
+                    throw new Error("ERROR($.Oda.log.debug):" + er.message);
+                    return null;
+                }
+            }
+            , "error" : function(p_msg) {
+                try {
+                    $.Oda.Context.console.error(p_msg);
+                    return this;
+                } catch (er) {
+                    throw new Error("ERROR($.Oda.log.error):" + er.message);
+                    return null;
+                }
+            }
         }
         
         /**
@@ -1670,7 +1686,7 @@
 
                 for (var indice in _dependecies) {
                     if((this.isUndefined(_dependecies[indice].status)) || (_dependecies[indice].status != "done")){
-                        _trace("Loading list of dependecies : "+_dependecies[indice].name+".");
+                        $.Oda.Log.trace("Loading list of dependecies : "+_dependecies[indice].name+".");
                         _dependecies[indice].status = "doing";
                         if(_dependecies[indice].ordered){
                             _loadListDependsOrdoned();
@@ -1688,7 +1704,7 @@
 
                 return retour;
             } catch (er) {
-               this.log(0, "ERROR($.Oda.loadDepends):" + er.message);
+               this.Log.trace("ERROR($.Oda.loadDepends):" + er.message);
             }
         }
         
@@ -1708,7 +1724,7 @@
 
                 return boolReturn;
             } catch (er) {
-                this.log(0, "ERROR($.Oda.isUndefined):" + er.message);
+                this.Log.trace("ERROR($.Oda.isUndefined):" + er.message);
                 return null;
             }
         }
@@ -1729,7 +1745,7 @@
 
                 return returnvalue;
             } catch (er) {
-                this.log(0, "ERROR($.Oda.getI8nByString):" + er.message);
+                this.Log.trace("ERROR($.Oda.getI8nByString):" + er.message);
                 return null;
             }
         }
@@ -1757,7 +1773,7 @@
 
                 return returnvalue;
             } catch (er) {
-                this.log(0, "ERROR($.Oda.getI8n):" + er.message);
+                this.Log.trace("ERROR($.Oda.getI8n):" + er.message);
                 return null;
             }
         }
@@ -1800,17 +1816,17 @@
                         $.Oda.Session = session;
                     }else{
                         $.Oda.Storage.remove("ODA-SESSION");
-                        $.Oda.Notification.create(returns["strErreur"],$.Oda.Notification.danger());
+                        $.Oda.Notification.error(returns["strErreur"]);
                     }
                     _RouterExit = false;
                     if(p_params.reload){
                         $.Oda.Router.navigateTo();
                     }
                 }else {
-                   $.Oda.Notification.create(returns["strErreur"],$.Oda.Notification.danger());
+                   $.Oda.Notification.error(returns["strErreur"]);
                 }
             } catch (er) {
-                this.log(0, "ERROR($.Oda.auth):" + er.message);
+                this.Log.trace("ERROR($.Oda.auth):" + er.message);
                 return null;
             }
         }
@@ -1845,7 +1861,7 @@
                 $.Oda.Menu.remove();
                 _routes.auth.go();
            } catch (er) {
-               this.log(0, "ERROR($.Oda.logout):" + er.message);
+               this.Log.trace("ERROR($.Oda.logout):" + er.message);
            }
         }
         
@@ -1865,7 +1881,7 @@
                         _menuSlide = true;
                     }
                 } catch (er) {
-                    this.log(0, "ERROR($.Oda.MenuSlide.show):" + er.message);
+                    this.Log.trace("ERROR($.Oda.MenuSlide.show):" + er.message);
                 }
             }
 
@@ -1878,7 +1894,7 @@
                     $('#menuSlide').html('<li class="sidebar-brand" id="profileDisplay"><span oda-label="oda-project.userLabel">Profile Name</span></li><li class="divider"></li><li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'contact\',\'args\':[]});" oda-label="oda-main.contact">Contact</a></li>');
                     _menuSlide = false;
                 } catch (er) {
-                   this.log(0, "ERROR($.Oda.MenuSlide.remove):" + er.message);
+                   this.Log.trace("ERROR($.Oda.MenuSlide.remove):" + er.message);
                 }
             }
         }
@@ -1921,7 +1937,7 @@
                         _menu = true;
                     }
                 } catch (er) {
-                    $.Oda.log(0, "ERROR($.Oda.Menu.show):" + er.message);
+                    $.Oda.log("ERROR($.Oda.Menu.show):" + er.message);
                 }
             }
 
@@ -1939,20 +1955,20 @@
         }
         
         , Notification : {
-            success : function(){
-                return "success";
+            success : function(p_message){
+                this.create(p_message,"success");
             }
-            ,
-            info : function(){
-                return "info";
+            , info : function(p_message){
+                this.create(p_message,"info");
             }
-            ,
-            warning : function(){
-                return "warning";
+            , warning : function(p_message){
+                this.create(p_message,"warning");
             }
-            ,
-            danger : function(){
-                return "danger";
+            , danger : function(p_message){
+                this.create(p_message,"danger");
+            }
+            , error : function(p_message){
+                this.create(p_message,"danger");
             }
             /**
             * notification
@@ -1972,7 +1988,7 @@
                     $("#content").before(strHtml);
                     return this;
                 } catch (er) {
-                    this.log(0, "ERROR($.Oda.Notification.notification) :" + er.message);
+                    this.Log.trace("ERROR($.Oda.Notification.notification) :" + er.message);
                     return null;
                 }
             }
@@ -2032,7 +2048,7 @@
                             var returns = p_retour;
                             
                             if((returns.strErreur == "key auth expiree.")||(returns.strErreur == "key auth invalid.")){
-                                $.Oda.Notification.create("Session invalid.", $.Oda.Notification.warning());
+                                $.Oda.Notification.warning("Session invalid.");
                                 $.Oda.logout();
                             }
                         }else{
@@ -2046,7 +2062,7 @@
                         }
                     } catch (er) {
                         var msg = "ERROR($.Oda.callRest.success):" + er.message;
-                        $.Oda.log(0, msg);
+                        $.Oda.log(msg);
                     }
                 };
 
@@ -2064,7 +2080,7 @@
                 return v_retourSync;
             } catch (er) {
                 var msg = "ERROR($.Oda.callRest):" + er.message;
-                $.Oda.log(0, msg);
+                $.Oda.log(msg);
                 return null;
             } 
         }
@@ -2103,7 +2119,7 @@
 
                 return boolRetour;
             } catch (er) {
-                this.log(0, "ERROR($.Oda.isInArray):" + er.message);
+                this.Log.trace("ERROR($.Oda.isInArray):" + er.message);
                 return null;
             }
         }
@@ -2117,7 +2133,7 @@
                 var d = new Date();
                 return d.getTime();
             } catch (er) {
-                this.log(0, "ERROR($.Oda.getMilise):" + er.message);
+                this.Log.trace("ERROR($.Oda.getMilise):" + er.message);
                 return null;
             }
         }
@@ -2141,7 +2157,7 @@
 
                 return retour;
             } catch (er) {
-                this.log(0, "ERROR($.Oda.arrondir):" + er.message);
+                this.Log.trace("ERROR($.Oda.arrondir):" + er.message);
                 return null;
             }
         }
@@ -2179,7 +2195,7 @@
 
                return strResponse;
             } catch (er) {
-               this.log(0, "ERROR($.Oda.getParameter):" + er.message);
+               this.Log.trace("ERROR($.Oda.getParameter):" + er.message);
                return null;
             }
         }
@@ -2215,7 +2231,7 @@
 
                 return objRetour;
             } catch (er) {
-                this.log(0, "ERROR($.Oda.objDataTableFromJsonArray):" + er.message);
+                this.Log.trace("ERROR($.Oda.objDataTableFromJsonArray):" + er.message);
                 var objRetour = { statut : "ko"};
                 return objRetour;
             }
@@ -2238,7 +2254,7 @@
                 
                 $('#oda-popup').modal("show");
             } catch (er) {
-                this.log(0, "ERROR($.Oda.affichePopUp):" + er.message);
+                this.Log.trace("ERROR($.Oda.affichePopUp):" + er.message);
             }
         }
         
@@ -2265,7 +2281,7 @@
 
                 return returns;
            } catch (er) {
-               this.log(0, "ERROR($.Oda.sendMail) :" + er.message);
+               this.Log.trace("ERROR($.Oda.sendMail) :" + er.message);
                return null;
            }
         }

@@ -28,7 +28,7 @@
             
             return retour;
         } catch (er) {
-            $.Oda.log(0, "ERROR(chargerInformations):" + er.message);
+            $.Oda.log("ERROR(chargerInformations):" + er.message);
             return null;
         }
     }
@@ -82,10 +82,10 @@
                 strhtml += "</table>";
                 $('#div_infos').html(strhtml);
             } else{
-                $.Oda.Notification.create("Erreur : "+p_retour["strErreur"], $.Oda.Notification.danger());
+                $.Oda.Notification.danger("Erreur : "+p_retour["strErreur"]);
             }
         } catch (er) {
-            $.Oda.log(0, "ERROR(retourInformations):" + er.message);
+            $.Oda.log("ERROR(retourInformations):" + er.message);
         }
     }
     
@@ -152,7 +152,7 @@
             }
             $.Oda.affichePopUp({"label" : label, "details" : details, "footer" : footer});
         } catch (er) {
-            $.Oda.log(0, "ERROR(updateChamps):" + er.message);
+            $.Oda.log("ERROR(updateChamps):" + er.message);
         }
     }
     
@@ -190,15 +190,15 @@
                     $.Oda.Session.userInfo = userInfo;
                     $.Oda.Storage.set("ODA-SESSION",$.Oda.Session,43200);
                 }else{
-                    $.Oda.Notification.create(retour["strErreur"],$.Oda.Notification.danger());
+                    $.Oda.Notification.error(retour["strErreur"]);
                 }
                 
-                $.Oda.Notification.create("Mise &agrave; jour r&eacute;ussi",$.Oda.Notification.success());
+                $.Oda.Notification.success("Mise &agrave; jour r&eacute;ussi");
             }else{
-                $.Oda.Notification.create(retour["strErreur"],$.Oda.Notification.danger());
+                $.Oda.Notification.error(retour["strErreur"]);
             }
         } catch (er) {
-            $.Oda.log(0, "ERROR(soumettreChange):" + er.message);
+            $.Oda.log("ERROR(soumettreChange):" + er.message);
         }
     }
 </script>

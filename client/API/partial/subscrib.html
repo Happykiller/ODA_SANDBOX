@@ -101,15 +101,15 @@
                 $.Oda.sendMail(paramsMail);
 
                 var strHtml = "F&eacute;licitation votre compte a bien &eacute;t&eacute; cr&eacute;&eacute; (N&deg;"+infoUser["id"]+", identifiant : "+infoUser["code_user"]+").";
-                $.Oda.Notification.create(strHtml, $.Oda.Notification.success());
+                $.Oda.Notification.success(strHtml);
                 
                 $.Oda.Router.navigateTo();
             }else{
                 var strHtml = "Erreur de cr&eacute;ation de votre compte, merci de contacter l'administrateur.";
-                $.Oda.Notification.create(strHtml, $.Oda.Notification.danger());
+                $.Oda.Notification.danger(strHtml);
             }
         } catch (er) {
-            $.Oda.log(0, "ERROR(creercompte):" + er.message);
+            $.Oda.log("ERROR(creercompte):" + er.message);
         }
     }
 </script>

@@ -74,15 +74,15 @@
                     $.Oda.sendMail(paramsMail);
                     
                     var strHtml = "F&eacute;licitation un mail vous a &eacute;t&eacute; envoy&eacute; &agrave; l'adresse : "+compte["mail"];
-                    $.Oda.Notification.create(strHtml, $.Oda.Notification.success());
+                    $.Oda.Notification.success(strHtml);
                 }
             }else{
                 var strHtml = "Erreur de cr&eacute;ation de votre compte, merci de contacter l'administrateur.";
-                $.Oda.Notification.create(strHtml, $.Oda.Notification.danger());
+                $.Oda.Notification.danger(strHtml);
             }
             $.Oda.Router.navigateTo();
         } catch (er) {
-            $.Oda.log(0, "ERROR(recupCompte):" + er.message);
+            $.Oda.log("ERROR(recupCompte):" + er.message);
         }
     }
 </script>

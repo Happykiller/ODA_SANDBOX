@@ -35,7 +35,7 @@
             
             return myReturn;
         } catch (er) {
-            $.Oda.log(0, "ERROR(chargerActivitePaquets):" + er.message);
+            $.Oda.log("ERROR(chargerActivitePaquets):" + er.message);
             return null;
         }
     }
@@ -84,12 +84,12 @@
                 
                 $('#div_activitePaquets').html(strHtml);
             } else{
-                $.Oda.Notification.create()("Erreur : "+p_retour["strErreur"], $.Oda.Notification.danger());
+                $.Oda.Notification.danger()("Erreur : "+p_retour["strErreur"]);
             }
             
             return myReturn;
         } catch (er) {
-            $.Oda.log(0, "ERROR(retourActivitePaquets):" + er.message);
+            $.Oda.log("ERROR(retourActivitePaquets):" + er.message);
             return null;
         }
     }
@@ -110,7 +110,7 @@
 
             return myReturn;
         } catch (er) {
-            $.Oda.log(0, "ERROR(openMissedCards):" + er.message);
+            $.Oda.log("ERROR(openMissedCards):" + er.message);
         }
     }
     
@@ -176,10 +176,10 @@
                     }
                 });
             } else{
-                $.Oda.Notification.create()("Erreur : "+json_retour["strErreur"], $.Oda.Notification.danger());
+                $.Oda.Notification.danger()("Erreur : "+json_retour["strErreur"]);
             }
         } catch (er) {
-            $.Oda.log(0, "ERROR(retourCoolCards):" + er.message);
+            $.Oda.log("ERROR(retourCoolCards):" + er.message);
         }
     }
     

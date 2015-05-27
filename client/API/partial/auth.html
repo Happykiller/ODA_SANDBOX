@@ -40,7 +40,7 @@
                 var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getAccountsFromEmail.php", {}, { "email" : resp.email});
                 if(retour.strErreur == ""){
                     if(retour.data.nombre == 0){
-                        $.Oda.Notification.create("Pas de compte rattach&eacute; à l'email : "+resp.email,$.Oda.Notification.warning());
+                        $.Oda.Notification.warning("Pas de compte rattach&eacute; à l'email : "+resp.email);
                     }else if(retour.data.nombre == 1){
                         $.Oda.auth({"login" : retour.data.data[0].code_user, "mdp" : "authByGoogle-"+resp.email, "reload" : true});
                     }else {
@@ -55,7 +55,7 @@
                 }
             });
         } catch (er) {
-            $.Oda.log(0, "ERROR(goInWithGoogle):" + er.message);
+            $.Oda.log("ERROR(goInWithGoogle):" + er.message);
         }
     }
     
