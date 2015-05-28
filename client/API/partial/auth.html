@@ -15,7 +15,7 @@
         </div>
         <div class="col-md-12">
             <p>
-                <button type="button" oda-label="oda-main.bt-submit" oda-submit="submit" onclick="$.Oda.auth({'login' : $('#login').val(), 'mdp' : $('#mdp').val(), 'reload' : true});" class="btn btn-primary disabled">Submit</button >
+                <button type="button" oda-label="oda-main.bt-submit" oda-submit="submit" onclick="goIn();" class="btn btn-primary disabled">Submit</button >
                 <button type="button" oda-label="oda-main.bt-forgot" onclick="$.Oda.Router.navigateTo({'route':'forgot','args':[]});" class="btn btn-info">Forgot</button >
                 <button type="button" oda-label="oda-main.bt-subscrib" onclick="$.Oda.Router.navigateTo({'route':'subscrib','args':[]});" class="btn btn-info">Subscrib</button >
             </p>
@@ -31,6 +31,10 @@
 
 <script>
     
+    function goIn(){
+        $.Oda.Security.auth({'login' : $('#login').val(), 'mdp' : $('#mdp').val(), 'reload' : true});
+    }
+    
     /**
      * goInWithGoogle
      */
@@ -42,12 +46,12 @@
                     if(retour.data.nombre == 0){
                         $.Oda.Notification.warning("Pas de compte rattach&eacute; à l'email : "+resp.email);
                     }else if(retour.data.nombre == 1){
-                        $.Oda.auth({"login" : retour.data.data[0].code_user, "mdp" : "authByGoogle-"+resp.email, "reload" : true});
+                        $.Oda.Security.auth({"login" : retour.data.data[0].code_user, "mdp" : "authByGoogle-"+resp.email, "reload" : true});
                     }else {
                         var strHtml = '<div class="list-group"">';
                         for (var indice in retour.data.data) {
                             var elt = retour.data.data[indice];
-                            strHtml += "<a class=\"list-group-item\" href=\"javascript:$.Oda.auth({'login' : '"+elt.code_user+"', 'mdp' : '"+"authByGoogle-"+resp.email+"', 'reload' : true});\">"+elt.code_user+"</a>";
+                            strHtml += "<a class=\"list-group-item\" href=\"javascript:$.Oda.Security.auth({'login' : '"+elt.code_user+"', 'mdp' : '"+"authByGoogle-"+resp.email+"', 'reload' : true});\">"+elt.code_user+"</a>";
                         }
                         strHtml += '</div>';
                         $.Oda.affichePopUp({"label" : "Choisir le compte.", "details" : strHtml});
@@ -70,10 +74,10 @@
     $.Oda.Google.init();
     $.Oda.Google.startSessionAuth(
         function(){
-            $('#google').html('<button type="button" onclick="goInWithGoogle();" class="btn btn-danger center-block">'+$.Oda.getI8n("oda-main","bt-google")+'</button>');
+            $('#google').html('<button type="button" onclick="goInWithGoogle();" class="btn btn-danger center-block">'+$.Oda.I8n.get("oda-main","bt-google")+'</button>');
         }
         , function(){
-            $('#google').html('<button type="button" onclick="$.Oda.Google.callServiceGoogleAuth(goInWithGoogle);" class="btn btn-danger center-block">'+$.Oda.getI8n("oda-main","bt-google")+'</button>');
+            $('#google').html('<button type="button" onclick="$.Oda.Google.callServiceGoogleAuth(goInWithGoogle);" class="btn btn-danger center-block">'+$.Oda.I8n.get("oda-main","bt-google")+'</button>');
         }
     );
 </script>

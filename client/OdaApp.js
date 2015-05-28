@@ -1,9 +1,13 @@
+/* global er */
+//# sourceURL=OdaApp.js
 // Library of tools for the exemple
-
 /**
  * @author FRO
  * @date 15/05/08
  */
+
+var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks": true };
+
 (function() {
     'use strict';
 
@@ -30,6 +34,14 @@
             "path" : "partial/home.html"
             , "title" : "oda-main.home-title"
             , "urls" : ["","home"]
+            , "dependencies" : ["dataTables","wowhead"]
+            , "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+        });
+        
+        $.Oda.Router.addRoute("saisir_paquet", {
+            "path" : "partial/paquet-add.html"
+            , "title" : "paquet-add.title"
+            , "urls" : ["saisir_paquet"]
             , "dependencies" : ["dataTables","wowhead"]
             , "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
         });

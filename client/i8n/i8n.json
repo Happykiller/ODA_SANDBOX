@@ -10,4 +10,25 @@
             , "mectrics" : "Metric packets"
         }
     }
+    ,{
+        "groupName" : "paquet-add"
+        , "fr" : {
+            "title" : "Saisir un paquet"
+            , "labrary" : "La librairie"
+            , "packet" : "Le paquet"
+            , "noMore" : "Plus d'ajout possible."
+            , "validateAndAdd" : "Valider &amp; Ajouter dans ma collection"
+            , "titleAddNorm" : "Ajouter une carte normale"
+            , "titleAddGold" : "Ajouter une carte dor&eacute;e"
+        }
+        , "en" : {
+            "title" : "Add a packet"
+            , "labrary" : "Library"
+            , "packet" : "Packet"
+            , "noMore" : "No more add possible."
+            , "validateAndAdd" : "Validate &amp; Add in my collection"
+            , "titleAddNorm" : "Add normal card"
+            , "titleAddGold" : "Add gold card"
+        }
+    }
 ]
