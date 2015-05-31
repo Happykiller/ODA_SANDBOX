@@ -26,7 +26,7 @@
         
         , _i8n = []
         
-        , _routesAllowedDefault = ["contact","404","auth","support","home","forgot","subscrib","profile"]
+        , _routesAllowedDefault = ["contact","404","auth","support","home","forgot","subscrib","profile",""]
         
         , _routesAllowed = []
         
@@ -723,13 +723,22 @@
         , App : {}
         
         , Tooling : {
+            timeout : function(func, time, arg){
+                try {
+                    setTimeout(func, time, arg);
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Tooling.timeout : " + er.message);
+                    return null;
+                }
+            }
             /**
             * arrondir
             * @param {float|int} p_value
             * @param {int} p_precision
             * @returns {float|int}
             */
-            arrondir : function(p_value, p_precision){
+            ,arrondir : function(p_value, p_precision){
                 try {
                     var retour = 0;
                     var coef = Math.pow(10, p_precision);
@@ -2126,20 +2135,22 @@
         }
         
         , Notification : {
-            success : function(p_message){
-                this.create(p_message,"success");
+            id : 0
+            , success : function(p_message){
+                this.create(p_message,"success", 2000);
             }
             , info : function(p_message){
-                this.create(p_message,"info");
+                this.create(p_message,"info", 3000);
             }
             , warning : function(p_message){
-                this.create(p_message,"warning");
+                this.create(p_message,"warning", 5000);
             }
             , danger : function(p_message){
                 this.create(p_message,"danger");
             }
             , error : function(p_message){
                 this.create(p_message,"danger");
+                $.Oda.Log.error(p_message);
             }
             /**
             * notification
@@ -2148,18 +2159,40 @@
             * @param {string} p_type
             * @returns {boolean}
             */
-            ,create : function(p_message, p_type) {
+            ,create : function(p_message, p_type, time) {
                 try {
+                    $.Oda.Notification.id++;
                     var strHtml = "";
                     strHtml += '';
-                    strHtml += '<div class="alert alert-'+p_type+' alert-dismissible" style="width:95%;margin-left: auto;margin-right: auto;" role="alert">';
+                    strHtml += '<div class="alert alert-'+p_type+' alert-dismissible" style="text-align:center;" id="oda-notification-'+$.Oda.Notification.id+'">';
                     strHtml += '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
                     strHtml += p_message;
                     strHtml += '</div>';
-                    $("#content").before(strHtml);
+                    $( "#oda-notification" ).append( strHtml );
+                    
+                    if(!$.Oda.Tooling.isUndefined(time)){
+                        $.Oda.Tooling.timeout($.Oda.Notification.remove,time,{id:$.Oda.Notification.id});
+                    }
+                    
                     return this;
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Notification.notification :" + er.message);
+                    return null;
+                }
+            }
+            /**
+             * 
+             * @param {object} params
+             * @returns {$.Oda.Notification}
+             */
+            , remove : function(params){
+                try {
+                    $('#oda-notification-'+params.id).fadeOut( 500, function(){
+                        $( this ).remove();
+                    });
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Notification.remove :" + er.message);
                     return null;
                 }
             }
