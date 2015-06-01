@@ -94,4 +94,17 @@
             ,"userLabel" : "The user"
         }
     }
+    , {
+        "groupName" : "oda-stats"
+        , "fr" : {
+            "title" : "Les statistiques"
+            , "activityByPage" : "R&eacute;partition de l'activit&eacute; par page"
+            , "activityByUser" : "R&eacute;partition de l'activit&eacute; par utilisateur"
+        }
+        , "en" : {
+            "title" : "Statistics"
+            , "activityByPage" : "Activity by page"
+            , "activityByUser" : "Activity by user"
+        }
+    }
 ]

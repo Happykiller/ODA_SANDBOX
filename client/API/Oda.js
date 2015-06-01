@@ -26,7 +26,7 @@
         
         , _i8n = []
         
-        , _routesAllowedDefault = ["contact","404","auth","support","home","forgot","subscrib","profile",""]
+        , _routesAllowedDefault = ["contact","404","auth","support","home","forgot","subscrib","profile","", "stats"]
         
         , _routesAllowed = []
         
@@ -110,18 +110,24 @@
                 , "go" : function(p_request){
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
                 }
+            },
+            "stats" : {
+                "path" : "API/partial/stats.html"
+                , "title" : "oda-stats.title"
+                , "urls" : ["stats"]
+                , "middleWares" : ["support", "auth"]
+                , "dependencies" : ["hightcharts"]
+                , "go" : function(p_request){
+                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
+                }
             }
-        }
-        , _routeCurrent = {
-            route : "home"
-            , args : []
         }
         , _routeMiddleWares = {
             "auth" : function(){
-                $.Oda.Log.trace("MiddleWares : auth");
+                $.Oda.Log.debug("MiddleWares : auth");
                 
                 if(($.Oda.Session.hasOwnProperty("code_user"))&&($.Oda.Session.code_user !== "")){
-                    if($.Oda.Tooling.isInArray(_routeCurrent.route, _routesAllowed)){
+                    if($.Oda.Tooling.isInArray($.Oda.Router.current.route, _routesAllowed)){
                         var tabSetting = { };
                         var tabInput = { 
                             "code_user" : $.Oda.Session.code_user
@@ -156,7 +162,7 @@
                         var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/checkSession.php", tabSetting, tabInput); 
                         if(retour.data){
                             $.Oda.Security.loadRight();
-                            if($.Oda.Tooling.isInArray(_routeCurrent.route, _routesAllowed)){
+                            if($.Oda.Tooling.isInArray($.Oda.Router.current.route, _routesAllowed)){
                                 return true;
                             }else{
                                 //session ko
@@ -172,11 +178,11 @@
                         }
                     }else{
                         //check if log by url
-                        var params = $.Oda.Router.getParams();
+                        var params = $.Oda.Router.current.args;
                         if((params.hasOwnProperty("getUser"))&&(params.hasOwnProperty("getPass"))){
                             var auth = $.Oda.Security.auth({"login" : params.getUser, "mdp" : params.getPass, "reload" : false});
                             if(auth){
-                                if($.Oda.Tooling.isInArray(_routeCurrent.route, _routesAllowed)){
+                                if($.Oda.Tooling.isInArray($.Oda.Router.current.route, _routesAllowed)){
                                     return true;
                                 }else{
                                     //session ko
@@ -205,7 +211,7 @@
                 return false;
             }
             , "support" : function(){
-                $.Oda.Log.trace("MiddleWares : support");
+                $.Oda.Log.debug("MiddleWares : support");
                 var maintenance = $.Oda.getParameter("maintenance");
                 if(typeof maintenance === "undefined"){
                     _connectionRest = false;
@@ -249,9 +255,9 @@
                             });
                         });
                     }else if(this.statut === _routeDependenciesStatus.loading()){
-                        $.Oda.Log.trace(this.name +  " loading.");
+                        $.Oda.Log.debug(this.name +  " loading.");
                     }else{
-                        $.Oda.Log.trace(this.name +  " already loaded.");
+                        $.Oda.Log.debug(this.name +  " already loaded.");
                     }
                 }
             }
@@ -265,9 +271,9 @@
                             $.Oda.Router.dependencieLoaded("hightcharts");
                         });
                     }else if(this.statut === _routeDependenciesStatus.loading()){
-                        $.Oda.Log.trace(this.name +  " loading.");
+                        $.Oda.Log.debug(this.name +  " loading.");
                     }else{
-                        $.Oda.Log.trace(this.name +  " already loaded.");
+                        $.Oda.Log.debug(this.name +  " already loaded.");
                     }
                 }
             }
@@ -338,24 +344,10 @@
      */
     function _appStarted() {
         try {
-            
+            $.Oda.Log.info("Oda fully loaded.");
         } catch (er) {
            $.Oda.Log.error("_appStarted : " + er.message);
         }  
-    };
-    
-    /**
-     * 
-     * @param {type} path
-     * @returns {unresolved}
-     */
-    function _clearSlashes(path) {
-        try {
-            return path.toString().replace(/\/$/, '').replace(/^\//, '');
-        } catch (er) {
-            $.Oda.Log.error("_clearSlashes : " + er.message);
-            return null;
-        }
     };
 
     /**
@@ -364,18 +356,14 @@
      */
     function _getListParamsGet() {
         try {
-            var result = [];
+            var result = {};
             var tableau = decodeURI($.Oda.Context.window.location.hash).split("?");
             if(tableau.length > 1){
                 tableau = tableau[1];
                 tableau = tableau.split("&");
                 for (var indice in tableau){
                     var tmp = tableau[indice].split("=");
-                    var elt = {
-                        "name" : tmp[0]
-                        , "value" : tmp[1]
-                    };
-                    result.push(elt);
+                    result[tmp[0]] = tmp[1];
                 } 
             }
             return result;
@@ -399,18 +387,16 @@
             
             //rewrite hash
             if(!p_params.system){
-                var urlRoute = _routeCurrent.route;
+                var urlRoute = $.Oda.Router.current.route;
                 var urlArg = "";
-                if(_routeCurrent.args.length > 0){
-                    for(var indice in _routeCurrent.args){
-                        if((_routeCurrent.args[indice].name !== "getUser")&&(_routeCurrent.args[indice].name !== "getPass")){
-                            if(urlArg === ""){
-                                urlArg += "?";
-                            }else{
-                                urlArg += "&";
-                            }
-                            urlArg += _routeCurrent.args[indice].name + "=" + _routeCurrent.args[indice].value;
+                for(var key in $.Oda.Router.current.args){
+                    if(($.Oda.Router.current.args[key] !== "getUser")&&($.Oda.Router.current.args[key] !== "getPass")){
+                        if(urlArg === ""){
+                            urlArg += "?";
+                        }else{
+                            urlArg += "&";
                         }
+                        urlArg += key + "=" + $.Oda.Router.current.args[key];
                     }
                 }
                 $.Oda.Context.window.location.hash = urlRoute + urlArg;
@@ -430,7 +416,7 @@
             if(p_params.routeDef.dependencies.length > 0){
                 for(var indice in p_params.routeDef.dependencies){
                     if(_routeDependencies[p_params.routeDef.dependencies[indice]].statut !== _routeDependenciesStatus.loaded()){
-                        $.Oda.Log.trace("Waiting : "+p_params.routeDef.dependencies[indice]);
+                        $.Oda.Log.debug("Waiting : "+p_params.routeDef.dependencies[indice]);
                         setTimeout(function(){_routerGo(p_params);}, 100);
                         return true;
                     }
@@ -492,7 +478,7 @@
         try {
             var retour = true;
 
-            $.Oda.Log.trace("Loading : "+p_elt.elt);
+            $.Oda.Log.debug("Loading : "+p_elt.elt);
             
             switch(p_elt.type) {
                 case "css":
@@ -502,7 +488,7 @@
                         href: p_elt.elt
                     }).appendTo('head');
                     p_elt.status = "done";
-                    $.Oda.Log.trace( "Sucess for : "+p_elt.elt );
+                    $.Oda.Log.debug( "Sucess for : "+p_elt.elt );
                     
                     if(p_mode == "serie"){
                         _loadListDependsOrdoned();
@@ -515,7 +501,7 @@
                     dataType: "script",
                     context : {"lib" : p_elt.elt},
                     success: function( script, textStatus, jqxhr) {
-                        $.Oda.Log.trace( "Sucess for : "+$(this)[0].lib+" ("+textStatus+")" );
+                        $.Oda.Log.debug( "Sucess for : "+$(this)[0].lib+" ("+textStatus+")" );
                         p_elt.status = "done";
                     
                         if(p_mode == "serie"){
@@ -524,7 +510,7 @@
                         _allDependsLoaded();
                     },
                     error : function( jqxhr, settings, exception ) {
-                        $.Oda.Log.trace( "Triggered ajaxError handler for : "+$(this)[0].lib+"." );
+                        $.Oda.Log.debug( "Triggered ajaxError handler for : "+$(this)[0].lib+"." );
                         p_elt.status = "fail";
                     
                         if(p_mode == "serie"){
@@ -541,7 +527,7 @@
                     context : {"lib" : p_elt.elt},
                     success: function( json, textStatus, jqxhr) {
                         p_elt.target(json);
-                        $.Oda.Log.trace( "Sucess for : "+$(this)[0].lib+" ("+textStatus+")" );
+                        $.Oda.Log.debug( "Sucess for : "+$(this)[0].lib+" ("+textStatus+")" );
                         p_elt.status = "done";
                         
                         if(p_mode == "serie"){
@@ -550,7 +536,7 @@
                         _allDependsLoaded();
                     },
                     error : function( jqxhr, settings, exception ) {
-                        $.Oda.Log.trace( "Triggered ajaxError handler for : "+$(this)[0].lib+"." );
+                        $.Oda.Log.debug( "Triggered ajaxError handler for : "+$(this)[0].lib+"." );
                         p_elt.status = "fail";
                         
                         if(p_mode == "serie"){
@@ -561,7 +547,7 @@
                     });
                     break;
                 default:
-                    $.Oda.Log.trace( "Type unknown for : "+p_elt.elt+"." );
+                    $.Oda.Log.debug( "Type unknown for : "+p_elt.elt+"." );
             }
 
             return retour;
@@ -775,6 +761,19 @@
                 }
             }
             /**
+            * 
+            * @param {type} path
+            * @returns {unresolved}
+            */
+            , clearSlashes : function(string) {
+                try {
+                    return string.toString().replace(/\/$/, '').replace(/^\//, '');
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Tooling.clearSlashes : " + er.message);
+                    return null;
+                }
+            }
+            /**
             * isInArray
             * @param {string} p_value
             * @param {array} p_array
@@ -814,6 +813,32 @@
                     return boolReturn;
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Tooling.isUndefined : " + er.message);
+                    return null;
+                }
+            }
+            /**
+            * @name getMilise
+            * @returns {string}
+            */
+            , getMilise : function() {
+                try {
+                    var d = new Date();
+                    return d.getTime();
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Tooling.getMilise : " + er.message);
+                    return null;
+                }
+            }
+            
+            , objectSize : function(obj) {
+                try {
+                    var size = 0, key;
+                    for (key in obj) {
+                        if (obj.hasOwnProperty(key)) size++;
+                    }
+                    return size;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Tooling.objectSize : " + er.message);
                     return null;
                 }
             }
@@ -1651,7 +1676,12 @@
         }
         
         , Router : {
-            routeMiddleWares : {
+            current : {
+                route : ""
+                , args : []
+            }
+            
+            , routeMiddleWares : {
                 "auth" : function(){
                    return "auth";
                 }
@@ -1672,7 +1702,7 @@
                     _RouterExit = false;
                     
                     if($.Oda.Tooling.isUndefined(p_request)){
-                        p_request = _routeCurrent;
+                        p_request = $.Oda.Router.current;
                     }
                     
                     var founded = false;
@@ -1680,7 +1710,10 @@
                         for(var indice in _routes[name].urls){
                             var url = _routes[name].urls[indice];
                             if(url === p_request.route){
-                                _routeCurrent = p_request;
+                                $.Oda.Router.current = p_request;
+                                
+                                $.Oda.addStat($.Oda.Session.code_user, $.Oda.Router.current.route, "request");
+                                
                                 _routes[name].go(p_request);
                                 
                                 $("#wrapper").removeClass("toggled");
@@ -1753,9 +1786,9 @@
                                 this.statut = _routeDependenciesStatus.loading();
                                 p_dependenciesLoad();
                             }else if(this.statut === _routeDependenciesStatus.loading()){
-                                $.Oda.Log.trace(this.name +  " loading.");
+                                $.Oda.Log.debug(this.name +  " loading.");
                             }else{
-                                $.Oda.Log.trace(this.name +  " already loaded.");
+                                $.Oda.Log.debug(this.name +  " already loaded.");
                             }
                         }
                     } 
@@ -1773,7 +1806,7 @@
             , dependencieLoaded : function(p_name) {
                 try {
                     _routeDependencies[p_name].statut = _routeDependenciesStatus.loaded();
-                    $.Oda.Log.trace(p_name+" loaded");
+                    $.Oda.Log.debug(p_name+" loaded");
                     return this;
                 } catch (er) {
                     $.Oda.Log.error("$.ODa.Router.dependencieLoaded : " + er.message);
@@ -1790,33 +1823,15 @@
                     
                     var hash = $.Oda.Context.window.location.hash;
                     
-                    _routeCurrent = {
-                        route : _clearSlashes(decodeURI(hash)).substring(1).replace(/\?(.*)$/, '')
+                    $.Oda.Router.current = {
+                        route : $.Oda.Tooling.clearSlashes(decodeURI(hash)).substring(1).replace(/\?(.*)$/, '')
                         , args : _getListParamsGet()
                     };
 
-                    this.navigateTo(_routeCurrent);
+                    this.navigateTo($.Oda.Router.current);
                     return this;
                 } catch (er) {
                     $.Oda.Log.error("$.ODa.Router.startRooter : " + er.message);
-                    return null;
-                }
-            }
-            /**
-             * 
-             * @returns {object}
-             */
-            , getParams : function() {
-                try {
-                    var params = {};
-                    
-                    for(var indice in _routeCurrent.args){
-                        params[_routeCurrent.args[indice].name] = _routeCurrent.args[indice].value;
-                    }
-                    
-                    return params;
-                } catch (er) {
-                    $.Oda.Log.error("$.ODa.Router.getParams : " + er.message);
                     return null;
                 }
             }
@@ -1845,9 +1860,9 @@
                     if(!$.Oda.Google.gapi) {
                         $.getScript("https://apis.google.com/js/client.js?onload=handleClientLoad",$.Oda.Google.handleClientLoad);
                     }else{
-                        $.Oda.Log.trace("gapi.client already load.");
+                        $.Oda.Log.debug("gapi.client already load.");
                     }
-                    $.Oda.Log.trace("$.Oda.Google.init finish.");
+                    $.Oda.Log.debug("$.Oda.Google.init finish.");
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Google.init :" + er.message);
                 }
@@ -1859,7 +1874,7 @@
                     }else{
                         $.Oda.Google.gapi = gapi;
                     }
-                    $.Oda.Log.trace("$.Oda.Google.handleClientLoad finish.");
+                    $.Oda.Log.debug("$.Oda.Google.handleClientLoad finish.");
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Google.handleClientLoad :" + er.message);
                 }
@@ -1877,7 +1892,7 @@
                     }else{
                         setTimeout($.Oda.Google.startSessionAuth,500);
                     }
-                    $.Oda.Log.trace("$.Oda.Google.startSessionAuth finish.");
+                    $.Oda.Log.debug("$.Oda.Google.startSessionAuth finish.");
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Google.startSessionAuth :" + er.message);
                 }
@@ -1887,7 +1902,7 @@
                     if(tabApi.length>0){
                         for(var indice in $.Oda.Google.gaips){
                             if(($.Oda.Google.gaips[indice].api === tabApi[0].api) && ($.Oda.Google.gaips[indice].version === tabApi[0].version)){
-                                $.Oda.Log.trace('Already ok pour : '+tabApi[0].api + " en "+tabApi[0].version);
+                                $.Oda.Log.debug('Already ok pour : '+tabApi[0].api + " en "+tabApi[0].version);
                                 tabApi.splice(0,1);
                                 $.Oda.Google.loadGapis(tabApi,callbackFunction);
                                 return true;
@@ -1897,17 +1912,17 @@
                         $.Oda.Google.gapi.client.load(tabApi[0].api, tabApi[0].version,function(resp){
                             if(typeof resp == "undefined"){
                                 $.Oda.Google.gaips.push({"api":tabApi[0].api, "version" : tabApi[0].version});
-                                $.Oda.Log.trace('Chargement ok pour : '+tabApi[0].api + " en "+tabApi[0].version);
+                                $.Oda.Log.debug('Chargement ok pour : '+tabApi[0].api + " en "+tabApi[0].version);
                                 tabApi.splice(0,1);
                                 $.Oda.Google.loadGapis(tabApi,callbackFunction);
                             }else{
-                                $.Oda.Log.trace('Chargement ko pour : '+tabApi[0].api + " en "+tabApi[0].version + "("+resp.error.message+")");
+                                $.Oda.Log.debug('Chargement ko pour : '+tabApi[0].api + " en "+tabApi[0].version + "("+resp.error.message+")");
                             }
                         });
                     }else{
                         callbackFunction();
                     }
-                    $.Oda.Log.trace("$.Oda.Google.loadGapis finish.");
+                    $.Oda.Log.debug("$.Oda.Google.loadGapis finish.");
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Google.loadGapis :" + er.message);
                 }
@@ -1916,9 +1931,9 @@
                 try {
                     $.Oda.Google.gapi.client.setApiKey($.Oda.Google.apiKey);
                     $.Oda.Google.gapi.auth.authorize({"client_id": $.Oda.Google.clientId, "scope": $.Oda.Google.scopes, "immediate": true}, $.Oda.Google.handleAuthResult);
-                    $.Oda.Log.trace("$.Oda.Google.callbackLaodGapis finish.");
+                    $.Oda.Log.debug("$.Oda.Google.callbackLaodGapis finish.");
                 } catch (er) {
-                    $.Oda.Log.trace("ERROR - $.Oda.Google.callbackLaodGapis :" + er.message);
+                    $.Oda.Log.error("$.Oda.Google.callbackLaodGapis :" + er.message);
                 }
             },
             handleAuthResult : function(authResult) {
@@ -1929,7 +1944,7 @@
                     } else {
                         $.Oda.Google.methodeSessionAuthKo();
                     }
-                    $.Oda.Log.trace("$.Oda.Google.handleAuthResult finish.");
+                    $.Oda.Log.debug("$.Oda.Google.handleAuthResult finish.");
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Google.handleAuthResult :" + er.message);
                 }
@@ -1938,7 +1953,7 @@
                 try {
                     $.Oda.Google.methodeSessionAuthOk = callMethodeOk;
                     $.Oda.Google.gapi.auth.authorize({"client_id": $.Oda.Google.clientId, "scope": $.Oda.Google.scopes, "immediate": false}, $.Oda.Google.handleAuthResult);
-                    $.Oda.Log.trace("$.Oda.Google.callServiceGoogleAuth finish.");
+                    $.Oda.Log.debug("$.Oda.Google.callServiceGoogleAuth finish.");
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Google.callServiceGoogleAuth :" + er.message);
                 }
@@ -1957,7 +1972,7 @@
                     $.Oda.Context.console.info(p_msg);
                     return this;
                 } catch (er) {
-                    throw new Error("$.Oda.Log.trace.info : " + er.message);
+                    throw new Error("$.Oda.Log.info : " + er.message);
                     return null;
                 }
             }
@@ -1966,7 +1981,7 @@
                     $.Oda.Context.console.log(p_msg);
                     return this;
                 } catch (er) {
-                    throw new Error("$.Oda.Log.trace.trace : " + er.message);
+                    throw new Error("$.Oda.Log.trace : " + er.message);
                     return null;
                 }
             }
@@ -1977,7 +1992,7 @@
                     }
                     return this;
                 } catch (er) {
-                    throw new Error("$.Oda.Log.trace.debug : " + er.message);
+                    throw new Error("$.Oda.Log.debug : " + er.message);
                     return null;
                 }
             }
@@ -1986,7 +2001,7 @@
                     $.Oda.Context.console.error(p_msg);
                     return this;
                 } catch (er) {
-                    throw new Error("$.Oda.Log.trace.error : " + er.message);
+                    throw new Error("$.Oda.Log.error : " + er.message);
                     return null;
                 }
             }
@@ -1995,7 +2010,7 @@
                     $.Oda.Context.console.warn(p_msg);
                     return this;
                 } catch (er) {
-                    throw new Error("$.Oda.Log.trace.error : " + er.message);
+                    throw new Error("$.Oda.Log.warning : " + er.message);
                     return null;
                 }
             }
@@ -2021,7 +2036,7 @@
 
                 for (var indice in _dependecies) {
                     if(($.Oda.Tooling.isUndefined(_dependecies[indice].status)) || (_dependecies[indice].status != "done")){
-                        $.Oda.Log.trace("Loading list of dependecies : "+_dependecies[indice].name+".");
+                        $.Oda.Log.debug("Loading list of dependecies : "+_dependecies[indice].name+".");
                         _dependecies[indice].status = "doing";
                         if(_dependecies[indice].ordered){
                             _loadListDependsOrdoned();
@@ -2129,7 +2144,7 @@
                     $('#menu').html('');
                     _menu = false;
                 } catch (er) {
-                   $.Oda.Log.trace.log(0, "ERROR($.Oda.Menu.remove : " + er.message);
+                   $.Oda.Log.error("$.Oda.Menu.remove : " + er.message);
                 }
             }
         }
@@ -2225,7 +2240,7 @@
                     delete p_tabInput["keyAuthODA"];
                 }
 
-                p_tabInput.milis = $.Oda.getMilise();
+                p_tabInput.milis = $.Oda.Tooling.getMilise();
                 p_tabInput.ctrl = "OK";
                 p_tabInput.keyAuthODA = key;
 
@@ -2287,20 +2302,6 @@
                 $.Oda.Log.error(msg);
                 return null;
             } 
-        }
-        
-        /**
-        * @name getMilise
-        * @returns {string}
-        */
-        , getMilise : function() {
-            try {
-                var d = new Date();
-                return d.getTime();
-            } catch (er) {
-                $.Oda.Log.error("$.Oda.getMilise : " + er.message);
-                return null;
-            }
         }
         
         /**
@@ -2400,6 +2401,29 @@
         }
         
         /**
+         * @name addStat
+         * @test addStat('ADMI', 'page_home.html', 'checkAuth : ok');
+         * @param {String} p_user
+         * @param {String} p_page
+         * @param {String} p_action
+         */
+        , addStat : function(p_user, p_page, p_action) {
+           try {
+                var tabSetting = { functionRetour : function(){} };
+                var tabInput = { 
+                    user : p_user,
+                    page : p_page,
+                    action : p_action
+                };
+                var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/addStat.php", tabSetting, tabInput);
+                return retour;
+           } catch (er) {
+               $.Oda.Log.error(0, "ERROR($.Oda.addStat):" + er.message);
+               return null;
+           }
+        }
+        
+        /**
         * sendMail
         * @ex $.Oda.sendMail({email_mails_dest:'fabrice.rosito@gmail.com',message_html:'HelloContent',sujet:'HelloSujet'});
         * @param {json} p_params
@@ -2408,9 +2432,9 @@
         , sendMail : function(p_params) {
            try {
                 var params_attempt = {
-                     email_mails_dest : null
-                     , message_html : null
-                     , sujet : null
+                    email_mails_dest : null
+                    , message_html : null
+                    , sujet : null
                  };
 
                 var params = _checkParams(p_params, params_attempt);
@@ -2418,7 +2442,7 @@
                     return false;
                 }
 
-                var returns = this.callRest(this.Context.rest+"API/scriptphp/send_mail.php", {type : 'POST'}, params);
+                var returns = $.Oda.callRest($.Oda.Context.rest+"API/scriptphp/send_mail.php", {type : 'POST'}, params);
 
                 return returns;
            } catch (er) {
