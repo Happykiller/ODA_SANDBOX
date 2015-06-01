@@ -401,7 +401,7 @@
                 }
                 $.Oda.Context.window.location.hash = urlRoute + urlArg;
                 
-                var decoded = $('<div/>').html($.Oda.I8n.getByString(p_params.routeDef.title)).text();
+                var decoded = $.Oda.Tooling.decodeHtml($.Oda.I8n.getByString(p_params.routeDef.title));
                 
                 $.Oda.Context.window.document.title = $.Oda.Context.projectLabel + " - " + decoded;
             }
@@ -757,6 +757,20 @@
                     return copy;
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Tooling.clone : " + er.message);
+                    return null;
+                }
+            }
+            /**
+             * 
+             * @param {string} html
+             * @returns {string}
+             */
+            , decodeHtml : function (html) {
+                try {
+                    var decoded = $('<div/>').html(html).text();
+                    return decoded;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Tooling.decodeHtml : " + er.message);
                     return null;
                 }
             }

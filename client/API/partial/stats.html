@@ -41,7 +41,10 @@
                         backgroundColor:'rgba(255, 255, 255, 0.1)'
                     },
                     title: {
-                        text: 'Activité par utilisateur'
+                        text: $.Oda.Tooling.decodeHtml($.Oda.I8n.get("oda-stats","activityByUser"))
+                    },
+                    subtitle :  {
+                        text : 'From : '+retour["data"]["resultat"]['nombre']
                     },
                     plotOptions: {
                         pie: {
@@ -71,11 +74,10 @@
                     }]
                 });
             }else{
-                $('#div_activityByUser').html(retour["strErreur"]);
+                $.Oda.Notification.error(retour["strErreur"]);
+                $('#div_activityByUser').html("&nbsp;");
             }
-            $('#div_activityByUser').after('<label style="font-size:70%;color:#BDBDBD;">From:'+retour["data"]["resultat"]['nombre']+'</label>');
-        }
-        catch (er) {
+        } catch (er) {
             $.Oda.Log.error("afficherActivite):" + er.message);
         }
     }
@@ -110,7 +112,10 @@
                         backgroundColor:'rgba(255, 255, 255, 0.1)'
                     },
                     title: {
-                        text: 'Activité par page'
+                        text: $.Oda.Tooling.decodeHtml($.Oda.I8n.get("oda-stats","activityByPage"))
+                    },
+                    subtitle :  {
+                        text : 'From : '+retour["data"]["resultat"]['nombre']
                     },
                     plotOptions: {
                         pie: {
@@ -140,9 +145,9 @@
                     }]
                 });
             }else{
-                $('#div_activityByPage').html(retour["strErreur"]);
+                $.Oda.Notification.error(retour["strErreur"]);
+                $('#div_activityByPage').html("&nbsp;");
             }
-            $('#div_activityByPage').after('<label style="font-size:70%;color:#BDBDBD;">From:'+retour["data"]["resultat"]['nombre']+'</label>');
         }
         catch (er) {
             $.Oda.Log.error("afficherPageActivite):" + er.message);
