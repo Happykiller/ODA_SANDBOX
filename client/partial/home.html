@@ -66,12 +66,12 @@
                 var datas = p_retour["data"]["activitePaquets"]["data"];
                 for(var indice in datas){
                     strHtml += '<tr>';
-                    strHtml += '<td>'+datas[indice]["date"]+'</td>';
-                    strHtml += '<td>'+datas[indice]["code_user"]+'</td>';
-                    strHtml += '<td>'+datas[indice]["mode"]+'</td>';
-                    strHtml += '<td>'+datas[indice]["cout"]+'</td>';
+                    strHtml += '<td style="text-align: center;">'+datas[indice]["date"]+'</td>';
+                    strHtml += '<td style="text-align: center;">'+datas[indice]["code_user"]+'</td>';
+                    strHtml += '<td style="text-align: center;">'+datas[indice]["mode"]+'</td>';
+                    strHtml += '<td style="text-align: center;">'+datas[indice]["cout"]+'</td>';
                     if(datas[indice]["cool"] !== "0"){
-                        strHtml += '<td><a href="javascript:afficherCool({\'date\':\''+datas[indice]["date"]+'\',\'code_user\':\''+datas[indice]["code_user"]+'\',\'mode\':\''+datas[indice]["mode"]+'\'})\">Cool!</a></td>';
+                        strHtml += '<td style="text-align: center;"><a href="javascript:afficherCool({\'date\':\''+datas[indice]["date"]+'\',\'code_user\':\''+datas[indice]["code_user"]+'\',\'mode\':\''+datas[indice]["mode"]+'\'})\">Cool!</a></td>';
                     }else{
                         strHtml += '<td>&nbsp;</td>';
                     }
