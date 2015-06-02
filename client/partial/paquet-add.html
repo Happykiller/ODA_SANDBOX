@@ -56,7 +56,7 @@
     /**
      * retourCards
      * 
-     * @param {array} json_retour
+     * @param {Array} json_retour
      */
     function retourCards(json_retour){
         try {
@@ -116,7 +116,7 @@
     /**
      * retourPaquet
      * 
-     * @param {array} json_retour
+     * @param {Array} json_retour
      */
     function retourPaquet(json_retour){
         try {
@@ -136,66 +136,47 @@
                         firstLoad = false;
                     }
                 }
-                
-                var strhtml = '<table cellpadding="0" cellspacing="0" border="0" class="display" id="table_paquet" style="width:100%"></table>';
-                $('#div_paquet').html(strhtml);
 
-                var objDataTable = $.Oda.objDataTableFromJsonArray(json_retour["data"]["paquet"]["data"]);
-                
-                var oTable = $('#table_paquet').dataTable( {
-                    "sPaginationType": "full_numbers",
-                    "aaData": objDataTable.data,
-                    "aaSorting": [[0, 'asc']],
-                    "aoColumns": [
-                        { sTitle: "Nom" },
-                        { sTitle: "Nombre", sClass: "dataTableColCenter", sWidth: "30px" },
-                        { sTitle: "Mana", sClass: "dataTableColCenter", sWidth: "30px" },
-                        { sTitle: "Action", sClass: "dataTableColCenter", sWidth: "30px", orderable: false }
-                    ],
-                    aoColumnDefs: [
-                        {//Nom
-                            mRender: function ( data, type, row ) {
-                                var dore = "";
-                                if(row[objDataTable.entete["gold"]] == "1"){
-                                    dore = "&amp;premium";
-                                }
-                                var strHtml = '<a href="http://www.wowhead.com/hearthstone/card='+row[objDataTable.entete["id_link"]]+dore+'" style="color: '+$.Oda.App.colorCard[row[objDataTable.entete["qualite"]]]+';text-decoration: none">'+row[objDataTable.entete["nom"]]+'</a>';
-                                return strHtml;
-                            },
-                            aTargets: [ 0 ]
-                        },
-                        {//Nombre
-                            mRender: function ( data, type, row ) {
-                                var strHtml = row[objDataTable.entete["nb"]];
-                                return strHtml;
-                            },
-                            aTargets: [ 1 ]
-                        },
-                        {//Mana
-                            mRender: function ( data, type, row ) {
-                                var strHtml = row[objDataTable.entete["cout"]];
-                                return strHtml;
-                            },
-                            aTargets: [ 2 ]
-                        },
-                        {//Ajouter
-                            mRender: function ( data, type, row ) {
-                                var theme = "";
-                                if(row[objDataTable.entete["gold"]] == "1"){
-                                    theme = 'style="color:DarkOrange"';
-                                }
-                                var strHtml = '<a href="javascript:retirer('+row[objDataTable.entete["nb"]]+','+row[objDataTable.entete["max_id_collec"]]+')" class="btn btn-xs" id="bt_remove_card_'+row[objDataTable.entete["nom"]]+'"><span class="glyphicon glyphicon-remove" '+theme+'></span></a>';
-                                return strHtml;
-                            },
-                            aTargets: [ 3 ]
-                        }
-                    ],
-                    "fnDrawCallback": function( oSettings ) {
-                        $('#table_paquet')
-                            .removeClass( 'display' )
-                            .addClass('table table-striped table-bordered');
-                    }  
-                });
+                var strHtml = '<div class="table-responsive">';
+                strHtml += '<table class="table table-hover">';
+                strHtml += '<thead>';
+                strHtml += '<tr>';
+                strHtml += '<th>Nom</th>';
+                strHtml += '<th>Nombre</th>';
+                strHtml += '<th>Mana</th>';
+                strHtml += '<th>Action</th>';
+                strHtml += '</tr>';
+                strHtml += '</thead>';
+                strHtml += '<tbody>';
+
+                var datas = json_retour["data"]["paquet"]["data"];
+                for(var indice in datas){
+                    strHtml += '<tr>';
+
+                    var dore = "";
+                    if(datas[indice]["gold"] == "1"){
+                        dore = "&amp;premium";
+                    }
+                    strHtml += '<td><a href="http://www.wowhead.com/hearthstone/card='+datas[indice]["id_link"]+dore+'" style="color: '+$.Oda.App.colorCard[datas[indice]["qualite"]]+';text-decoration: none">'+datas[indice]["nom"]+'</a></td>';
+
+
+                    strHtml += '<td style="text-align: center;">'+datas[indice]["nb"]+'</td>';
+                    strHtml += '<td style="text-align: center;">'+datas[indice]["cout"]+'</td>';
+
+                    var theme = "";
+                    if(datas[indice]["gold"] == "1"){
+                        theme = 'style="color:DarkOrange"';
+                    }
+                    strHtml += '<td style="text-align: center;"><a href="javascript:retirer('+datas[indice]["nb"]+','+datas[indice]["max_id_collec"]+')" class="btn btn-xs" id="bt_remove_card_'+datas[indice]["nom"]+'"><span class="glyphicon glyphicon-remove" '+theme+'></span></a></td>';
+
+                    strHtml += '</tr>';
+                }
+
+                strHtml += '</tbody>';
+                strHtml += '</table>';
+                strHtml += '</div>';
+
+                $('#div_paquet').html(strHtml);
             } else{
                 $.Oda.Notification.error(json_retour["strErreur"]);
             }
