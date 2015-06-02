@@ -45,6 +45,14 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
             , "dependencies" : ["dataTables","wowhead"]
             , "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
         });
+
+        $.Oda.Router.addRoute("rapports_cartes", {
+            "path" : "partial/rapports_cartes.html"
+            , "title" : "rapports-cartes.title"
+            , "urls" : ["rapports_cartes"]
+            , "dependencies" : ["dataTables","wowhead"]
+            , "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+        });
         
         $.Oda.Router.startRooter();
     }

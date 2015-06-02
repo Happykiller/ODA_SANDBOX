@@ -5,7 +5,7 @@
             <div id="div_inventaire" class="panel-body">
                 <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
             </div>
-        </div>  
+        </div>
     </div>
     <div class="col-md-7">
         <div class="panel panel-default">
@@ -14,7 +14,7 @@
                 <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
             </div>
             <div id="div_valider"></div>
-        </div>  
+        </div>
     </div>
 </div>
 
@@ -68,6 +68,7 @@
                 var oTable = $('#table_cards').dataTable( {
                     "aaData": objDataTable.data,
                     "aaSorting": [[0,'asc']],
+                    "dom": 'ftpi',
                     "aoColumns": [
                         { sTitle: "Nom"  },
                         { sTitle: "Mana", sClass: "dataTableColCenter", sWidth: "30px" },
@@ -275,3 +276,19 @@
         }
     }
 </script>
+
+<style>
+
+    div.dataTables_filter label {
+        display: block;
+        float: left;
+        width: 100%;
+    }
+
+    div.dataTables_paginate {
+        text-align: left;
+    }
+
+</style>
+
+

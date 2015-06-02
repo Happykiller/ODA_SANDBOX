@@ -31,4 +31,13 @@
             , "titleAddGold" : "Add gold card"
         }
     }
+    ,{
+        "groupName" : "rapports-cartes"
+        , "fr" : {
+              "title" : "Rapport des cartes"
+        }
+        , "en" : {
+              "title" : "Rapport cards"
+        }
+    }
 ]

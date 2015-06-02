@@ -2130,13 +2130,12 @@
                                                 }
                                                 
                                                 strHTML += '<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">'+datas[indice]["Description_cate"]+'<span class="caret"></span></a><ul class="dropdown-menu" role="menu">';
-                                            }else{
-                                                var route = datas[indice]["Lien"];
-                                                route = route.replace("api_page_","");
-                                                route = route.replace("page_","");
-                                                route = route.replace(".html","");
-                                                strHTML += "<li><a href=\"javascript:$.Oda.Router.navigateTo({'route':'"+route+"','args':[]});\">"+datas[indice]["Description_courte"]+"</a></li>";
                                             }
+                                            var route = datas[indice]["Lien"];
+                                            route = route.replace("api_page_","");
+                                            route = route.replace("page_","");
+                                            route = route.replace(".html","");
+                                            strHTML += "<li><a href=\"javascript:$.Oda.Router.navigateTo({'route':'"+route+"','args':[]});\">"+datas[indice]["Description_courte"]+"</a></li>";
                                         }
                                     }
                                     $('#menu').html(strHTML);
