@@ -35,9 +35,13 @@
         "groupName" : "rapports-cartes"
         , "fr" : {
               "title" : "Rapport des cartes"
+              , "metrics-coll" : "Métriques Collection"
+              , "infos-packet" : "Informations sur les paquets"
         }
         , "en" : {
               "title" : "Rapport cards"
+              , "metrics-coll" : "Metrics Collection"
+              , "infos-packet" : "Informations packets"
         }
     }
 ]

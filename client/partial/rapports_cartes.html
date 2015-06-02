@@ -1,190 +1,95 @@
+<ul class="nav nav-pills" id="navBarSets">
+</ul>
+
+<br>
+
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
         <div class="panel panel-default">
-            <div class="panel-heading"><span oda-label="home.activity">Activit&eacute; de la communaut&eacute;</span></div>
-            <div id="div_activitePaquets" class="panel-body">
-                <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+            <div class="panel-heading"><span oda-label="rapports-cartes.metrics-coll"></span></div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                    </div>
+                    <div class="col-md-4">
+                        <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
+</div>
+
+<div class="row">
+    <div class="col-md-12">
         <div class="panel panel-default">
-            <div class="panel-heading"><span oda-label="home.mectrics">M&eacute;trique des paquets</span></div>
-            <div id="div_metrics_dropRate" class="panel-body">
-                <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+            <div class="panel-heading"><span oda-label="home.mectrics"></span></div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                    </div>
+                    <div class="col-md-6" id="div_metrics_dropRate">
+                        <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading"><span oda-label="rapports-cartes.infos-packet"></span></div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                    </div>
+                    <div class="col-md-12">
+                        <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    chargerActivitePaquets();
     /**
-     * @name chargerExemple
-     * @desc Hello
-     * @param {type} nom
-     * @return {boolean}
+     * Build NavBar Sets
      */
-    function chargerActivitePaquets(){
+    function buildNavBarSets(){
         try {
-            var myReturn = true;
-
-            var tabSetting = { functionRetour : retourActivitePaquets};
-            var tabInput = { };
-            $.Oda.callRest($.Oda.Context.rest+"phpsql/getActivitePaquetsMatchs.php", tabSetting, tabInput);
-
-            return myReturn;
-        } catch (er) {
-            $.Oda.log("ERROR(chargerActivitePaquets):" + er.message);
-            return null;
-        }
-    }
-
-    /**
-     * @name retourExemple
-     * @param {json} p_retour
-     */
-    function retourActivitePaquets(p_retour){
-        try {
-            var myReturn = true;
-
-            if(p_retour["strErreur"] == ""){
-
-                var strHtml = '<div class="table-responsive">';
-                strHtml += '<table class="table table-hover">';
-                strHtml += '<thead>';
-                strHtml += '<tr>';
-                strHtml += '<th>Date</th>';
-                strHtml += '<th>Utilisateur</th>';
-                strHtml += '<th>Mode</th>';
-                strHtml += '<th>Poussière</th>';
-                strHtml += '<th>Cool</th>';
-                strHtml += '</tr>';
-                strHtml += '</thead>';
-                strHtml += '<tbody>';
-
-                var datas = p_retour["data"]["activitePaquets"]["data"];
-                for(var indice in datas){
-                    strHtml += '<tr>';
-                    strHtml += '<td>'+datas[indice]["date"]+'</td>';
-                    strHtml += '<td>'+datas[indice]["code_user"]+'</td>';
-                    strHtml += '<td>'+datas[indice]["mode"]+'</td>';
-                    strHtml += '<td>'+datas[indice]["cout"]+'</td>';
-                    if(datas[indice]["cool"] !== "0"){
-                        strHtml += '<td><a href="javascript:afficherCool({\'date\':\''+datas[indice]["date"]+'\',\'code_user\':\''+datas[indice]["code_user"]+'\',\'mode\':\''+datas[indice]["mode"]+'\'})\">Cool!</a></td>';
-                    }else{
-                        strHtml += '<td>&nbsp;</td>';
-                    }
-                    strHtml += '</tr>';
+            var strHtml = '';
+            for (var indice in $.Oda.App.tab_sets) {
+                if($.Oda.Storage.get('ODA-HOW_currentSet',0) == indice){
+                    strHtml += '<li role="presentation" class="active"><a>'+ $.Oda.App.tab_sets[indice]+'</a></li>';
+                }else{
+                    strHtml += '<li role="presentation"><a href="javascript:changerSet('+indice+')">'+$.Oda.App.tab_sets[indice]+'</a></li>';
                 }
-
-                strHtml += '</tbody>';
-                strHtml += '</table>';
-                strHtml += '</div>';
-
-                $('#div_activitePaquets').html(strHtml);
-            } else{
-                $.Oda.Notification.danger()("Erreur : "+p_retour["strErreur"]);
             }
-
-            return myReturn;
+            $('#navBarSets').html(strHtml);
         } catch (er) {
-            $.Oda.log("ERROR(retourActivitePaquets):" + er.message);
-            return null;
+            $.Oda.Log.error("buildNavBarSets : " + er.message);
         }
     }
 
-    /**
-     * Open cool cards
-     */
-    function afficherCool(p_params){
+    function changerSet(idSet) {
         try {
+            $.Oda.Storage.set('ODA-HOW_currentSet', idSet);
+            buildNavBarSets();
             var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $.Oda.affichePopUp({"label" : 'Cartes cools !', "details" : strhtml});
-
-            var myReturn = true;
-
-            var tabSetting = { functionRetour : retourCoolCards};
-            var tabInput = { "code_user" : p_params.code_user, "date" : p_params.date, "mode" : p_params.mode };
-            $.Oda.callRest($.Oda.Context.rest+"phpsql/getCoolCards.php", tabSetting, tabInput);
-
-            return myReturn;
+            $("#div_metrics_dropRate").html(strhtml);
+            monWorker.postMessage(new $.Oda.Worker.message('start', { "color" : $.Oda.Color, set : $.Oda.App.tab_sets[$.Oda.Storage.get('ODA-HOW_currentSet')] }));
         } catch (er) {
-            $.Oda.log("ERROR(openMissedCards):" + er.message);
-        }
-    }
-
-    /**
-     * retourCoolCards
-     *
-     * @param {array} p_retour
-     */
-    function retourCoolCards(json_retour){
-        try {
-            if(json_retour["strErreur"] == ""){
-                var objDataTable = $.Oda.objDataTableFromJsonArray(json_retour["data"]["resultat"]["data"]);
-
-                var strhtml = '<table cellpadding="0" cellspacing="0" border="0" class="display" id="table_CoolCards" style="width: 100%">';
-                $('#oda-popup_content').html(strhtml);
-
-                var oTable = $('#table_CoolCards').dataTable( {
-                    "bLengthChange": false,
-                    "iDisplayLength": 5,
-                    "aaData": objDataTable.data,
-                    "aaSorting": [[0,'asc']],
-                    "aoColumns": [
-                        { "sTitle": "Carte", "width": "10em" },
-                        { "sTitle": "Dorée", "sClass": "dataTableColCenter", "width": "2em" },
-                        { "sTitle": "Coût", "sClass": "dataTableColCenter", "width": "2em" },
-                        { "sTitle": "Type", "width": "3em" }
-                    ],
-                    "aoColumnDefs": [
-                        {
-                            "mRender" : function ( data, type, row ) {
-                                var dore = "";
-                                if(row[objDataTable.entete["gold"]] == "1"){
-                                    dore = "&amp;premium";
-                                }
-                                var strHtml = '<a href="http://www.wowhead.com/hearthstone/card='+row[objDataTable.entete["id_link"]]+dore+'" style="color: '+$.Oda.App.colorCard[row[objDataTable.entete["qualite"]]]+';text-decoration: none" target="_new">'+row[objDataTable.entete["nom"]]+'</a>';
-                                return strHtml;
-                            },
-                            "aTargets" : [ 0 ]
-                        },
-                        {
-                            "mRender" : function ( data, type, row ) {
-                                return row[objDataTable.entete["gold"]];
-                            },
-                            "aTargets" : [ 1 ]
-                        },
-                        {
-                            "mRender": function ( data, type, row ) {
-                                return row[objDataTable.entete["cout"]];
-                            },
-                            "aTargets" : [ 2 ]
-                        },
-                        {
-                            "mRender": function ( data, type, row ) {
-                                return row[objDataTable.entete["type"]];
-                            },
-                            "aTargets" : [ 3 ]
-                        }
-                    ]
-                    , "fnDrawCallback": function( oSettings ) {
-                        $('#table_CoolCards')
-                                .removeClass( 'display' )
-                                .addClass('table table-striped table-bordered');
-                    }
-                });
-            } else{
-                $.Oda.Notification.danger()("Erreur : "+json_retour["strErreur"]);
-            }
-        } catch (er) {
-            $.Oda.log("ERROR(retourCoolCards):" + er.message);
+            $.Oda.Log.error("changerSet : " + er.message);
         }
     }
 
     var monWorker = $.Oda.Worker.initWorker("monWorker", {}, function(){
-
         function messageHandler(event) {
             try {
                 // On récupère le message envoyé par la page principale
@@ -196,7 +101,7 @@
                         var strhtml = "";
 
                         //COMMUN
-                        var tabInput = { };
+                        var tabInput = { set : messageSent.parameter.set };
                         var json_retour_qualitePaquets = $.Oda.callRest($.Oda.Context.rest+"phpsql/getQualitePaquets.php", {}, tabInput);
 
                         if((json_retour_qualitePaquets["strErreur"] === "")&&(json_retour_qualitePaquets["strErreur"] === "")){
@@ -234,7 +139,7 @@
                             dropRate_gold = $.Oda.arrondir(parseInt(json_retour_qualitePaquets["data"]["repartitionGold"]["nb"]) / total * 100,2);
 
                         }else{
-                            $.Oda.log("Erreur : "+json_retour_dropRate["strErreur"]+", "+json_retour_qualitePaquets["strErreur"]);
+                            $.Oda.log("Erreur : "+json_retour_qualitePaquets["strErreur"]);
                         }
 
                         strhtml += 'Chance au tirage g&eacute;n&eacute;ral : ';
@@ -248,7 +153,7 @@
                         strhtml += '</ul>';
 
                         //PERSO
-                        var tabInput = { code_user : $.Oda.Session.code_user };
+                        var tabInput = { code_user : $.Oda.Session.code_user, set : messageSent.parameter.set };
                         var json_retour_dropRate = $.Oda.callRest($.Oda.Context.rest+"phpsql/getMetricsDropRate.php", {}, tabInput);
 
                         var json_retour_qualitePaquets = $.Oda.callRest($.Oda.Context.rest+"phpsql/getQualitePaquets.php", {}, tabInput);
@@ -414,10 +319,15 @@
         // On définit la fonction à appeler lorsque la page principale nous sollicite
         this.addEventListener('message', messageHandler, false);
     },function(msg){
-        $('#div_metrics_dropRate').html(msg.parameter.html);
-        $.Oda.Worker.terminateWorker(monWorker);
+        if(msg.cmd === "resultat") {
+            $('#div_metrics_dropRate').html(msg.parameter.html);
+        }
     });
 
-    monWorker.postMessage(new $.Oda.Worker.message('start', { "color" : $.Oda.Color }));
+    changerSet($.Oda.Storage.get('ODA-HOW_currentSet',0));
 
 </script>
+
+<style>
+
+</style>

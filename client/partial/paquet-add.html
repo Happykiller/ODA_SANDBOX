@@ -66,6 +66,7 @@
 
                 var objDataTable = $.Oda.objDataTableFromJsonArray(json_retour["data"]["cartes"]["data"]);
                 var oTable = $('#table_cards').dataTable( {
+                    "pagingType": "simple",
                     "aaData": objDataTable.data,
                     "aaSorting": [[0,'asc']],
                     "dom": 'ftpi',
