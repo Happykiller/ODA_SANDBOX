@@ -436,9 +436,12 @@
             
             //load menus
             if(($.Oda.Session.hasOwnProperty("code_user"))&&($.Oda.Session.code_user !== "")){
-                $.Oda.MenuSlide.show();
-                $.Oda.Menu.show();
+                $.Oda.Display.MenuSlide.show();
+                $.Oda.Display.Menu.show();
             }
+
+            //show message
+            $.Oda.Display.Message.show();
 
             //call content
              _loadPartial({"routeDef" : p_params.routeDef});
@@ -703,6 +706,160 @@
             , resources : ""
             , window : window
             , console : console
+        }
+
+        , Display : {
+            MenuSlide : {
+                /**
+                 * @name : show
+                 */
+                show : function(){
+                    try {
+                        if(!_menuSlide){
+                            var strHtml = "";
+                            strHtml += '<li class="sidebar-brand"><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'profile\',\'args\':[]});">'+$.Oda.Session.userInfo.firstName + " " + $.Oda.Session.userInfo.lastName+'</a></li>';
+                            strHtml += '<li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'profile\',\'args\':[]});" oda-label="oda-main.profile">Your profile</a></li>';
+                            strHtml += '<li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'contact\',\'args\':[]});" oda-label="oda-main.contact">Contact</a></li>';
+                            strHtml += '<li><a href="javascript:$.Oda.Security.logout();" oda-label="oda-main.logout">Logout</a></li>';
+                            $('#menuSlide').html(strHtml);
+                            _menuSlide = true;
+                        }
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Display.MenuSlide.show : " + er.message);
+                    }
+                }
+
+                /**
+                 * @name : remove
+                 */
+                , remove : function(){
+                    try {
+                        $("#wrapper").removeClass("toggled");
+                        $('#menuSlide').html('<li class="sidebar-brand" id="profileDisplay"><span oda-label="oda-project.userLabel">Profile Name</span></li><li class="divider"></li><li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'contact\',\'args\':[]});" oda-label="oda-main.contact">Contact</a></li>');
+                        _menuSlide = false;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Display.MenuSlide.remove : " + er.message);
+                    }
+                }
+            }
+
+            , Menu : {
+                /**
+                 * @name : show
+                 */
+                show : function(){
+                    try {
+                        if(!_menu){
+                            var tabInput = { rang : $.Oda.Session.userInfo.profile, id_page : 0 };
+                            var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getMenu.php", {"functionRetour" : function(retour){
+                                var strHTML = "";
+                                if(retour["strErreur"] === ""){
+                                    var datas = retour["data"]["resultat"]["data"];
+
+                                    var cate = "";
+
+                                    for (var indice in datas) {
+                                        if((datas[indice]["id_categorie"] !== "98") && ((datas[indice]["id_categorie"] !== "1"))){
+                                            if(datas[indice]["id_categorie"] != cate){
+                                                cate = datas[indice]["id_categorie"];
+                                                if(indice != "0"){
+                                                    strHTML += "</ul></li>";
+                                                }
+
+                                                strHTML += '<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">'+datas[indice]["Description_cate"]+'<span class="caret"></span></a><ul class="dropdown-menu" role="menu">';
+                                            }
+                                            var route = datas[indice]["Lien"];
+                                            route = route.replace("api_page_","");
+                                            route = route.replace("page_","");
+                                            route = route.replace(".html","");
+                                            strHTML += "<li><a href=\"javascript:$.Oda.Router.navigateTo({'route':'"+route+"','args':[]});\">"+datas[indice]["Description_courte"]+"</a></li>";
+                                        }
+                                    }
+                                    $('#menu').html(strHTML);
+                                }
+                            }
+                            }, tabInput);
+                            _menu = true;
+                        }
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Display.Menu.show : " + er.message);
+                    }
+                }
+
+                /**
+                 * @name : remove
+                 */
+                , remove : function(){
+                    try {
+                        $('#menu').html('');
+                        _menu = false;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Display.Menu.remove : " + er.message);
+                    }
+                }
+            }
+            , Message : {
+                /**
+                 * @param {object} p_params
+                 * @returns {$.Oda}
+                 */
+                show: function (p_params) {
+                    try {
+                        $.Oda.Log.debug("$.Oda.Display.Message.show start");
+
+                        var tabInput = { code_user : $.Oda.Session.code_user };
+                        var callback = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getMessagesToDisplay.php", { functionRetour : function(datas) {
+                            if(datas["strErreur"] === ""){
+                                for(var indice in datas["data"]["messages"]["data"]){
+                                    var message = datas["data"]["messages"]["data"][indice];
+                                    if ( ! $( "#oda-message-"+message.id ).length ) {
+                                        var strHtml = "";
+                                        strHtml += '';
+                                        strHtml += '<div class="alert alert-'+message.niveau+' alert-dismissible" id="oda-message-'+message.id+'" style="width:90%;margin-left:auto;margin-right:auto;">';
+                                        strHtml += '<button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="$.Oda.Display.Message.hide({id:\''+message.id+'\'});"><span aria-hidden="true">&times;</span></button>';
+                                        strHtml += message.message;
+                                        strHtml += '</div>';
+                                        $("#content").before(strHtml);
+                                    }
+                                }
+
+                            } else{
+                                $.Oda.Notification.error(datas["strErreur"]);
+                            }
+                        }}, tabInput);
+
+                        $.Oda.Log.debug("$.Oda.Display.Message.show end");
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Display.Message.show : " + er.message);
+                        return null;
+                    }
+                }
+                /**
+                 * @param {object} p_params
+                 * @returns {$.Oda}
+                 */
+                , hide: function (p_params) {
+                    try {
+                        $.Oda.Log.debug("$.Oda.Display.Message.hide start");
+
+                        var tabInput = { code_user : $.Oda.Session.code_user, id : p_params.id };
+                        var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/setMessagesLus.php", {functionRetour : function(datas) {
+                            if(retour["strErreur"] === ""){
+                                $('#oda-message-'+p_params.id).remove();
+                            } else{
+                                $.Oda.Notification.error(datas["strErreur"]);
+                            }
+                        }}, tabInput);
+
+                        $.Oda.Log.debug("$.Oda.Display.Message.hide end");
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Display.Message.hide  : " + er.message);
+                        return null;
+                    }
+                }
+            }
         }
         
         //for the application project
@@ -1016,8 +1173,8 @@
                             , "showTooltip" : 0
                         }
                     };
-                    $.Oda.MenuSlide.remove();
-                    $.Oda.Menu.remove();
+                    $.Oda.Display.MenuSlide.remove();
+                    $.Oda.Display.Menu.remove();
                     _routes.auth.go();
                } catch (er) {
                    $.Oda.Log.error("$.Oda.Security.logout : " + er.message);
@@ -1805,7 +1962,7 @@
                                 $.Oda.Log.debug(this.name +  " already loaded.");
                             }
                         }
-                    } 
+                    }
                     return this;
                 } catch (er) {
                     $.Oda.Log.error("$.ODa.Router.addDependencies : " + er.message);
@@ -2069,96 +2226,6 @@
                 return retour;
             } catch (er) {
                $.Oda.Log.error("$.Oda.loadDepends : " + er.message);
-            }
-        }
-        
-        , MenuSlide : {
-            /**
-            * @name : show
-            */
-            show : function(){
-                try {
-                    if(!_menuSlide){
-                        var strHtml = "";
-                        strHtml += '<li class="sidebar-brand"><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'profile\',\'args\':[]});">'+$.Oda.Session.userInfo.firstName + " " + $.Oda.Session.userInfo.lastName+'</a></li>';
-                        strHtml += '<li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'profile\',\'args\':[]});" oda-label="oda-main.profile">Your profile</a></li>';
-                        strHtml += '<li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'contact\',\'args\':[]});" oda-label="oda-main.contact">Contact</a></li>';
-                        strHtml += '<li><a href="javascript:$.Oda.Security.logout();" oda-label="oda-main.logout">Logout</a></li>';
-                        $('#menuSlide').html(strHtml);
-                        _menuSlide = true;
-                    }
-                } catch (er) {
-                    $.Oda.Log.error("$.Oda.MenuSlide.show : " + er.message);
-                }
-            }
-
-            /**
-            * @name : remove
-            */
-            , remove : function(){
-                try {
-                    $("#wrapper").removeClass("toggled");
-                    $('#menuSlide').html('<li class="sidebar-brand" id="profileDisplay"><span oda-label="oda-project.userLabel">Profile Name</span></li><li class="divider"></li><li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'contact\',\'args\':[]});" oda-label="oda-main.contact">Contact</a></li>');
-                    _menuSlide = false;
-                } catch (er) {
-                    $.Oda.Log.error("$.Oda.MenuSlide.remove : " + er.message);
-                }
-            }
-        }
-        
-        , Menu : {
-            /**
-            * @name : show
-            */
-            show : function(){
-                try {
-                    if(!_menu){
-                        var tabInput = { rang : $.Oda.Session.userInfo.profile, id_page : 0 };
-                        var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getMenu.php", {"functionRetour" : function(retour){
-                                var strHTML = "";
-                                if(retour["strErreur"] === ""){
-                                    var datas = retour["data"]["resultat"]["data"];
-
-                                    var cate = "";
-                                    
-                                    for (var indice in datas) {
-                                        if((datas[indice]["id_categorie"] !== "98") && ((datas[indice]["id_categorie"] !== "1"))){
-                                            if(datas[indice]["id_categorie"] != cate){
-                                                cate = datas[indice]["id_categorie"];
-                                                if(indice != "0"){
-                                                    strHTML += "</ul></li>";
-                                                }
-                                                
-                                                strHTML += '<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">'+datas[indice]["Description_cate"]+'<span class="caret"></span></a><ul class="dropdown-menu" role="menu">';
-                                            }
-                                            var route = datas[indice]["Lien"];
-                                            route = route.replace("api_page_","");
-                                            route = route.replace("page_","");
-                                            route = route.replace(".html","");
-                                            strHTML += "<li><a href=\"javascript:$.Oda.Router.navigateTo({'route':'"+route+"','args':[]});\">"+datas[indice]["Description_courte"]+"</a></li>";
-                                        }
-                                    }
-                                    $('#menu').html(strHTML);
-                                }
-                            }
-                        }, tabInput);
-                        _menu = true;
-                    }
-                } catch (er) {
-                    $.Oda.Log.error("$.Oda.Menu.show : " + er.message);
-                }
-            }
-
-            /**
-            * @name : remove
-            */
-            , remove : function(){
-                try {
-                    $('#menu').html('');
-                    _menu = false;
-                } catch (er) {
-                   $.Oda.Log.error("$.Oda.Menu.remove : " + er.message);
-                }
             }
         }
         
