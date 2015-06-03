@@ -50,7 +50,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
             "path" : "partial/rapports_cartes.html"
             , "title" : "rapports-cartes.title"
             , "urls" : ["rapports_cartes"]
-            , "dependencies" : ["dataTables","wowhead"]
+            , "dependencies" : ["dataTables","hightcharts","wowhead"]
             , "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
         });
         

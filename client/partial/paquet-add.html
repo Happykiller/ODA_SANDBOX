@@ -64,7 +64,7 @@
                 var strhtml = '<table cellpadding="0" cellspacing="0" border="0" class="display hover" id="table_cards" style="width:100%"></table>';
                 $('#div_inventaire').html(strhtml);
 
-                var objDataTable = $.Oda.objDataTableFromJsonArray(json_retour["data"]["cartes"]["data"]);
+                var objDataTable = $.Oda.Tooling.objDataTableFromJsonArray(json_retour["data"]["cartes"]["data"]);
                 var oTable = $('#table_cards').dataTable( {
                     "pagingType": "simple",
                     "aaData": objDataTable.data,

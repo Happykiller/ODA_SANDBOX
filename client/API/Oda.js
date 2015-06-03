@@ -708,6 +708,103 @@
             , console : console
         }
 
+        , Date : {
+            getStrDateFR : function(){
+                try {
+                    var currentTime = new Date();
+                    var annee = currentTime.getFullYear();
+                    var mois = $.Oda.Tooling.pad2(currentTime.getMonth()+1);
+                    var jour = $.Oda.Tooling.pad2(currentTime.getDate());
+                    var strDate = jour + "/" + mois + "/" + annee;
+                    return strDate;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Date.getStrDateFR() : " + er.message);
+                    return null;
+                }
+            },
+
+            /**
+             * getStrDateTimeFrFromUs
+             * @param {String} p_strDateTime
+             * @returns {String}
+             */
+            getStrDateTimeFrFromUs : function(p_strDateTime) {
+                try {
+                    var strDate = "";
+
+                    strDate = p_strDateTime.substr(8,2) + "/" + p_strDateTime.substr(5,2) + "/" + p_strDateTime.substr(0,4) + " " + p_strDateTime.substr(10,(p_strDateTime.length - 10));
+
+                    return strDate;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Date.getStrDateTimeFrFromUs : " + er.message);
+                    return null;
+                }
+            },
+
+            /**
+             * getStrDateFrFromUs
+             * @param {String} p_strDate
+             * @returns {String}
+             */
+            getStrDateFrFromUs : function(p_strDate) {
+                try {
+                    var strDate = "";
+
+                    strDate = p_strDate.substr(8,2) + "/" + p_strDate.substr(5,2) + "/" + p_strDate.substr(0,4);
+
+                    return strDate;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Date.getStrDateFrFromUs : " + er.message);
+                    return null;
+                }
+            },
+
+            /**
+             * @name convertSecondsToTime
+             * @desc Seconds to hh:mm:ss
+             * @param {int} p_second
+             * @returns {String}
+             */
+            convertSecondsToTime : function(p_second) {
+                try {
+                    var sec_num = p_second;
+                    var hours   = Math.floor(sec_num / 3600);
+                    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+                    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+                    if (hours   < 10) {hours   = "0"+hours;}
+                    if (minutes < 10) {minutes = "0"+minutes;}
+                    if (seconds < 10) {seconds = "0"+seconds;}
+                    var time    = hours+':'+minutes+':'+seconds;
+                    return time;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Date.convertSecondsToTime : " + er.message);
+                    return null;
+                }
+            },
+
+            /**
+             * @name getStrDateTime
+             * @returns {String}
+             */
+            getStrDateTime : function() {
+                try {
+                    var currentTime = new Date();
+                    var hours = $.Oda.Tooling.pad2(currentTime.getHours());
+                    var minutes = $.Oda.Tooling.pad2(currentTime.getMinutes());
+                    var annee = currentTime.getFullYear();
+                    var mois = $.Oda.Tooling.pad2(currentTime.getMonth()+1);
+                    var jour = $.Oda.Tooling.pad2(currentTime.getDate());
+                    var secondes = $.Oda.Tooling.pad2(currentTime.getSeconds());
+                    var strDateTime = annee + "/" + mois + "/" + jour + " " + hours + ":" + minutes + ":" + secondes;
+                    return strDateTime;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Date.getStrDateTime : " + er.message);
+                    return null;
+                }
+            }
+        }
+
         , Display : {
             MenuSlide : {
                 /**
@@ -945,6 +1042,41 @@
                 }
             }
             /**
+             * getListValeurPourAttribut
+             * @param {json} p_obj
+             * @param {string} p_attribut
+             * @returns {Array}
+             */
+            , getListValeurPourAttribut : function(p_obj, p_attribut, p_type) {
+                try {
+                    var retour = new Array();
+
+                    for (var indice in p_obj) {
+                        for (var key in p_obj[indice]) {
+                            if(key == p_attribut){
+                                if(typeof p_type !== "undefined"){
+                                    if(p_type == "int"){
+                                        var valeur = parseInt(p_obj[indice][key]);
+                                    }else if(p_type == "float"){
+                                        var valeur = parseFloat(p_obj[indice][key]);
+                                    }else{
+                                        var valeur = new p_type(p_obj[indice][key]);
+                                    }
+                                    retour[retour.length] = valeur;
+                                }else{
+                                    retour[retour.length] = p_obj[indice][key];
+                                }
+                            }
+                        }
+                    }
+
+                    return retour;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Tooling.getListValeurPourAttribut : " + er.message);
+                    return null;
+                }
+            }
+            /**
             * isInArray
             * @param {string} p_value
             * @param {array} p_array
@@ -1010,6 +1142,57 @@
                     return size;
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Tooling.objectSize : " + er.message);
+                    return null;
+                }
+            }
+
+
+            /**
+             * objDataTableFromJsonArray
+             *
+             * @param {object} p_JsonArray
+             * @returns {object}
+             */
+            , objDataTableFromJsonArray : function(p_JsonArray){
+                try {
+                    var objRetour = { statut : "ok"};
+
+                    var arrayEntete = {};
+                    var i = 0;
+                    for(var key in p_JsonArray[0]){
+                        arrayEntete[key] = i;
+                        i++;
+                    }
+                    objRetour.entete = arrayEntete;
+
+                    var arrayData = new Array();
+                    for(var indice in p_JsonArray){
+                        var subArrayData = new Array();
+                        for(var key in p_JsonArray[indice]){
+                            subArrayData[subArrayData.length] = p_JsonArray[indice][key];
+                        }
+                        arrayData[arrayData.length] = subArrayData;
+                    }
+
+                    objRetour.data = arrayData;
+
+                    return objRetour;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Tooling.objDataTableFromJsonArray : " + er.message);
+                    var objRetour = { statut : "ko"};
+                    return objRetour;
+                }
+            }
+            /**
+             * pad2
+             * @param {int} number
+             * @returns {String}
+             */
+            , pad2 : function(number) {
+                try {
+                    return (number < 10 ? '0' : '') + number;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Tooling.pad2 : " + er.message);
                     return null;
                 }
             }
@@ -2423,43 +2606,6 @@
         }
         
         /**
-        * objDataTableFromJsonArray
-        * 
-        * @param {object} p_JsonArray
-        * @returns {object}
-        */
-        , objDataTableFromJsonArray : function(p_JsonArray){
-            try {
-                var objRetour = { statut : "ok"};
-
-                var arrayEntete = {};
-                var i = 0;
-                for(var key in p_JsonArray[0]){
-                    arrayEntete[key] = i;
-                    i++;
-                }
-                objRetour.entete = arrayEntete;
-
-                var arrayData = new Array();
-                for(var indice in p_JsonArray){
-                    var subArrayData = new Array();
-                    for(var key in p_JsonArray[indice]){
-                        subArrayData[subArrayData.length] = p_JsonArray[indice][key];
-                    } 
-                    arrayData[arrayData.length] = subArrayData;
-                }
-
-                objRetour.data = arrayData;
-
-                return objRetour;
-            } catch (er) {
-                $.Oda.Log.error("$.Oda.objDataTableFromJsonArray : " + er.message);
-                var objRetour = { statut : "ko"};
-                return objRetour;
-            }
-        }
-        
-        /**
         * affichePopUp
         * @param {object} p_params
         */
@@ -2498,7 +2644,7 @@
                 var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/addStat.php", tabSetting, tabInput);
                 return retour;
            } catch (er) {
-               $.Oda.Log.error(0, "ERROR($.Oda.addStat):" + er.message);
+               $.Oda.Log.error("$.Oda.addStat : " + er.message);
                return null;
            }
         }
