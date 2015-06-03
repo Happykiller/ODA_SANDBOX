@@ -53,7 +53,7 @@
                             strHtml += "<a class=\"list-group-item\" href=\"javascript:$.Oda.Security.auth({'login' : '"+elt.code_user+"', 'mdp' : '"+"authByGoogle-"+resp.email+"', 'reload' : true});\">"+elt.code_user+"</a>";
                         }
                         strHtml += '</div>';
-                        $.Oda.affichePopUp({"label" : "Choisir le compte.", "details" : strHtml});
+                        $.Oda.Display.Popup.open({"label" : "Choisir le compte.", "details" : strHtml});
                     }
                 }
             });

@@ -1,0 +1,512 @@
+<div class="container">
+    <h2 oda-label="oda-admin.title"></h2>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading"><span oda-label="oda-admin.title"></span></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12" id="div_listUtilisateurs">
+                            <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading"><span oda-label="oda-admin.title"></span></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12" id="div_messages">
+                            <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading"><span oda-label="oda-admin.title"></span></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12" id="div_listDiffusion">
+                            <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /**
+     * Affiche la liste des utilisateurs
+     * @returns {Boolean}
+     */
+    function afficheListUtilisateur() {
+        try {
+            var retour = true;
+
+            var tabInput = { indice_user : $.Oda.Session.code_user};
+            var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getListutilisateurs.php", {}, tabInput);
+
+            if(retour["strErreur"] == ""){
+                var objDataTable = $.Oda.Tooling.objDataTableFromJsonArray(retour["data"]["resultats"]["data"]);
+                var strhtml = '<table cellpadding="0" cellspacing="0" border="0" class="display hover" id="table_listUtilisateurs">';
+                strhtml += '<tfoot><tr><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th oda-attr="select">6</th><th>7</th></tr></tfoot></table>';
+                $('#div_listUtilisateurs').html(strhtml);
+
+                var oTable = $('#table_listUtilisateurs').dataTable( {
+                    "sPaginationType": "full_numbers",
+                    "aaData": objDataTable.data,
+                    "aaSorting": [[4,'desc'],[1,'asc']],
+                    "aoColumns": [
+                        { "sTitle": "Utilisateur","sClass": "Left" },
+                        { "sTitle": "Code utilisateur","sClass": "center" },
+                        { "sTitle": "Mail","sClass": "Left" },
+                        { "sTitle": "Description","sClass": "Left" },
+                        { "sTitle": "Actif","sClass": "center" },
+                        { "sTitle": "Rang","sClass": "Left" },
+                        { "sTitle": "Actions","sClass": "center" }
+                    ],
+                    "aoColumnDefs": [
+                        {//Nom Prenom
+                            "mRender": function ( data, type, row ) {
+                                return row[2] + ", " + row[3];
+                            },
+                            "aTargets": [ 0 ]
+                        },
+                        {//code_user
+                            "mRender": function ( data, type, row ) {
+                                return row[0];
+                            },
+                            "aTargets": [ 1 ]
+                        },
+                        {//Mail
+                            "mRender": function ( data, type, row ) {
+                                return row[1];
+                            },
+                            "aTargets": [ 2 ]
+                        },
+                        {//Description
+                            "mRender": function ( data, type, row ) {
+                                return row[5];
+                            },
+                            "aTargets": [ 3 ]
+                        },
+                        {//Actif
+                            "mRender": function ( data, type, row ) {
+                                return row[6];
+                            },
+                            "aTargets": [ 4 ]
+                        },
+                        {//Rang
+                            "mRender": function ( data, type, row ) {
+                                return row[4];
+                            },
+                            "aTargets": [ 5 ]
+                        },
+                        {//Action
+                            "mRender": function ( data, type, row ) {
+                                var strHtml = "";
+                                strHtml += '<a href="javascript:editer(\''+row[0]+'\')" id="bt_edit_'+row[0]+'">Editer</a>';
+                                return strHtml;
+                            },
+                            "aTargets": [ 6 ]
+                        }
+                    ],
+                    "fnDrawCallback": function( oSettings ) {
+                        $('#table_listUtilisateurs')
+                            .removeClass( 'display' )
+                            .addClass('table table-striped table-bordered');
+                    }
+                });
+
+                // DataTable
+                var table = $('#table_listUtilisateurs').DataTable();
+
+                $('#table_listUtilisateurs tbody').on( 'click', 'tr', function () {
+                    if ( $(this).hasClass('selected') ) {
+                        $(this).removeClass('selected');
+                    }
+                    else {
+                        table.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+                    }
+                } );
+
+                $("#table_listUtilisateurs tfoot th").each( function ( i ) {
+                    var valOdaAttri = $(this).attr("oda-attr");
+                    if(valOdaAttri == "select") {
+                        var select = $('<select data-mini="true"><option></option></select>')
+                            .appendTo( $(this).empty() )
+                            .on( 'change', function () {
+                                var val = $(this).val();
+
+                                table.column( i )
+                                    .search( val ? '^'+$(this).val()+'$' : val, true, false )
+                                    .draw();
+                            } );
+
+                        table.column( i-1 ).data().unique().sort().each( function ( d, j ) {
+                            select.append( '<option value="'+d+'">'+d+'</option>' );
+                        } );
+                    }else{
+                        $( '<input type="text" placeholder="Search" size="4"/>' )
+                            .appendTo( $(this).empty() )
+                            .on( 'keyup change', function () {
+                                table
+                                    .column( i )
+                                    .search( this.value )
+                                    .draw();
+                            } );
+                    }
+                } );
+
+            } else{
+                $('#div_listUtilisateurs').html(retour["strErreur"]);
+            }
+
+            return retour;
+        } catch (er) {
+            $.Oda.Log.error("afficheListUtilisateur : " + er.message);
+            return false;
+        }
+    }
+
+    /**
+     * Affiche la liste de diffusion pour le site
+     * @returns {Boolean}
+     */
+    function afficheListDiffusion() {
+        try {
+            var retour = true;
+
+            var tabSetting = { };
+            var tabInput = { };
+            var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getListMail.php", tabSetting, tabInput);
+
+            if(retour["strErreur"] == ""){
+                var strhtml = getHtmlListDiffusion(retour["data"]["resultat"]["data"]);
+                $('#div_listDiffusion').html(strhtml);
+            } else{
+                $('#div_listDiffusion').html(retour["strErreur"]);
+            }
+
+            return retour;
+        } catch (er) {
+            $.Oda.Log.error("afficheListDiffusion : " + er.message);
+            return null;
+        }
+    }
+
+    /**
+     * editer
+     * @param {string} p_code_user
+     */
+    function editer(p_code_user) {
+        try {
+            var tabInput = { code_user : p_code_user, profile : $.Oda.Session.userInfo.profile };
+            var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getDetailsUser.php", {}, tabInput);
+            if(retour["strErreur"] == ""){
+                user_edit = p_code_user;
+
+                var label = "Editer : " +p_code_user;
+
+                var strHtml = "";
+                strHtml += '<div class="form-group"><label for="edit_mail">Mail :</label><input class="form-control" type="text" name="edit_mail" id="edit_mail" value="'+retour["data"]["detailsUser"]["mail"]+'"/></div>';
+                strHtml += '<div class="form-group"><label for="edit_actif">Actif : </label>';
+                strHtml += '<select class="form-control" name="edit_actif" id="edit_actif" data-role="slider">';
+                if(retour["data"]["detailsUser"]["actif"] == "0"){
+                    strHtml += '<option value="0" selected>Off</option>';
+                    strHtml += '<option value="1">On</option>';
+                }else{
+                    strHtml += '<option value="0">Off</option>';
+                    strHtml += '<option value="1" selected>On</option>';
+                }
+                strHtml += '</select></div>';
+                strHtml += '<div class="form-group"><label for="input_rang">Rang :</label>';
+                strHtml += '<select class="form-control" name="input_rang" id="input_rang" data-mini="true">';
+                strHtml += '<option>Choisir...</option>';
+                for (var indice in retour["data"]["lesRangs"]["data"]) {
+                    if(retour["data"]["detailsUser"]["profile"] == retour["data"]["lesRangs"]["data"][indice]["indice"]){
+                        strHtml += '<option selected value="'+retour["data"]["lesRangs"]["data"][indice]["indice"]+'">'+retour["data"]["lesRangs"]["data"][indice]["labelle"]+'</option>';
+                    }else{
+                        strHtml += '<option value="'+retour["data"]["lesRangs"]["data"][indice]["indice"]+'">'+retour["data"]["lesRangs"]["data"][indice]["labelle"]+'</option>';
+                    }
+                }
+                strHtml += '</select></div>';
+
+                var strHtmlFooter = '';
+                strHtmlFooter += '<a href="javascript:validerEdition();" class="btn btn-default" id="bt_valider">Soumettre</a>';
+                strHtmlFooter += '<a href="javascript:$.Oda.Display.Popup.close();" class="btn btn-default" id="bt_annuler_user">Annuler</a>';
+
+                $.Oda.Display.Popup.open({label : label, details : strHtml, footer : strHtmlFooter});
+            }else{
+                $.Oda.Notification.error("Aie erreur!");
+            }
+        } catch (er) {
+            $.Oda.Log.error("editer : " + er.message);
+        }
+    }
+
+    /**
+     * validerEdition
+     */
+    function validerEdition() {
+        try {
+            var code_user = user_edit;
+            var mail = $('#edit_mail').val();
+            var actif = $('#edit_actif').val();
+            var rang = $('#input_rang').val();
+
+            if((mail != "")&&(actif != "")&&(rang != "")){
+                var tabInput = { code_user : code_user, mail : mail, actif : actif, rang : rang };
+                var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/updateUser.php", {}, tabInput);
+                if(retour["strErreur"] == ""){
+                    user_edit = "";
+                    $('#edit_mail').val("");
+                    $('#edit_actif').val("");
+                    $('#popup').popup('close');
+                    afficheListUtilisateur();
+                    $.Oda.Notification.info("Modification ok.");
+                }else{
+                    $.Oda.Notification.info("Erreur interface.");
+                }
+            }else{
+                $.Oda.Notification.info("Un champ est vide.");
+            }
+        } catch (er) {
+            $.Oda.Log.error("validerEdition : " + er.message);
+        }
+    }
+
+    /**
+     * annulerEditionUser
+     */
+    function annulerEditionUser() {
+        try {
+            $('#edit_mail').val("");
+            $('#edit_actif').val("");
+            $('#popup').modal('hide');
+        } catch (er) {
+            $.Oda.Log.error("annulerEditionUser : " + er.message);
+        }
+    }
+
+    /**
+     * chargerMessages
+     */
+    function chargerMessages(){
+        try {
+            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
+            $('#div_messages').html(strhtml);
+            var tabInput = { code_user : $.Oda.Session.code_user };
+            $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getMessages.php", {functionRetour : retourMessages}, tabInput);
+        } catch (er) {
+            $.Oda.Log.error("chargerMessages : " + er.message);
+        }
+    }
+
+    /**
+     * afficherCreerMessage
+     */
+    function afficherCreerMessage(){
+        try {
+            var label = "Cr&eacute;er un message";
+
+            var strHtml = "";
+            strHtml += '<div class="form-group"><label for="input_message">Message :</label><textarea id="input_message" name="input_message" rows="10" cols="80"></textarea></div>';
+
+            strHtml += '<div class="form-group"><label for="input_niveau">Niveau d\'alerte :</label><select id="input_niveau" class="form-control">';
+            for(var color in $.Oda.Color){
+                strHtml += '<option value="'+color+'">'+color+'</option>';
+            }
+            strHtml += '</select></div>';
+
+            var rangs = $.Oda.getRangs();
+            strHtml += '<div class="form-group"><label for="input_profile">Profile minimum :</label><select id="input_profile" class="form-control">';
+            for(var indice in rangs){
+                strHtml += '<option value="'+rangs[indice].indice+'">'+rangs[indice].labelle+'</option>';
+            }
+            strHtml += '</select></div>';
+
+            strHtml += '<div class="form-group"><label for="input_date_expiration">Date d\'expiration (7J par defaut) :</label><input type="date" name="input_date_expiration" id="input_date_expiration" class="form-control"/></div>';
+
+            var strHtmlFooter = '';
+            strHtmlFooter += '<a href="javascript:creeMessage()" class="btn btn-default">Soumettre</a>';
+            strHtmlFooter += '<a href="javascript:$.Oda.Display.Popup.close();" class="btn btn-default">Annuler</a>';
+
+            $.Oda.Display.Popup.open({ label : label, details : strHtml, footer : strHtmlFooter});
+
+            CKEDITOR.replace( 'input_message' );
+        } catch (er) {
+            $.Oda.Log.error("afficherCreerMessage : " + er.message);
+        }
+    }
+
+    /**
+     * creeMessage
+     */
+    function creeMessage() {
+        try {
+            var input_message = $('#input_message').val();
+            var input_niveau = $('#input_niveau').val();
+            var input_date_expiration = $('#input_date_expiration').val();
+            var input_profile = $('#input_profile').val();
+
+            if((input_message != "") && (input_niveau != "") && (input_profile != "")){
+                var tabInput = {
+                    code_user : $.Oda.Session.code_user
+                    , message : input_message
+                    , niveau : input_niveau
+                    , date_expiration : input_date_expiration
+                    , profile : input_profile
+                };
+                var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/addMessage.php", {}, tabInput);
+                if(retour["strErreur"] == ""){
+                    $('#input_message').val("");
+                    $('#input_niveau').val("");
+                    $('#input_date_expiration').val("");
+                    $('#input_profile').val("");
+                    $('#popup').popup('close');
+                    chargerMessages();
+                    $.Oda.Notification.info("Message bien enregistr&eacute;.");
+                }else{
+                    $.Oda.Notification.error("Aie erreur!");
+                }
+            }else{
+                $.Oda.Notification.warning("Merci de tout remplir.");
+            }
+
+        } catch (er) {
+            $.Oda.Log.error("creeMessage : " + er.message);
+        }
+    }
+
+    /**
+     * getHtmlListDiffusion
+     * @param {array} p_tabListDiffusion
+     * @returns {String}
+     */
+    function getHtmlListDiffusion(p_tabListDiffusion) {
+        try {
+            var strResponse = "";
+
+            for (var indice in p_tabListDiffusion) {
+                strResponse += p_tabListDiffusion[indice]["mail"] + ";";
+            }
+
+            return strResponse;
+        } catch (er) {
+            $.Oda.Log.error("getHtmlListDiffusion : " + er.message);
+        }
+    }
+
+    /**
+     * retourMessages
+     *
+     * @param {array} p_retour
+     */
+    function retourMessages(p_retour){
+        try {
+            if(p_retour["strErreur"] == ""){
+                var strhtml = '<table cellpadding="0" cellspacing="0" border="0" class="display hover" id="table_messages"></table>';
+                strhtml += '<a href="javascript:afficherCreerMessage()" data-role="button" data-icon="plus" id="bt_creer_message" data-mini="true" data-inline="true">Cr&eacute;er un message</a>';
+                $('#div_messages').html(strhtml).trigger('create');
+
+                var objDataTable = $.Oda.Tooling.objDataTableFromJsonArray(p_retour["data"]["messages"]["data"]);
+                var oTable = $('#table_messages').dataTable( {
+                    "sPaginationType": "full_numbers",
+                    "aaData": objDataTable.data,
+                    "aaSorting": [[6,'desc']],
+                    "aoColumns": [
+                        { sTitle: "Actif", sClass: "dataTable_center"  },
+                        { sTitle: "Message", sClass: "dataTable_left"  },
+                        { sTitle: "Profile", sClass: "dataTable_left"  },
+                        { sTitle: "Niveau", sClass: "dataTable_left"  },
+                        { sTitle: "Date expiration", sClass: "dataTable_center"  },
+                        { sTitle: "By", sClass: "dataTable_left"  },
+                        { sTitle: "Date creation", sClass: "dataTable_center"  }
+                    ],
+                    aoColumnDefs: [
+                        {//actif
+                            mRender: function ( data, type, row ) {
+                                var strHtml = row[objDataTable.entete["actif"]];
+                                return strHtml;
+                            },
+                            aTargets: [ 0 ]
+                        },
+                        {//message
+                            mRender: function ( data, type, row ) {
+                                var strHtml = row[objDataTable.entete["message"]].substring(0, 25);
+                                return strHtml;
+                            },
+                            aTargets: [ 1 ]
+                        },
+                        {//profile
+                            mRender: function ( data, type, row ) {
+                                var leProfile = row[objDataTable.entete["profile"]];
+                                return leProfile;
+                            },
+                            aTargets: [ 2 ]
+                        },
+                        {//niveau
+                            mRender: function ( data, type, row ) {
+                                var strHtml = row[objDataTable.entete["niveau"]];
+                                return strHtml;
+                            },
+                            aTargets: [ 3 ]
+                        },
+                        {//date_expiration
+                            mRender: function ( data, type, row ) {
+                                var date_expiration = row[objDataTable.entete["date_expiration"]];
+                                if(date_expiration == "0000-00-00"){
+                                    date_expiration = "";
+                                }
+                                var strHtml = date_expiration;
+                                return strHtml;
+                            },
+                            aTargets: [ 4 ]
+                        },
+                        {//code_user_creation
+                            mRender: function ( data, type, row ) {
+                                var strHtml = row[objDataTable.entete["code_user_creation"]];
+                                return strHtml
+                            },
+                            aTargets: [ 5 ]
+                        },
+                        {//date_creation
+                            mRender: function ( data, type, row ) {
+                                var strHtml = row[objDataTable.entete["date_creation"]];
+                                return strHtml;
+                            },
+                            aTargets: [ 6 ]
+                        }
+                    ],
+                    "fnDrawCallback": function( oSettings ) {
+                        $('#table_messages')
+                            .removeClass( 'display' )
+                            .addClass('table table-striped table-bordered');
+                    }
+                });
+
+            } else{
+                $('#div_messages').html(p_retour["strErreur"]);
+            }
+        } catch (er) {
+            $.Oda.Log.error("retourMessages : " + er.message);
+        }
+    }
+
+    afficheListUtilisateur();
+    afficheListDiffusion();
+    chargerMessages();
+</script>
+
+<style>
+
+</style>

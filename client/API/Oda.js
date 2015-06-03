@@ -26,7 +26,7 @@
         
         , _i8n = []
         
-        , _routesAllowedDefault = ["contact","404","auth","support","home","forgot","subscrib","profile","", "stats"]
+        , _routesAllowedDefault = ["contact","404","auth","support","home","forgot","subscrib","profile","", "stats", "admin"]
         
         , _routesAllowed = []
         
@@ -117,6 +117,16 @@
                 , "urls" : ["stats"]
                 , "middleWares" : ["support", "auth"]
                 , "dependencies" : ["hightcharts"]
+                , "go" : function(p_request){
+                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
+                }
+            },
+            "admin" : {
+                "path" : "API/partial/admin.html"
+                , "title" : "oda-admin.title"
+                , "urls" : ["admin"]
+                , "middleWares" : ["support", "auth"]
+                , "dependencies" : ["dataTables", "ckeditor"]
                 , "go" : function(p_request){
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
                 }
@@ -269,6 +279,22 @@
                         this.statut = _routeDependenciesStatus.loading();
                         $.getScript("API/lib/Highcharts/highcharts.js",function(){
                             $.Oda.Router.dependencieLoaded("hightcharts");
+                        });
+                    }else if(this.statut === _routeDependenciesStatus.loading()){
+                        $.Oda.Log.debug(this.name +  " loading.");
+                    }else{
+                        $.Oda.Log.debug(this.name +  " already loaded.");
+                    }
+                }
+            }
+            , "ckeditor" : {
+                "name" : "ckeditor"
+                , "statut" : _routeDependenciesStatus.notLoaded()
+                , "load" : function(){
+                    if(this.statut === _routeDependenciesStatus.notLoaded()){
+                        this.statut = _routeDependenciesStatus.loading();
+                        $.getScript("//cdn.ckeditor.com/4.4.7/standard/ckeditor.js",function(){
+                            $.Oda.Router.dependencieLoaded("ckeditor");
                         });
                     }else if(this.statut === _routeDependenciesStatus.loading()){
                         $.Oda.Log.debug(this.name +  " loading.");
@@ -708,6 +734,38 @@
             , console : console
         }
 
+
+
+        /**
+         * geRangs
+         * @returns {json}
+         */
+        , getRangs :  function() {
+            try {
+                var valeur = $.Oda.Storage.get("ODA_rangs");
+                if(valeur == null){
+
+                    var tabInput = { "sql" : "Select `labelle`,`indice` FROM `api_tab_rangs` ORDER BY `indice` desc" };
+                    var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getSQL.php", {type : 'POST'}, tabInput);
+
+                    if(retour["strErreur"] == ""){
+                        valeur = retour.data.resultat.data;
+                    }else{
+                        $.Oda.Notification.error(retour["strErreur"]);
+                    }
+
+                    $.Oda.Storage.set("ODA_rangs",valeur,$.Oda.Storage.ttl_default);
+                }
+
+                return valeur;
+            } catch (er) {
+                $.Oda.Log.error("$.functionsLib.geRangs : " + er.message);
+                return null;
+            }
+        }
+        /**
+         *
+         */
         , Date : {
             getStrDateFR : function(){
                 try {
@@ -953,6 +1011,44 @@
                         return this;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.Display.Message.hide  : " + er.message);
+                        return null;
+                    }
+                }
+            }
+            , Popup : {
+                /**
+                 * affichePopUp
+                 * @param {object} p_params
+                 */
+                open : function(p_params){
+                    try {
+                        $('#oda-popup_label').html("<b>"+p_params.label+"</b>");
+                        $('#oda-popup_content').html(p_params.details);
+
+                        if(p_params.hasOwnProperty("footer")){
+                            $('#oda-popup_footer').html(p_params.footer);
+                        }else{
+                            $('#oda-popup_footer').html('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
+                        }
+
+                        $('#oda-popup').modal("show");
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Display.Popup.open : " + er.message);
+                    }
+                }
+                /**
+                 * @param {object} p_params
+                 * @returns {$.Oda.Display.Popup}
+                 */
+                , close: function (p_params) {
+                    try {
+                        $('#oda-popup_label').html("");
+                        $('#oda-popup_content').html("");
+                        $('#oda-popup_footer').html("");
+                        $('#oda-popup').modal("hide");
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Display.Popup.close : " + er.message);
                         return null;
                     }
                 }
@@ -2602,27 +2698,6 @@
             } catch (er) {
                $.Oda.Log.error("$.Oda.getParameter : " + er.message);
                return null;
-            }
-        }
-        
-        /**
-        * affichePopUp
-        * @param {object} p_params
-        */
-        , affichePopUp : function(p_params){
-            try {
-                $('#oda-popup_label').html("<b>"+p_params.label+"</b>");
-                $('#oda-popup_content').html(p_params.details);
-                
-                if(p_params.hasOwnProperty("footer")){
-                    $('#oda-popup_footer').html(p_params.footer);
-                }else{
-                    $('#oda-popup_footer').html('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
-                }
-                
-                $('#oda-popup').modal("show");
-            } catch (er) {
-                $.Oda.Log.error("$.Oda.affichePopUp : " + er.message);
             }
         }
         

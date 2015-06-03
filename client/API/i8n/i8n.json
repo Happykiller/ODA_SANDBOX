@@ -107,4 +107,13 @@
             , "activityByUser" : "Activity by user"
         }
     }
+    , {
+        "groupName" : "oda-admin"
+        , "fr" : {
+            "title" : "Administration"
+        }
+        , "en" : {
+            "title" : "Administration"
+        }
+    }
 ]

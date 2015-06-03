@@ -150,7 +150,7 @@
                     footer += '<a class="btn btn-info" id="bt_soumettreChange" onclick="soumettreChange(\'langue\');" class="ui-btn ui-icon-check ui-btn-icon-left ui-shadow ui-corner-all">Soumettre</a>';
                 break;  
             }
-            $.Oda.affichePopUp({"label" : label, "details" : details, "footer" : footer});
+            $.Oda.Display.Popup.open({"label" : label, "details" : details, "footer" : footer});
         } catch (er) {
             $.Oda.log("ERROR(updateChamps):" + er.message);
         }

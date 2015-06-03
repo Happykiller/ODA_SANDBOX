@@ -753,7 +753,7 @@
     function openMissedCards(p_params){
         try {
             var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $.Oda.affichePopUp({label:'Cartes manquantes', details : strhtml});
+            $.Oda.Display.Popup.open({label:'Cartes manquantes', details : strhtml});
 
             var tabSetting = { functionRetour : function(datas){
                 if(datas["strErreur"] == ""){
