@@ -409,7 +409,7 @@
             $.Oda.Log.debug("RouterGo : ");
             $.Oda.Log.debug(p_params);
             
-            $('#content').html('<img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">');
+            $('#'+$.Oda.Context.mainDiv).html('<img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">');
             
             //rewrite hash
             if(!p_params.system){
@@ -486,8 +486,8 @@
     function _loadPartial(p_params) {
         try {
             $.get(p_params.routeDef.path, function(data) {
-                $('#content').html(data);
-                $.Oda.Scope.init();
+                $('#'+$.Oda.Context.mainDiv).html(data);
+                $.Oda.Scope.init({id:$.Oda.Context.mainDiv});
                 $.Oda.Tuto.start();
             });
             return true;
@@ -727,6 +727,7 @@
         
         , Context : {
             projectLabel : "Project"
+            , mainDiv : "oda-content"
             , host : ""
             , rest : ""
             , resources : ""
@@ -734,7 +735,14 @@
             , console : console
         }
 
-
+        , Regexs : {
+            mail : "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum|fr)\\b"
+            , login : "^[a-zA-Z0-9]{3,}$"
+            , pass : "^[a-zA-Z0-9]{4,}$"
+            , fristName : "^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{3,}$"
+            , lastName : "^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{3,}$"
+            , noInjection : "^(?!.*?function())"
+        }
 
         /**
          * geRangs
@@ -897,7 +905,6 @@
                     }
                 }
             }
-
             , Menu : {
                 /**
                  * @name : show
@@ -960,8 +967,6 @@
                  */
                 show: function (p_params) {
                     try {
-                        $.Oda.Log.debug("$.Oda.Display.Message.show start");
-
                         var tabInput = { code_user : $.Oda.Session.code_user };
                         var callback = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getMessagesToDisplay.php", { functionRetour : function(datas) {
                             if(datas["strErreur"] === ""){
@@ -974,7 +979,7 @@
                                         strHtml += '<button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="$.Oda.Display.Message.hide({id:\''+message.id+'\'});"><span aria-hidden="true">&times;</span></button>';
                                         strHtml += message.message;
                                         strHtml += '</div>';
-                                        $("#content").before(strHtml);
+                                        $('#'+$.Oda.Context.mainDiv).before(strHtml);
                                     }
                                 }
 
@@ -982,8 +987,6 @@
                                 $.Oda.Notification.error(datas["strErreur"]);
                             }
                         }}, tabInput);
-
-                        $.Oda.Log.debug("$.Oda.Display.Message.show end");
                         return this;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.Display.Message.show : " + er.message);
@@ -996,8 +999,6 @@
                  */
                 , hide: function (p_params) {
                     try {
-                        $.Oda.Log.debug("$.Oda.Display.Message.hide start");
-
                         var tabInput = { code_user : $.Oda.Session.code_user, id : p_params.id };
                         var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/setMessagesLus.php", {functionRetour : function(datas) {
                             if(retour["strErreur"] === ""){
@@ -1006,8 +1007,6 @@
                                 $.Oda.Notification.error(datas["strErreur"]);
                             }
                         }}, tabInput);
-
-                        $.Oda.Log.debug("$.Oda.Display.Message.hide end");
                         return this;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.Display.Message.hide  : " + er.message);
@@ -1023,13 +1022,17 @@
                 open : function(p_params){
                     try {
                         $('#oda-popup_label').html("<b>"+p_params.label+"</b>");
+                        $.Oda.Scope.init({id:'oda-popup_label'});
+
                         $('#oda-popup_content').html(p_params.details);
+                        $.Oda.Scope.init({id:'oda-popup_content'});
 
                         if(p_params.hasOwnProperty("footer")){
                             $('#oda-popup_footer').html(p_params.footer);
                         }else{
-                            $('#oda-popup_footer').html('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
+                            $('#oda-popup_footer').html('<button type="button" class="btn btn-default" data-dismiss="modal" oda-label="oda-main.bt-close"></button>');
                         }
+                        $.Oda.Scope.init({id:'oda-popup_footer'});
 
                         $('#oda-popup').modal("show");
                     } catch (er) {
@@ -1049,6 +1052,55 @@
                         return this;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.Display.Popup.close : " + er.message);
+                        return null;
+                    }
+                }
+            }
+            , TemplateHtml : {
+                /**
+                 * @param {Object} p_params
+                 * @param p_params.template
+                 * @param p_params.scope
+                 * @returns {$.Oda.Display.TemplateHtml}
+                 */
+                create: function (p_params) {
+                    try {
+                        var listExpression = $.Oda.Tooling.findBetweenWords({str : $('#'+p_params.template).html(), first : "{{", last : "}}" });
+
+                        var strHtml = $('#'+p_params.template).html();
+                        for(var indice in listExpression){
+                            var resultEval = $.Oda.Display.TemplateHtml.eval({exrp : listExpression[indice], scope : p_params.scope});
+                            strHtml = $.Oda.Tooling.replaceAll({str : strHtml, find : '{{'+listExpression[indice]+'}}', by : resultEval});
+                        }
+                        return strHtml;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Display.TemplateHtml.create : " + er.message);
+                        return null;
+                    }
+                }
+                /**
+                 * @param {Object} p_params
+                 * @returns {String}
+                 */
+                , eval: function (p_params) {
+                    try {
+                        'use strict'
+
+                        var source = '(function(' + Object.keys(p_params.scope).join(', ') + ') { return ' + p_params.exrp + ';})';
+
+                        var compiled = eval(source);
+
+                        var result = [];
+                        for (var property in p_params.scope)
+                            if (p_params.scope.hasOwnProperty(property))
+                                result.push(p_params.scope[property]);
+
+                        var result = compiled.apply(p_params.scope, result);
+
+                        return result;
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Display.TemplateHtml.eval : " + er.message);
                         return null;
                     }
                 }
@@ -1121,6 +1173,43 @@
                     return decoded;
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Tooling.decodeHtml : " + er.message);
+                    return null;
+                }
+            }
+            /**
+             * @param {object} p_params
+             * @returns {$.Oda.Tooling}
+             */
+            , findBetweenWords: function (p_params) {
+                try {
+                    var r = new RegExp(p_params.first + '(.*?)' + p_params.last, 'gm');
+                    var list =  p_params.str.match(r);
+
+                    for (var indice in list){
+                        list[indice] = list[indice].replace(p_params.first,'').replace(p_params.last,'');
+                    }
+                    return list;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Tooling.findBetweenWords : " + er.message);
+                    return null;
+                }
+            }
+            /**
+             * @param p_params
+             * @param p_params.str
+             * @param p_params.find
+             * @param p_params.by
+             * @returns {String}
+             */
+            , replaceAll: function (p_params) {
+                try {
+                    var str = p_params.find.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+                    var re = new RegExp(str, 'g');
+
+                    var strReturn = p_params.str.replace(re, p_params.by);
+                    return strReturn;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Tooling.replaceAll : " + er.message);
                     return null;
                 }
             }
@@ -1833,32 +1922,26 @@
         
         , Scope : {
             /**
-             * 
+             * @param {Object} p_params
+             * @param p_params.id
              * @returns {undefined}
              */
-            init : function(){
+            init : function(p_params){
                 try {
-                    $('[oda-input-text]').each(function(index, value){
+                    var divTarget = "";
+                    if(!$.Oda.Tooling.isUndefined(p_params)){
+                        divTarget = '#'+p_params.id+' ';
+                    }
+
+                    //oda-input-text
+                    $(divTarget+'[oda-input-text]').each(function(index, value){
                         var id = $(value).attr("oda-input-text");
                         
                         $(value).attr("id",id);
+
+                        $.Oda.Scope.checkInputText({elt:value});
                         
-                        $(value).keyup(function(elt){
-                            $.Oda.Scope.refresh();
-                           
-                            var odaCheck = $(value).attr("oda-input-text-check");
-                            if(odaCheck !== undefined){
-                                var patt = new RegExp(odaCheck, "g");
-                                var res = patt.test($(value).val());
-                                if(res){
-                                    $(value).data("isOk", true);
-                                    $(value).css("border-color","#04B404");
-                                }else{
-                                    $(value).data("isOk", false);
-                                    $(value).css("border-color","#FF0000");
-                                }
-                            }
-                        });
+                        $(value).keyup(function(elt){$.Oda.Scope.checkInputText({elt:elt.target});});
                         
                         var placeHolder = $(value).attr("oda-input-text-placeholder");
                         if(placeHolder !== undefined){
@@ -1882,15 +1965,18 @@
                             }
                         }
                     });
-                    
-                    $('[oda-label]').each(function(index, value){
+
+
+                    //oda-label
+                    $(divTarget+'[oda-label]').each(function(index, value){
                         var labelName = $(value).attr("oda-label");
                         var tab = labelName.split(".");
                         $(value).html($.Oda.I8n.get(tab[0], tab[1]));
                     });
-                    
+
+                    //oda-submit
                     var nbOdaSubmit = 0;
-                    $('[oda-submit]').each(function(index, value){
+                    $(divTarget+'[oda-submit]').each(function(index, value){
                         nbOdaSubmit++;
                         var id = $(value).attr("oda-submit");
                         
@@ -1911,6 +1997,38 @@
                     }
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Scope.init : " + er.message);
+                }
+            }
+            /**
+             * @param {Object} p_params
+             * @param p_params.elt
+             * @returns {$.Oda.Scope}
+             */
+            , checkInputText: function (p_params) {
+                try {
+                    var $elt = $(p_params.elt);
+                    var odaCheck = $elt.attr("oda-input-text-check");
+                    if(odaCheck !== undefined){
+                        if(odaCheck.startsWith("Oda.Regexs:")){
+                            odaCheck = odaCheck.replace("Oda.Regexs:", '');
+                            odaCheck = $.Oda.Regexs[odaCheck];
+                        }
+
+                        var patt = new RegExp(odaCheck, "g");
+                        var res = patt.test($elt.val());
+                        if(res){
+                            $elt.data("isOk", true);
+                            $elt.css("border-color","#04B404");
+                        }else{
+                            $elt.data("isOk", false);
+                            $elt.css("border-color","#FF0000");
+                        }
+                    }
+                    $.Oda.Scope.refresh();
+                    return true;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Scope.checkInputText : " + er.message);
+                    return null;
                 }
             }
             /**

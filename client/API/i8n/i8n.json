@@ -40,6 +40,9 @@
             , "subscrib-lastName-placeholder" : "Votre nom ici"
             , "profile-title" : "Mon Profil"
             , "profile-infos" : "Mes informations"
+            , "bt-cancel" : "Annuler"
+            , "bt-edit" : "Editer"
+            , "bt-close" : "Fermer"
         }
         , "en" : {
             "authentification" : "Authentification" 
@@ -81,6 +84,9 @@
             , "subscrib-lastName-placeholder" : "Your last name here"
             , "profile-title" : "My Profile"
             , "profile-infos" : "My informations"
+            , "bt-cancel" : "Cancel"
+            , "bt-edit" : "Edit"
+            , "bt-close" : "Close"
         }
     }
     , {
@@ -111,9 +117,18 @@
         "groupName" : "oda-admin"
         , "fr" : {
             "title" : "Administration"
+            , "edit_mail" : "Email : "
+            , "edit_desc" : "Description : "
+            , "edit_actif" : "Actif : "
+            , "input_rang" : "Rang : "
+            , "bt-create-new-message" : "Cr&eacute;er un message"
         }
         , "en" : {
             "title" : "Administration"
+            , "edit_mail" : "Email : "
+            , "edit_desc" : "Description : "
+            , "edit_actif" : "Active : "
+            , "input_rang" : "Profile : "
         }
     }
 ]

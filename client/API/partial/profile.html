@@ -28,7 +28,7 @@
             
             return retour;
         } catch (er) {
-            $.Oda.log("ERROR(chargerInformations):" + er.message);
+            $.Oda.Log.error("chargerInformations : " + er.message);
             return null;
         }
     }
@@ -85,7 +85,7 @@
                 $.Oda.Notification.danger("Erreur : "+p_retour["strErreur"]);
             }
         } catch (er) {
-            $.Oda.log("ERROR(retourInformations):" + er.message);
+            $.Oda.Log.error("retourInformations : " + er.message);
         }
     }
     
@@ -152,7 +152,7 @@
             }
             $.Oda.Display.Popup.open({"label" : label, "details" : details, "footer" : footer});
         } catch (er) {
-            $.Oda.log("ERROR(updateChamps):" + er.message);
+            $.Oda.Log.error("updateChamps : " + er.message);
         }
     }
     
@@ -198,7 +198,7 @@
                 $.Oda.Notification.error(retour["strErreur"]);
             }
         } catch (er) {
-            $.Oda.log("ERROR(soumettreChange):" + er.message);
+            $.Oda.Log.error("soumettreChange : " + er.message);
         }
     }
 </script>
