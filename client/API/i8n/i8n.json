@@ -131,4 +131,19 @@
             , "input_rang" : "Profile : "
         }
     }
+    , {
+        "groupName" : "oda-supervision"
+        , "fr" : {
+            "title" : "Supervision"
+            , "metrics-interface" : "Métriques des interfaces"
+            , "maintenance" : "Maintenance"
+            , "purge" : "Lancer la purge"
+        }
+        , "en" : {
+            "title" : "Supervision"
+            , "metrics-interface" : "Metrics interfaces"
+            , "maintenance" : "Maintenance"
+            , "purge" : "Start purge"
+        }
+    }
 ]

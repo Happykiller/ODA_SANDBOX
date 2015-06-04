@@ -130,6 +130,16 @@
                 , "go" : function(p_request){
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
                 }
+            },
+            "supervision" : {
+                "path" : "API/partial/supervision.html"
+                , "title" : "oda-supervision.title"
+                , "urls" : ["supervision"]
+                , "middleWares" : ["support", "auth"]
+                , "dependencies" : ["dataTables"]
+                , "go" : function(p_request){
+                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
+                }
             }
         }
         , _routeMiddleWares = {
