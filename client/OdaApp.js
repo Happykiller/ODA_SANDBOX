@@ -53,6 +53,14 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
             , "dependencies" : ["dataTables","hightcharts","wowhead"]
             , "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
         });
+
+        $.Oda.Router.addRoute("gerer_collection", {
+            "path" : "partial/gerer_collection.html"
+            , "title" : "gerer-coll.title"
+            , "urls" : ["gerer_collection"]
+            , "dependencies" : ["dataTables","wowhead"]
+            , "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+        });
         
         $.Oda.Router.startRooter();
     }

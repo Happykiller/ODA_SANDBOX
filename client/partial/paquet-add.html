@@ -34,7 +34,7 @@
             var tabInput = { "code_user" : $.Oda.Session.code_user };
             $.Oda.callRest($.Oda.Context.rest+"phpsql/getPaquet.php", tabSetting, tabInput);            
         } catch (er) {
-            $.Oda.Log.error("ERROR(chargerPaquet):" + er.message);
+            $.Oda.Log.error("chargerPaquet : " + er.message);
         }
     }
     
@@ -49,7 +49,7 @@
             var tabInput = { "type" : "", "code_user" : $.Oda.Session.code_user };
             $.Oda.callRest($.Oda.Context.rest+"phpsql/getCards.php", tabSetting, tabInput);            
         } catch (er) {
-            $.Oda.Log.error("ERROR(chargerCars):" + er.message);
+            $.Oda.Log.error("chargerCars : " + er.message);
         }
     }
     
@@ -110,7 +110,7 @@
                 $.Oda.Notification.error(json_retour["strErreur"]);
             }
         } catch (er) {
-            $.Oda.Log.error("ERROR(retourCards):" + er.message);
+            $.Oda.Log.error("retourCards : " + er.message);
         }
     }
     
@@ -182,7 +182,7 @@
                 $.Oda.Notification.error(json_retour["strErreur"]);
             }
         } catch (er) {
-            $.Oda.Log.error("ERROR(retourPaquet):" + er.message);
+            $.Oda.Log.error("retourPaquet : " + er.message);
         }
     }
     
@@ -208,7 +208,7 @@
                 $.Oda.Notification.error("Aie erreur!");
             }            
         } catch (er) {
-            $.Oda.Log.error("(choisir):" + er.message);
+            $.Oda.Log.error("(choisir : " + er.message);
         }
     }
     
@@ -232,7 +232,7 @@
                 $.Oda.Notification.error("Aie erreur!");
             }             
         } catch (er) {
-            $.Oda.Log.error("(retirer):" + er.message);
+            $.Oda.Log.error("(retirer : " + er.message);
         }
     }
     
@@ -254,7 +254,7 @@
                 $.Oda.Notification.error("Aie erreur!");
             }            
         } catch (er) {
-            $.Oda.Log.error("(valider):" + er.message);
+            $.Oda.Log.error("(valider : " + er.message);
         }
     }
 </script>

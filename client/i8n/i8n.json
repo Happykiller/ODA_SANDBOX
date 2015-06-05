@@ -44,4 +44,15 @@
               , "infos-packet" : "Informations packets"
         }
     }
+    ,{
+        "groupName" : "gerer-coll"
+        , "fr" : {
+              "title" : "Gérer sa collection"
+              , "collection" : "Sa collection"
+        }
+        , "en" : {
+              "title" : "Manage your collection"
+            , "collection" : "Your collection"
+        }
+    }
 ]
