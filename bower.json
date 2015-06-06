@@ -9,10 +9,14 @@
 	"private": true,
 	"ignore": [
 		"**/.*",
-		"node_modules",
-		"bower_components"
+		"node_modules"
 	],
+    "directory": "src/libs",
 	"dependencies": {
-		"bootstrap": "~3.3.4"
+		"bootstrap" : "latest",
+        "datatables" : "latest",
+        "datatables-bootstrap3" : "latest",
+        "highcharts-release" : "latest",
+        "ckeditor" : "latest"
 	}
 }

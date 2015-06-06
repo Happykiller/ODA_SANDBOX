@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "gulp": "^3.8.7",
+    "gulp-print" : "latest",
+    "gulp-watch" : "latest",
     "gulp-connect": "^2.0.6",
     "gulp-open": "^0.2.8",
     "connect-modrewrite": "^0.7.9",

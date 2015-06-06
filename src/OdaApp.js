@@ -31,35 +31,35 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
         });
         
         $.Oda.Router.addRoute("home", {
-            "path" : "partial/home.html"
-            , "title" : "oda-main.home-title"
-            , "urls" : ["","home"]
-            , "dependencies" : ["dataTables","wowhead"]
-            , "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+            "path" : "partial/home.html",
+            "title" : "oda-main.home-title",
+            "urls" : ["","home"],
+            "dependencies" : ["dataTables","wowhead"],
+            "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
         });
         
         $.Oda.Router.addRoute("saisir_paquet", {
-            "path" : "partial/paquet-add.html"
-            , "title" : "paquet-add.title"
-            , "urls" : ["saisir_paquet"]
-            , "dependencies" : ["dataTables","wowhead"]
-            , "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+            "path" : "partial/paquet-add.html",
+            "title" : "paquet-add.title",
+            "urls" : ["saisir_paquet"],
+            "dependencies" : ["dataTables","wowhead"],
+            "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
         });
 
         $.Oda.Router.addRoute("rapports_cartes", {
-            "path" : "partial/rapports_cartes.html"
-            , "title" : "rapports-cartes.title"
-            , "urls" : ["rapports_cartes"]
-            , "dependencies" : ["dataTables","hightcharts","wowhead"]
-            , "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+            "path" : "partial/rapports_cartes.html",
+            "title" : "rapports-cartes.title",
+            "urls" : ["rapports_cartes"],
+            "dependencies" : ["dataTables","hightcharts","wowhead"],
+            "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
         });
 
         $.Oda.Router.addRoute("gerer_collection", {
-            "path" : "partial/gerer_collection.html"
-            , "title" : "gerer-coll.title"
-            , "urls" : ["gerer_collection"]
-            , "dependencies" : ["dataTables","wowhead"]
-            , "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+            "path" : "partial/gerer_collection.html",
+            "title" : "gerer-coll.title",
+            "urls" : ["gerer_collection"],
+            "dependencies" : ["dataTables","wowhead"],
+            "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
         });
         
         $.Oda.Router.startRooter();
@@ -68,9 +68,9 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
     ////////////////////////// PUBLIC METHODS /////////////////////////
     $.Oda.App = {
         /* Version number */
-        version: VERSION
+        version: VERSION,
         
-        , colorCard : {
+        colorCard : {
             Commune : "#848484",
             Commune_inv : "#B0B0B0",
             Rare : "#2E2EFE",
@@ -79,8 +79,8 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
             Épique_inv : "#AA61C1",
             Légendaire : "#FF8000",
             Légendaire_inv : "#FFB163"
-        }
-        , colorClasse : {
+        },
+        colorClasse : {
             Death_Knight : "#C41F3B",
             Druide : "#FF7D0A",
             Chasseur : "#ABD473",
@@ -92,11 +92,11 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
             Chaman : "#0070DE",
             Démoniste : "#9482C9",
             Guerrier : "#C79C6E"
-        }
+        },
         
-        , chosenClass : ""
+        chosenClass : "",
 
-        , tab_sets : ['Tous', 'Expert' , 'La Malédiction de Naxxramas', 'Gobelins et Gnomes', 'Mont Rochenoire']
+        tab_sets : ['Tous', 'Expert' , 'La Malédiction de Naxxramas', 'Gobelins et Gnomes', 'Mont Rochenoire'],
         
         /**
          * @name exemple
@@ -104,11 +104,11 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
          * @p_param{string} param
          * @returns {boolean}
          */
-        , exemple: function(p_param) {
+        exemple: function(p_param) {
             try {
                 return true;
             } catch (er) {
-                $.Oda.log("ERROR($.functionsApp.exemple):" + er.message);
+                $.Oda.log.error("$.Oda.App.exemple):" + er.message);
                 return false;
             }
         }

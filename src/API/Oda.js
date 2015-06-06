@@ -10,139 +10,139 @@
 
     var
         /* version */
-        VERSION = '0.1'
+        VERSION = '0.1',
         
-        , _debug = true
+        _debug = true,
         
-        , _dependecies = null
+        _dependecies = null,
         
-        , _connectionRest = false
+        _connectionRest = false,
         
-        , _dependeciesFeedback = null
+        _dependeciesFeedback = null,
         
-        , _menuSlide = false
+        _menuSlide = false,
         
-        , _menu = false
+        _menu = false,
         
-        , _i8n = []
+        _i8n = [],
         
-        , _routesAllowedDefault = ["contact","404","auth","support","home","forgot","subscrib","profile","", "stats", "admin"]
+        _routesAllowedDefault = ["contact","404","auth","support","home","forgot","subscrib","profile","", "stats", "admin"],
         
-        , _routesAllowed = []
+        _routesAllowed = [],
         
-        , _routes = {
+        _routes = {
             "404" : {
-                "path" : "API/partial/404.html"
-                , "title" : "oda-main.404-title"
-                , "urls" : ["404"]
-                , "middleWares" : []
-                , "dependencies" : []
-                , "go" : function(p_request){
+                "path" : "API/partial/404.html",
+                "title" : "oda-main.404-title",
+                "urls" : ["404"],
+                "middleWares" : [],
+                "dependencies" : [],
+                "go" : function(p_request){
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : true});
                 }
             },
             "auth" : {
-                "path" : "API/partial/auth.html"
-                , "title" : "oda-main.authentification"
-                , "urls" : ["auth"]
-                , "middleWares" : ["support"]
-                , "dependencies" : []
-                , "go" : function(p_request){
-                    _routerGo({"routeDef" : this, "request" : p_request, "system" : true});
+                "path" : "API/partial/auth.html",
+                "title" : "oda-main.authentification",
+                "urls" : ["auth"],
+                "middleWares" : ["support"],
+                "dependencies" : [],
+                "go" : function(p_request){
+                  _routerGo({"routeDef" : this, "request" : p_request, "system" : true});
                 }
             },
             "support" : {
-                "path" : "API/partial/support.html"
-                , "title" : "oda-main.support-title"
-                , "urls" : ["support"]
-                , "middleWares" : []
-                , "dependencies" : []
-                , "go" : function(p_request){
+                "path" : "API/partial/support.html",
+                "title" : "oda-main.support-title",
+                "urls" : ["support"],
+                "middleWares" : [],
+                "dependencies" : [],
+                "go" : function(p_request){
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : true});
                 }
             },
             "contact" : {
-                "path" : "API/partial/contact.html"
-                , "title" : "oda-main.contact"
-                , "urls" : ["contact"]
-                , "middleWares" : ["support"]
-                , "dependencies" : []
-                , "go" : function(p_request){
+                "path" : "API/partial/contact.html",
+                "title" : "oda-main.contact",
+                "urls" : ["contact"],
+                "middleWares" : ["support"],
+                "dependencies" : [],
+                "go" : function(p_request){
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
                 }
             },
             "forgot" : {
-                "path" : "API/partial/forgot.html"
-                , "title" : "oda-main.forgot-title"
-                , "urls" : ["forgot"]
-                , "middleWares" : ["support"]
-                , "dependencies" : []
-                , "go" : function(p_request){
+                "path" : "API/partial/forgot.html",
+                "title" : "oda-main.forgot-title",
+                "urls" : ["forgot"],
+                "middleWares" : ["support"],
+                "dependencies" : [],
+                "go" : function(p_request){
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
                 }
             },
             "subscrib" : {
-                "path" : "API/partial/subscrib.html"
-                , "title" : "oda-main.subscrib-title"
-                , "urls" : ["subscrib"]
-                , "middleWares" : ["support"]
-                , "dependencies" : []
-                , "go" : function(p_request){
+                "path" : "API/partial/subscrib.html",
+                "title" : "oda-main.subscrib-title",
+                "urls" : ["subscrib"],
+                "middleWares" : ["support"],
+                "dependencies" : [],
+                "go" : function(p_request){
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
                 }
             },
             "home" : {
-                "path" : "API/partial/home.html"
-                , "title" : "oda-main.home-title"
-                , "urls" : ["","home"]
-                , "middleWares" : ["support", "auth"]
-                , "dependencies" : []
-                , "go" : function(p_request){
+                "path" : "API/partial/home.html",
+                "title" : "oda-main.home-title",
+                "urls" : ["","home"],
+                "middleWares" : ["support", "auth"],
+                "dependencies" : [],
+                "go" : function(p_request){
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
                 }
             },
             "profile" : {
-                "path" : "API/partial/profile.html"
-                , "title" : "oda-main.profile-title"
-                , "urls" : ["profile"]
-                , "middleWares" : ["support", "auth"]
-                , "dependencies" : []
-                , "go" : function(p_request){
+                "path" : "API/partial/profile.html",
+                "title" : "oda-main.profile-title",
+                "urls" : ["profile"],
+                "middleWares" : ["support", "auth"],
+                "dependencies" : [],
+                "go" : function(p_request){
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
                 }
             },
             "stats" : {
-                "path" : "API/partial/stats.html"
-                , "title" : "oda-stats.title"
-                , "urls" : ["stats"]
-                , "middleWares" : ["support", "auth"]
-                , "dependencies" : ["hightcharts"]
-                , "go" : function(p_request){
+                "path" : "API/partial/stats.html",
+                "title" : "oda-stats.title",
+                "urls" : ["stats"],
+                "middleWares" : ["support", "auth"],
+                "dependencies" : ["hightcharts"],
+                "go" : function(p_request){
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
                 }
             },
             "admin" : {
-                "path" : "API/partial/admin.html"
-                , "title" : "oda-admin.title"
-                , "urls" : ["admin"]
-                , "middleWares" : ["support", "auth"]
-                , "dependencies" : ["dataTables", "ckeditor"]
-                , "go" : function(p_request){
+                "path" : "API/partial/admin.html",
+                "title" : "oda-admin.title",
+                "urls" : ["admin"],
+                "middleWares" : ["support", "auth"],
+                "dependencies" : ["dataTables", "ckeditor"],
+                "go" : function(p_request){
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
                 }
             },
             "supervision" : {
-                "path" : "API/partial/supervision.html"
-                , "title" : "oda-supervision.title"
-                , "urls" : ["supervision"]
-                , "middleWares" : ["support", "auth"]
-                , "dependencies" : ["dataTables"]
-                , "go" : function(p_request){
+                "path" : "API/partial/supervision.html",
+                "title" : "oda-supervision.title",
+                "urls" : ["supervision"],
+                "middleWares" : ["support", "auth"],
+                "dependencies" : ["dataTables"],
+                "go" : function(p_request){
                     _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
                 }
             }
-        }
-        , _routeMiddleWares = {
+        },
+        _routeMiddleWares = {
             "auth" : function(){
                 $.Oda.Log.debug("MiddleWares : auth");
                 
@@ -150,8 +150,8 @@
                     if($.Oda.Tooling.isInArray($.Oda.Router.current.route, _routesAllowed)){
                         var tabSetting = { };
                         var tabInput = { 
-                            "code_user" : $.Oda.Session.code_user
-                            , "key" : $.Oda.Session.key
+                            "code_user" : $.Oda.Session.code_user,
+                            "key" : $.Oda.Session.key
                         };
                         var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/checkSession.php", tabSetting, tabInput); 
                         if(retour.data){
@@ -171,13 +171,13 @@
                 }else{
                     var session = $.Oda.Storage.get("ODA-SESSION");
                     
-                    if(session != null){
+                    if(session !== null){
                         $.Oda.Session = session;
                         
                         var tabSetting = { };
                         var tabInput = { 
-                            "code_user" : session.code_user
-                            , "key" : session.key
+                            "code_user" : session.code_user,
+                            "key" : session.key
                         };
                         var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/checkSession.php", tabSetting, tabInput); 
                         if(retour.data){
@@ -229,39 +229,39 @@
                 _RouterExit = true;
                 $.Oda.Security.logout();
                 return false;
-            }
-            , "support" : function(){
+            },
+            "support" : function(){
                 $.Oda.Log.debug("MiddleWares : support");
                 var maintenance = $.Oda.getParameter("maintenance");
                 if(typeof maintenance === "undefined"){
                     _connectionRest = false;
                     _RouterExit = true;
-                    _routes["support"].go();
+                    _routes.support.go();
                 }else{
                     _connectionRest = true;
                     if(maintenance){
                         _RouterExit = true;
-                        _routes["support"].go();
+                        _routes.support.go();
                     }
                 }
             }
-        }
-        , _routeDependenciesStatus = {
+        },
+        _routeDependenciesStatus = {
             "notLoaded" : function(){
                 return "notLoaded";
-            }
-            , "loading" : function(){
+            },
+            "loading" : function(){
                 return "loading";
-            }
-            , "loaded" : function(){
+            },
+            "loaded" : function(){
                 return "loaded";
             }
-        }
-        , _routeDependencies = {
+        },
+        _routeDependencies = {
             "dataTables" : {
-                "name" : "dataTables"
-                , "statut" : _routeDependenciesStatus.notLoaded()
-                , "load" : function(){
+                "name" : "dataTables",
+                "statut" : _routeDependenciesStatus.notLoaded(),
+                "load" : function(){
                     if(this.statut === _routeDependenciesStatus.notLoaded()){
                         this.statut = _routeDependenciesStatus.loading();
                         $('<link/>', {
@@ -280,11 +280,11 @@
                         $.Oda.Log.debug(this.name +  " already loaded.");
                     }
                 }
-            }
-            , "hightcharts" : {
-                "name" : "hightcharts"
-                , "statut" : _routeDependenciesStatus.notLoaded()
-                , "load" : function(){
+            },
+            "hightcharts" : {
+                "name" : "hightcharts",
+                "statut" : _routeDependenciesStatus.notLoaded(),
+                "load" : function(){
                     if(this.statut === _routeDependenciesStatus.notLoaded()){
                         this.statut = _routeDependenciesStatus.loading();
                         $.getScript("API/lib/Highcharts/highcharts.js",function(){
@@ -296,11 +296,11 @@
                         $.Oda.Log.debug(this.name +  " already loaded.");
                     }
                 }
-            }
-            , "ckeditor" : {
-                "name" : "ckeditor"
-                , "statut" : _routeDependenciesStatus.notLoaded()
-                , "load" : function(){
+            },
+            "ckeditor" : {
+                "name" : "ckeditor",
+                "statut" : _routeDependenciesStatus.notLoaded(),
+                "load" : function(){
                     if(this.statut === _routeDependenciesStatus.notLoaded()){
                         this.statut = _routeDependenciesStatus.loading();
                         $.getScript("//cdn.ckeditor.com/4.4.7/standard/ckeditor.js",function(){
@@ -313,8 +313,8 @@
                     }
                 }
             }
-        }
-        , _RouterExit = false
+        },
+        _RouterExit = false
     ;
 
 
@@ -330,21 +330,21 @@
             //depdends
             $.Oda.loadDepends([
                 {"name" : "style" , ordered : false, "list" : [
-                    , { "elt" : "API/css/css.css", "type" : "css" }
-                    , { "elt" : "css/css.css", "type" : "css" }
-                ]}
-                , {"name" : "datas" , ordered : false, "list" : [
-                    { "elt" : "API/i8n/i8n.json", "type" : "json", "target" : function(p_json){_i8n = _i8n.concat(p_json);}}
-                    , { "elt" : "i8n/i8n.json", "type" : "json", "target" : function(p_json){_i8n = _i8n.concat(p_json);}}
-                ]}
-                , {"name" : "include" , ordered : true, "list" : [
+                    { "elt" : "API/css/css.css", "type" : "css" },
+                    { "elt" : "css/css.css", "type" : "css" }
+                ]},
+                {"name" : "datas" , ordered : false, "list" : [
+                    { "elt" : "API/i8n/i8n.json", "type" : "json", "target" : function(p_json){_i8n = _i8n.concat(p_json);}},
+                    { "elt" : "i8n/i8n.json", "type" : "json", "target" : function(p_json){_i8n = _i8n.concat(p_json);}}
+                ]},
+                {"name" : "include" , ordered : true, "list" : [
                     { "elt" : "include/config.js", "type" : "script" }
                 ]}
             ],_loaded);
         } catch (er) {
            $.Oda.Log.error("_init : " + er.message);
         }
-    };
+    }
     
     /**
      * @name _loaded
@@ -373,7 +373,7 @@
         } catch (er) {
            $.Oda.Log.error("_loaded : " + er.message);
         }  
-    };
+    }
     
     /**
      * @name _appStarted
@@ -384,7 +384,7 @@
         } catch (er) {
            $.Oda.Log.error("_appStarted : " + er.message);
         }  
-    };
+    }
 
     /**
      * 
@@ -407,7 +407,7 @@
             $.Oda.Log.error("_getListParamsGet : " + er.message);
             return null;
         }
-    };
+    }
     
     /**
      * go
@@ -467,7 +467,7 @@
             }
 
             if((_RouterExit)&&(!p_params.system)){
-                return this;
+                return true;
             }
             
             //load menus
@@ -486,7 +486,7 @@
             $.Oda.Log.error("_RouterGo : " + er.message);
             return null;
         }
-    };
+    }
         
     /**
      * 
@@ -505,7 +505,7 @@
             $.Oda.Log.error("_loadPartial : " + er.message);
             return null;
         }
-    };
+    }
     
     /**
      * 
@@ -529,7 +529,7 @@
                     p_elt.status = "done";
                     $.Oda.Log.debug( "Sucess for : "+p_elt.elt );
                     
-                    if(p_mode == "serie"){
+                    if(p_mode === "serie"){
                         _loadListDependsOrdoned();
                     }
                     _allDependsLoaded();
@@ -543,7 +543,7 @@
                         $.Oda.Log.debug( "Sucess for : "+$(this)[0].lib+" ("+textStatus+")" );
                         p_elt.status = "done";
                     
-                        if(p_mode == "serie"){
+                        if(p_mode === "serie"){
                             _loadListDependsOrdoned();
                         }
                         _allDependsLoaded();
@@ -552,7 +552,7 @@
                         $.Oda.Log.debug( "Triggered ajaxError handler for : "+$(this)[0].lib+"." );
                         p_elt.status = "fail";
                     
-                        if(p_mode == "serie"){
+                        if(p_mode === "serie"){
                             _loadListDependsOrdoned();
                         }
                         _allDependsLoaded();
@@ -569,7 +569,7 @@
                         $.Oda.Log.debug( "Sucess for : "+$(this)[0].lib+" ("+textStatus+")" );
                         p_elt.status = "done";
                         
-                        if(p_mode == "serie"){
+                        if(p_mode === "serie"){
                             _loadListDependsOrdoned();
                         }
                         _allDependsLoaded();
@@ -578,7 +578,7 @@
                         $.Oda.Log.debug( "Triggered ajaxError handler for : "+$(this)[0].lib+"." );
                         p_elt.status = "fail";
                         
-                        if(p_mode == "serie"){
+                        if(p_mode === "serie"){
                             _loadListDependsOrdoned();
                         }
                         _allDependsLoaded();
@@ -594,7 +594,7 @@
             $.Oda.Log.error("_loadDepend : " + er.message);
             return null;
         }
-    };
+    }
     
     /**
      * 
@@ -605,11 +605,11 @@
             var retour = true;
 
             for (var indice in _dependecies) {
-                if((!$.Oda.Tooling.isUndefined(_dependecies[indice].status)) && (_dependecies[indice].status == "doing")){
+                if((!$.Oda.Tooling.isUndefined(_dependecies[indice].status)) && (_dependecies[indice].status === "doing")){
                     var gardian = true;
                     for (var indiceList in _dependecies[indice].list) {
                         var elt = _dependecies[indice].list[indiceList];
-                        if(($.Oda.Tooling.isUndefined(elt.status)) || (elt.status == "doing")){
+                        if(($.Oda.Tooling.isUndefined(elt.status)) || (elt.status === "doing")){
                             elt.status = "doing";
                             _loadDepend(elt,"serie");
                             gardian = false;
@@ -628,7 +628,7 @@
             $.Oda.Log.error("_loadListDependsOrdoned : " + er.message);
             return null;
         }
-    };
+    }
     
     /**
      * 
@@ -638,15 +638,15 @@
         try {
             var retour = true;
             
-            if(_dependecies != null){
+            if(_dependecies !== null){
                 for (var indice in _dependecies) {
-                    if(($.Oda.Tooling.isUndefined(_dependecies[indice].status)) || (_dependecies[indice].status == "doing")){
+                    if(($.Oda.Tooling.isUndefined(_dependecies[indice].status)) || (_dependecies[indice].status === "doing")){
                         retour = false;
                         break;
                     }else{
                         for (var indiceList in _dependecies[indice].list) {
                             var elt = _dependecies[indice].list[indiceList];
-                            if(($.Oda.Tooling.isUndefined(elt.status)) || (elt.status == "doing")){
+                            if(($.Oda.Tooling.isUndefined(elt.status)) || (elt.status === "doing")){
                                 retour = false;
                                 break;
                             }
@@ -655,7 +655,7 @@
                 }
             }
 
-            if((retour)&&(_dependecies!=null)){
+            if((retour) && (_dependecies !== null)){
                 _dependecies = null;
                 var methode = _dependeciesFeedback;
                 _dependeciesFeedback = null;
@@ -667,7 +667,7 @@
             $.Oda.Log.error("_allDependsLoaded : " + er.message);
             return null;
         }
-    };
+    }
     
     /**
     * _checkParams
@@ -681,15 +681,15 @@
             var param_return = {};
             
             for (var key in p_def) {
-                if(p_def[key] == null){
-                    if(typeof params[key] == "undefined"){
+                if(p_def[key] === null){
+                    if(typeof params[key] === "undefined"){
                         var myUserException = new UserException("Param : "+key+" missing");
                         throw myUserException;
                     }else{
                         param_return[key] = params[key];
                     }
                 }else{
-                    if(typeof params[key] == "undefined"){
+                    if(typeof params[key] === "undefined"){
                         param_return[key] = p_def[key];
                     }else{
                         param_return[key] = params[key];
@@ -707,69 +707,69 @@
             $.Oda.Log.error("_checkParams : " + er.message);
             return null;
         }
-    };
+    }
 
     ////////////////////////// PUBLIC METHODS /////////////////////////
     $.Oda = {
         /* Version number */
-        version: VERSION
-        
-        , Color : {
+        version: VERSION,
+
+        Color : {
             INFO : "#5882FA",
             WARNING : "#f7931e",
             ERROR : "#B9121B",
             SUCCESS : "#AEEE00"
-        }
-        
-        , Session : {
-            "code_user" : ""
-            , "key" : ""
-            , "userInfo" : {
-                "locale" : "fr"
-                , "firstName" : ""
-                , "lastName" : ""
-                , "mail" : ""
-                , "profile" : 0
-                , "profileLabel" : ""
-                , "showTooltip" : 0
-            }
-        }
-        
-        , Context : {
-            projectLabel : "Project"
-            , mainDiv : "oda-content"
-            , host : ""
-            , rest : ""
-            , resources : ""
-            , window : window
-            , console : console
-        }
+        },
 
-        , Regexs : {
-            mail : "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum|fr)\\b"
-            , login : "^[a-zA-Z0-9]{3,}$"
-            , pass : "^[a-zA-Z0-9]{4,}$"
-            , fristName : "^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{3,}$"
-            , lastName : "^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{3,}$"
-            , noInjection : "^(?!.*?function())"
-        }
+        Session : {
+            "code_user" : "",
+            "key" : "",
+            "userInfo" : {
+                "locale" : "fr",
+                "firstName" : "",
+                "lastName" : "",
+                "mail" : "",
+                "profile" : 0,
+                "profileLabel" : "",
+                "showTooltip" : 0
+            }
+        },
+
+        Context : {
+            projectLabel : "Project",
+            mainDiv : "oda-content",
+            host : "",
+            rest : "",
+            resources : "",
+            window : window,
+            console : console
+        },
+
+        Regexs : {
+            mail : "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum|fr)\\b",
+            login : "^[a-zA-Z0-9]{3,}$",
+            pass : "^[a-zA-Z0-9]{4,}$",
+            fristName : "^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{3,}$",
+            lastName : "^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{3,}$",
+            noInjection : "^(?!.*?function())"
+        },
 
         /**
          * geRangs
          * @returns {json}
          */
-        , getRangs :  function() {
+        getRangs :  function() {
             try {
                 var valeur = $.Oda.Storage.get("ODA_rangs");
-                if(valeur == null){
+                if(valeur === null){
 
                     var tabInput = { "sql" : "Select `labelle`,`indice` FROM `api_tab_rangs` ORDER BY `indice` desc" };
                     var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getSQL.php", {type : 'POST'}, tabInput);
 
-                    if(retour["strErreur"] == ""){
+                    if(retour.strErreur === ""){
                         valeur = retour.data.resultat.data;
                     }else{
-                        $.Oda.Notification.error(retour["strErreur"]);
+                        $.Oda.Notification.error(retour.strErreur);
                     }
 
                     $.Oda.Storage.set("ODA_rangs",valeur,$.Oda.Storage.ttl_default);
@@ -780,11 +780,11 @@
                 $.Oda.Log.error("$.functionsLib.geRangs : " + er.message);
                 return null;
             }
-        }
+        },
         /**
          *
          */
-        , Date : {
+        Date : {
             getStrDateFR : function(){
                 try {
                     var currentTime = new Date();
@@ -879,9 +879,9 @@
                     return null;
                 }
             }
-        }
+        },
 
-        , Display : {
+        Display : {
             MenuSlide : {
                 /**
                  * @name : show
@@ -900,12 +900,12 @@
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.Display.MenuSlide.show : " + er.message);
                     }
-                }
+                },
 
                 /**
                  * @name : remove
                  */
-                , remove : function(){
+                remove : function(){
                     try {
                         $("#wrapper").removeClass("toggled");
                         $('#menuSlide').html('<li class="sidebar-brand" id="profileDisplay"><span oda-label="oda-project.userLabel">Profile Name</span></li><li class="divider"></li><li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'contact\',\'args\':[]});" oda-label="oda-main.contact">Contact</a></li>');
@@ -914,8 +914,8 @@
                         $.Oda.Log.error("$.Oda.Display.MenuSlide.remove : " + er.message);
                     }
                 }
-            }
-            , Menu : {
+            },
+            Menu : {
                 /**
                  * @name : show
                  */
@@ -925,26 +925,26 @@
                             var tabInput = { rang : $.Oda.Session.userInfo.profile, id_page : 0 };
                             var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getMenu.php", {"functionRetour" : function(retour){
                                 var strHTML = "";
-                                if(retour["strErreur"] === ""){
-                                    var datas = retour["data"]["resultat"]["data"];
+                                if(retour.strErreur === ""){
+                                    var datas = retour.data.resultat.data;
 
                                     var cate = "";
 
                                     for (var indice in datas) {
-                                        if((datas[indice]["id_categorie"] !== "98") && ((datas[indice]["id_categorie"] !== "1"))){
-                                            if(datas[indice]["id_categorie"] != cate){
-                                                cate = datas[indice]["id_categorie"];
-                                                if(indice != "0"){
+                                        if((datas[indice].id_categorie !== "98") && ((datas[indice].id_categorie !== "1"))){
+                                            if(datas[indice].id_categorie !== cate){
+                                                cate = datas[indice].id_categorie;
+                                                if(indice !== "0"){
                                                     strHTML += "</ul></li>";
                                                 }
 
-                                                strHTML += '<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">'+datas[indice]["Description_cate"]+'<span class="caret"></span></a><ul class="dropdown-menu" role="menu">';
+                                                strHTML += '<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">'+datas[indice].Description_cate+'<span class="caret"></span></a><ul class="dropdown-menu" role="menu">';
                                             }
-                                            var route = datas[indice]["Lien"];
+                                            var route = datas[indice].Lien;
                                             route = route.replace("api_page_","");
                                             route = route.replace("page_","");
                                             route = route.replace(".html","");
-                                            strHTML += "<li><a href=\"javascript:$.Oda.Router.navigateTo({'route':'"+route+"','args':[]});\">"+datas[indice]["Description_courte"]+"</a></li>";
+                                            strHTML += "<li><a href=\"javascript:$.Oda.Router.navigateTo({'route':'"+route+"','args':[]});\">"+datas[indice].Description_courte+"</a></li>";
                                         }
                                     }
                                     $('#menu').html(strHTML);
@@ -956,12 +956,12 @@
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.Display.Menu.show : " + er.message);
                     }
-                }
+                },
 
                 /**
                  * @name : remove
                  */
-                , remove : function(){
+                remove : function(){
                     try {
                         $('#menu').html('');
                         _menu = false;
@@ -969,8 +969,8 @@
                         $.Oda.Log.error("$.Oda.Display.Menu.remove : " + er.message);
                     }
                 }
-            }
-            , Message : {
+            },
+            Message : {
                 /**
                  * @param {object} p_params
                  * @returns {$.Oda}
@@ -979,9 +979,9 @@
                     try {
                         var tabInput = { code_user : $.Oda.Session.code_user };
                         var callback = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getMessagesToDisplay.php", { functionRetour : function(datas) {
-                            if(datas["strErreur"] === ""){
-                                for(var indice in datas["data"]["messages"]["data"]){
-                                    var message = datas["data"]["messages"]["data"][indice];
+                            if(datas.strErreur === ""){
+                                for(var indice in datas.data.messages.data){
+                                    var message = datas.data.messages.data[indice];
                                     if ( ! $( "#oda-message-"+message.id ).length ) {
                                         var strHtml = "";
                                         strHtml += '';
@@ -994,7 +994,7 @@
                                 }
 
                             } else{
-                                $.Oda.Notification.error(datas["strErreur"]);
+                                $.Oda.Notification.error(datas.strErreur);
                             }
                         }}, tabInput);
                         return this;
@@ -1002,19 +1002,19 @@
                         $.Oda.Log.error("$.Oda.Display.Message.show : " + er.message);
                         return null;
                     }
-                }
+                },
                 /**
                  * @param {object} p_params
                  * @returns {$.Oda}
                  */
-                , hide: function (p_params) {
+                hide: function (p_params) {
                     try {
                         var tabInput = { code_user : $.Oda.Session.code_user, id : p_params.id };
                         var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/setMessagesLus.php", {functionRetour : function(datas) {
-                            if(retour["strErreur"] === ""){
+                            if(retour.strErreur === ""){
                                 $('#oda-message-'+p_params.id).remove();
                             } else{
-                                $.Oda.Notification.error(datas["strErreur"]);
+                                $.Oda.Notification.error(datas.strErreur);
                             }
                         }}, tabInput);
                         return this;
@@ -1023,8 +1023,8 @@
                         return null;
                     }
                 }
-            }
-            , Popup : {
+            },
+            Popup : {
                 /**
                  * affichePopUp
                  * @param {object} p_params
@@ -1048,12 +1048,12 @@
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.Display.Popup.open : " + er.message);
                     }
-                }
+                },
                 /**
                  * @param {object} p_params
                  * @returns {$.Oda.Display.Popup}
                  */
-                , close: function (p_params) {
+                close: function (p_params) {
                     try {
                         $('#oda-popup_label').html("");
                         $('#oda-popup_content').html("");
@@ -1065,8 +1065,8 @@
                         return null;
                     }
                 }
-            }
-            , TemplateHtml : {
+            },
+            TemplateHtml : {
                 /**
                  * @param {Object} p_params
                  * @param p_params.template
@@ -1087,12 +1087,12 @@
                         $.Oda.Log.error("$.Oda.Display.TemplateHtml.create : " + er.message);
                         return null;
                     }
-                }
+                },
                 /**
                  * @param {Object} p_params
                  * @returns {String}
                  */
-                , eval: function (p_params) {
+                eval: function (p_params) {
                     try {
                         'use strict'
 
@@ -1115,12 +1115,12 @@
                     }
                 }
             }
-        }
+        },
         
         //for the application project
-        , App : {}
+        App : {},
         
-        , Tooling : {
+        Tooling : {
             timeout : function(func, time, arg){
                 try {
                     setTimeout(func, time, arg);
@@ -1129,19 +1129,19 @@
                     $.Oda.Log.error("$.Oda.Tooling.timeout : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
             * arrondir
             * @param {float|int} p_value
             * @param {int} p_precision
             * @returns {float|int}
             */
-            ,arrondir : function(p_value, p_precision){
+            arrondir : function(p_value, p_precision){
                 try {
                     var retour = 0;
                     var coef = Math.pow(10, p_precision);
 
-                    if(coef != 0){
+                    if(coef !== 0){
                         retour = Math.round(p_value*coef)/coef;
                     }else{
                         retour = Math.round(p_value);
@@ -1152,16 +1152,16 @@
                     $.Oda.Log.error("$.Oda.Tooling.arrondir : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
              * @name clone
              * @desc Clone an object JS
              * @param{object} p_params
              * @returns {object}
              */
-            , clone : function(p_params) {
+            clone : function(p_params) {
                 try {
-                    if (null == p_params || "object" != typeof p_params) return p_params;
+                    if (null === p_params || "object" !== typeof p_params) return p_params;
                     var copy = p_params.constructor();
                     for (var attr in p_params) {
                         if (p_params.hasOwnProperty(attr)) copy[attr] = p_params[attr];
@@ -1171,13 +1171,13 @@
                     $.Oda.Log.error("$.Oda.Tooling.clone : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
              * 
              * @param {string} html
              * @returns {string}
              */
-            , decodeHtml : function (html) {
+            decodeHtml : function (html) {
                 try {
                     var decoded = $('<div/>').html(html).text();
                     return decoded;
@@ -1185,12 +1185,12 @@
                     $.Oda.Log.error("$.Oda.Tooling.decodeHtml : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
              * @param {object} p_params
              * @returns {$.Oda.Tooling}
              */
-            , findBetweenWords: function (p_params) {
+            findBetweenWords: function (p_params) {
                 try {
                     var r = new RegExp(p_params.first + '(.*?)' + p_params.last, 'gm');
                     var list =  p_params.str.match(r);
@@ -1203,7 +1203,7 @@
                     $.Oda.Log.error("$.Oda.Tooling.findBetweenWords : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
              * @param p_params
              * @param p_params.str
@@ -1211,7 +1211,7 @@
              * @param p_params.by
              * @returns {String}
              */
-            , replaceAll: function (p_params) {
+            replaceAll: function (p_params) {
                 try {
                     var str = p_params.find.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
                     var re = new RegExp(str, 'g');
@@ -1222,40 +1222,41 @@
                     $.Oda.Log.error("$.Oda.Tooling.replaceAll : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
             * 
             * @param {type} path
             * @returns {unresolved}
             */
-            , clearSlashes : function(string) {
+            clearSlashes : function(string) {
                 try {
                     return string.toString().replace(/\/$/, '').replace(/^\//, '');
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Tooling.clearSlashes : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
              * getListValeurPourAttribut
              * @param {json} p_obj
              * @param {string} p_attribut
              * @returns {Array}
              */
-            , getListValeurPourAttribut : function(p_obj, p_attribut, p_type) {
+            getListValeurPourAttribut : function(p_obj, p_attribut, p_type) {
                 try {
-                    var retour = new Array();
+                    var retour = [];
 
                     for (var indice in p_obj) {
                         for (var key in p_obj[indice]) {
-                            if(key == p_attribut){
+                            if(key === p_attribut){
                                 if(typeof p_type !== "undefined"){
-                                    if(p_type == "int"){
-                                        var valeur = parseInt(p_obj[indice][key]);
-                                    }else if(p_type == "float"){
-                                        var valeur = parseFloat(p_obj[indice][key]);
+                                    var valeur = null;
+                                    if(p_type === "int"){
+                                        valeur = parseInt(p_obj[indice][key]);
+                                    }else if(p_type === "float"){
+                                        valeur = parseFloat(p_obj[indice][key]);
                                     }else{
-                                        var valeur = new p_type(p_obj[indice][key]);
+                                        valeur = new p_type(p_obj[indice][key]);
                                     }
                                     retour[retour.length] = valeur;
                                 }else{
@@ -1270,19 +1271,19 @@
                     $.Oda.Log.error("$.Oda.Tooling.getListValeurPourAttribut : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
             * isInArray
             * @param {string} p_value
             * @param {array} p_array
             * @returns {Boolean}
             */
-            , isInArray :  function(p_value, p_array) {
+            isInArray :  function(p_value, p_array) {
                 try {
                     var boolRetour = false;
 
                     for(var indice in p_array){
-                        if(p_value == p_array[indice]){
+                        if(p_value === p_array[indice]){
                             boolRetour = true;
                             break;
                         }
@@ -1293,18 +1294,18 @@
                     $.Oda.Log.error("$.Oda.Tooling.isInArray : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
             * @name isUndefined
             * @desc is ndefined N
             * @param {object} p_object
             * @returns {Worker}
             */
-            , isUndefined : function(p_object) {
+            isUndefined : function(p_object) {
                 try {
                     var boolReturn = true;
 
-                    if(typeof p_object != "undefined"){
+                    if(typeof p_object !== "undefined"){
                         boolReturn = false;
                     }
 
@@ -1313,12 +1314,12 @@
                     $.Oda.Log.error("$.Oda.Tooling.isUndefined : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
             * @name getMilise
             * @returns {string}
             */
-            , getMilise : function() {
+            getMilise : function() {
                 try {
                     var d = new Date();
                     return d.getTime();
@@ -1326,9 +1327,9 @@
                     $.Oda.Log.error("$.Oda.Tooling.getMilise : " + er.message);
                     return null;
                 }
-            }
+            },
             
-            , objectSize : function(obj) {
+            objectSize : function(obj) {
                 try {
                     var size = 0, key;
                     for (key in obj) {
@@ -1339,8 +1340,7 @@
                     $.Oda.Log.error("$.Oda.Tooling.objectSize : " + er.message);
                     return null;
                 }
-            }
-
+            },
 
             /**
              * objDataTableFromJsonArray
@@ -1348,7 +1348,7 @@
              * @param {object} p_JsonArray
              * @returns {object}
              */
-            , objDataTableFromJsonArray : function(p_JsonArray){
+            objDataTableFromJsonArray : function(p_JsonArray){
                 try {
                     var objRetour = { statut : "ok"};
 
@@ -1360,9 +1360,9 @@
                     }
                     objRetour.entete = arrayEntete;
 
-                    var arrayData = new Array();
+                    var arrayData = [];
                     for(var indice in p_JsonArray){
-                        var subArrayData = new Array();
+                        var subArrayData = [];
                         for(var key in p_JsonArray[indice]){
                             subArrayData[subArrayData.length] = p_JsonArray[indice][key];
                         }
@@ -1377,13 +1377,13 @@
                     var objRetour = { statut : "ko"};
                     return objRetour;
                 }
-            }
+            },
             /**
              * pad2
              * @param {int} number
              * @returns {String}
              */
-            , pad2 : function(number) {
+            pad2 : function(number) {
                 try {
                     return (number < 10 ? '0' : '') + number;
                 } catch (er) {
@@ -1391,16 +1391,16 @@
                     return null;
                 }
             }
-        }
-        
-        , I8n : {
+        },
+
+        I8n : {
             /**
              * @name get
              * @param {string} p_group
              * @param {string} p_tag
              * @returns {String}
             */
-            get: function(p_group, p_tag) {
+            get : function(p_group, p_tag) {
                 try {
                     var returnvalue = "Not define";
 
@@ -1420,13 +1420,13 @@
                     $.Oda.Log.error("$.Oda.I8n.get : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
              * @name getByString
              * @param {string} p_group
              * @returns {String}
             */
-            , getByString: function(p_tag) {
+            getByString: function(p_tag) {
                 try {
                     var returnvalue = p_tag;
 
@@ -1441,9 +1441,9 @@
                     return null;
                 }
             }
-        }
+        },
         
-        , Security : {
+        Security : {
             /**
              * auth
              * @param {object} p_params
@@ -1453,13 +1453,13 @@
                 try {
                     var tabInput = { "login" : p_params.login, "mdp" : p_params.mdp };
                     var returns = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getAuth.php", {}, tabInput); 
-                    if(returns["strErreur"] === ""){
-                        var code_user = returns["data"]["resultat"]["code_user"].toUpperCase();
-                        var key = returns["data"]["resultat"]["keyAuthODA"];
+                    if(returns.strErreur === ""){
+                        var code_user = returns.data.resultat.code_user.toUpperCase();
+                        var key = returns.data.resultat.keyAuthODA;
 
                         var session = {
-                            "code_user" : code_user
-                            , "key" : key
+                            "code_user" : code_user,
+                            "key" : key
                         };
 
                         var tabSetting = { };
@@ -1469,13 +1469,13 @@
                         var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getAuthInfo.php", tabSetting, tabInput);
                         if(retour.strErreur === ""){
                             var userInfo = {
-                                "locale" : retour.data.resultat.langue
-                                , "firstName" : retour.data.resultat.nom
-                                , "lastName" : retour.data.resultat.prenom
-                                , "mail" : retour.data.resultat.mail
-                                , "profile" : retour.data.resultat.profile
-                                , "profileLabel" : retour.data.resultat.labelle
-                                , "showTooltip" : retour.data.resultat.montrer_aide_ihm
+                                "locale" : retour.data.resultat.langue,
+                                "firstName" : retour.data.resultat.nom,
+                                "lastName" : retour.data.resultat.prenom,
+                                "mail" : retour.data.resultat.mail,
+                                "profile" : retour.data.resultat.profile,
+                                "profileLabel" : retour.data.resultat.labelle,
+                                "showTooltip" : retour.data.resultat.montrer_aide_ihm
                             };
                             session.userInfo = userInfo;
                             $.Oda.Storage.set("ODA-SESSION",session,43200);
@@ -1484,35 +1484,35 @@
                             $.Oda.Security.loadRight();
                         }else{
                             $.Oda.Storage.remove("ODA-SESSION");
-                            $.Oda.Notification.error(returns["strErreur"]);
+                            $.Oda.Notification.error(returns.strErreur);
                         }
                         _RouterExit = false;
                         if(p_params.reload){
                             $.Oda.Router.navigateTo();
                         }
                     }else {
-                       $.Oda.Notification.error(returns["strErreur"]);
+                       $.Oda.Notification.error(returns.strErreur);
                     }
                 } catch (er) {
                     $.Oda.Log.Log.error("$.Oda.Security.auth : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
              * 
              * @returns {undefined}
              */
-            , loadRight : function() {
+            loadRight : function() {
                 try {
                     _routesAllowed = _routesAllowedDefault.slice(0);
                     var tabInput = { "rang" : $.Oda.Session.userInfo.profile, "id_page" : 0 };
                     var retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getMenu.php", {}, tabInput);
-                    if(retour["strErreur"] === ""){
-                        var datas = retour["data"]["resultat"]["data"];
+                    if(retour.strErreur === ""){
+                        var datas = retour.data.resultat.data;
 
                         for (var indice in datas) {
-                            if((datas[indice]["id_categorie"] !== "98") && ((datas[indice]["id_categorie"] !== "1"))){
-                                var route = datas[indice]["Lien"];
+                            if((datas[indice].id_categorie !== "98") && ((datas[indice].id_categorie !== "1"))){
+                                var route = datas[indice].Lien;
                                 route = route.replace("api_page_","");
                                 route = route.replace("page_","");
                                 route = route.replace(".html","");
@@ -1523,12 +1523,12 @@
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Security.loadRight() : " + er.message);
                 }
-            }
+            },
         
             /**
             * @name : logout
             */
-            , logout : function(){
+            logout : function(){
                try {
                     var session = $.Oda.Storage.get("ODA-SESSION");
                     if(session !== null){
@@ -1539,16 +1539,16 @@
                         $.Oda.Storage.remove("ODA-SESSION");
                     }
                     $.Oda.Session = {
-                        "code_user" : ""
-                        , "key" : ""
-                        , "userInfo" : {
-                            "locale" : "fr"
-                            , "firstName" : ""
-                            , "lastName" : ""
-                            , "mail" : ""
-                            , "profile" : 0
-                            , "profileLabel" : ""
-                            , "showTooltip" : 0
+                        "code_user" : "",
+                        "key" : "",
+                        "userInfo" : {
+                            "locale" : "fr",
+                            "firstName" : "",
+                            "lastName" : "",
+                            "mail" : "",
+                            "profile" : 0,
+                            "profileLabel" : "",
+                            "showTooltip" : 0
                         }
                     };
                     $.Oda.Display.MenuSlide.remove();
@@ -1558,9 +1558,9 @@
                    $.Oda.Log.error("$.Oda.Security.logout : " + er.message);
                }
             }
-        }
+        },
         
-        , Business : {
+        Business : {
             /**
              * saisirContact
              * 
@@ -1570,10 +1570,10 @@
             contact : function(p_reponse, p_message) {
                 try {
                     var contact_mail_administrateur = $.Oda.getParameter("contact_mail_administrateur");
-                    if(contact_mail_administrateur != ""){
+                    if(contact_mail_administrateur !== ""){
                         var tabInput = { "reponse" : p_reponse, "message" : p_message, "code_user" : $.Oda.Session.code_user };
                         var result = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/insertContact.php", {}, tabInput);
-                        if(result["strErreur"] === ""){
+                        if(result.strErreur === ""){
                             var message_html = "";
                             var sujet = "";
 
@@ -1589,13 +1589,13 @@
                             sujet = "[ODA-"+$.Oda.getParameter("nom_site")+"]Nouveau contact.";
 
                             var paramsMail = {
-                                email_mail_ori : contact_mail_administrateur
-                                , email_labelle_ori : "Service Mail ODA"
-                                , email_mail_reply : contact_mail_administrateur
-                                , email_labelle_reply : "Service Mail ODA"
-                                , email_mails_dest : contact_mail_administrateur
-                                , message_html : message_html
-                                , sujet : sujet
+                                email_mail_ori : contact_mail_administrateur,
+                                email_labelle_ori : "Service Mail ODA",
+                                email_mail_reply : contact_mail_administrateur,
+                                email_labelle_reply : "Service Mail ODA",
+                                email_mails_dest : contact_mail_administrateur,
+                                message_html : message_html,
+                                sujet : sujet
                             };
 
                             var retour = $.Oda.sendMail(paramsMail);
@@ -1605,10 +1605,10 @@
                             $("#msg").val("");
 
                             if(retour){
-                                $.Oda.Notification.success("Demande bien soummise sous l'identifiant n&ordm;"+result["data"]["resultat"]+".");
+                                $.Oda.Notification.success("Demande bien soummise sous l'identifiant n&ordm;"+result.data.resultat+".");
                             }
                         }else{
-                            $.Oda.Notification.error(result["strErreur"]);
+                            $.Oda.Notification.error(result.strErreur);
                         }
                     }else{
                         $.Oda.Notification.error("Mail du service non définie.");
@@ -1617,42 +1617,42 @@
                     $.Oda.Log.error("$.Oda.contact() : " + er.message);
                 }
             }
-        }
-        
-        , Worker : {
+        },
+
+        Worker : {
             
             lib : function(){
                 var $ = {};
                 $.Oda = {
                     Context : {
                         rest : "$$REST$$"
-                    }
-                    
-                    , Session : {
-                        code_user : "$$CODEUSER$$"
-                        , key : "$$ODAKEY$$"
-                    }
-                    
-                    ,message : function(cmd, parameter){
+                    },
+
+                    Session : {
+                        code_user : "$$CODEUSER$$",
+                        key : "$$ODAKEY$$"
+                    },
+
+                    message : function(cmd, parameter){
                         try {
                             this.cmd = cmd;
                             this.parameter = parameter;
                         } catch (er) {
                             $.Oda.log("ERROR($Oda.message : " + er.message);
                         }
-                    }   
-                    
-                    , log : function(msg){
+                    },
+
+                    log : function(msg){
                         console.log(msg);
-                    } 
-                    
-                    , callRest: function(p_url, p_tabSetting, p_tabInput) {
+                    },
+
+                    callRest: function(p_url, p_tabSetting, p_tabInput) {
                         try {
                             var jsonAjaxParam = {
-                                url : p_url
-                                , contentType : 'application/x-www-form-urlencoded; charset=UTF-8'
-                                , dataType : 'json'
-                                , type : 'GET'
+                                url : p_url,
+                                contentType : 'application/x-www-form-urlencoded; charset=UTF-8',
+                                dataType : 'json',
+                                type : 'GET'
                             };
 
                             p_tabInput.milis = this.getMilise();
@@ -1663,7 +1663,7 @@
 
                             //traitement determinant async ou pas
                             var async = true;
-                            if(p_tabSetting.functionRetour == null){
+                            if(p_tabSetting.functionRetour === null){
                                 async = false;
                                 jsonAjaxParam.async = false;        
                             }
@@ -1709,7 +1709,7 @@
                             v_retourSync = "Vide";
                             switch (jsonAjaxParam.dataType) { 
                                 case "json": 
-                                    if (xhr_object.readyState == 4 && xhr_object.status == 200) {
+                                    if (xhr_object.readyState === 4 && xhr_object.status === 200) {
                                         v_retourSync = JSON.parse(xhr_object.responseText);
                                     } else {
                                         v_retourSync = "ERROR";
@@ -1717,7 +1717,7 @@
                                     break;   
                                 case "text": 
                                 default: 
-                                    if (xhr_object.readyState == 4) {
+                                    if (xhr_object.readyState === 4) {
                                         v_retourSync = xhr_object.responseText;
                                     } else {
                                         v_retourSync = "ERROR";
@@ -1747,7 +1747,7 @@
                             $.Oda.log("ERROR($.Oda.getMilise) : " + er.message);
                             return null;
                         }
-                    }
+                    },
                     
                     /**
                     * arrondir
@@ -1755,12 +1755,12 @@
                     * @param {int} p_precision
                     * @returns {float|int}
                     */
-                    , arrondir : function(p_value, p_precision){
+                    arrondir : function(p_value, p_precision){
                         try {
                             var retour = 0;
                             var coef = Math.pow(10, p_precision);
 
-                            if(coef != 0){
+                            if(coef !== 0){
                                 retour = Math.round(p_value*coef)/coef;
                             }else{
                                 retour = Math.round(p_value);
@@ -1773,16 +1773,16 @@
                         }
                     }
                 };
-            }
+            },
             
-            , message : function(cmd, parameter){
+            message : function(cmd, parameter){
                 try {
                     this.cmd = cmd;
                     this.parameter = parameter;
                 } catch (er) {
                     $.Oda.Log.error("$Oda.message : " + er.message);
                 }
-            }  
+            },
             
             /**
             * @name initWorker
@@ -1791,7 +1791,7 @@
             * @param {string} p_fonctionRetour
             * @returns {Worker}
             */
-            , initWorker : function(p_nameWorker, p_dataInit, p_functionCore, p_fonctionRetour) {
+            initWorker : function(p_nameWorker, p_dataInit, p_functionCore, p_fonctionRetour) {
                 try {
                     var strFunctionLib = $.Oda.Worker.lib.toString();
                     strFunctionLib = strFunctionLib.substring(12);
@@ -1816,7 +1816,7 @@
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Worker.initWorker : " + er.message);
                 }
-            }
+            },
 
             /**
             * @name terminateWorker
@@ -1824,7 +1824,7 @@
             * @param {type} p_worker
             * @returns {undefined}
             */
-            , terminateWorker : function(p_worker) {
+            terminateWorker : function(p_worker) {
                 try {
                     // On aurait pu créer une commande 'stop' qui aurait été traitée
                     // au sein du worker qui se serait fait hara-kiri via .close()
@@ -1833,16 +1833,16 @@
                     $.Oda.Log.error("$.Oda.Worker.terminateWorker : " + er.message);
                 }
             }
-        }
+        },
         
-        , Tuto : {
-            enable : true
-            
-            , currentElt : ""
-            
-            , listElt : []
-            
-            , start : function (){
+        Tuto : {
+            enable : true,
+
+            currentElt : "",
+
+            listElt : [],
+
+            start : function (){
                 try {
                     if($.Oda.Tuto.enable){
                         $('[oda-tuto]').each(function(index, value){
@@ -1877,9 +1877,9 @@
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Tuto.start : " + er.message);
                 }
-            }
+            },
             
-            , readed : function(id){
+            readed : function(id){
                 try {
                     $.Oda.Tuto.listElt[id].enable = false;
                     
@@ -1897,9 +1897,9 @@
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Tuto.readed : " + er.message);
                 }
-            }
+            },
             
-            , show : function (id){
+            show : function (id){
                 try {
                     var elt = $("[oda-tuto^='id:"+id+"']");
                     
@@ -1928,9 +1928,9 @@
                     $.Oda.Log.error("$.Oda.Tuto.show : " + er.message);
                 }
             }
-        }
+        },
         
-        , Scope : {
+        Scope : {
             /**
              * @param {Object} p_params
              * @param p_params.id
@@ -1995,7 +1995,7 @@
                         $(document).unbind("keypress");
                         
                         $(document).keypress(function(e) {
-                            if(e.which == 13) {
+                            if(e.which === 13) {
                                 if(!$(value).hasClass("disabled")){
                                     $(value).click();
                                 }
@@ -2008,13 +2008,13 @@
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Scope.init : " + er.message);
                 }
-            }
+            },
             /**
              * @param {Object} p_params
              * @param p_params.elt
              * @returns {$.Oda.Scope}
              */
-            , checkInputText: function (p_params) {
+            checkInputText: function (p_params) {
                 try {
                     var $elt = $(p_params.elt);
                     var odaCheck = $elt.attr("oda-input-text-check");
@@ -2040,22 +2040,21 @@
                     $.Oda.Log.error("$.Oda.Scope.checkInputText : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
              * 
              * @returns {undefined}
              */
-            , refresh : function(){
+            refresh : function(){
                 try {
                     
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Scope.refresh : " + er.message);
                 }
             }
-            
-        }
+        },
         
-        , Storage : {
+        Storage : {
             /* Version number */
             version : VERSION,
             ttl_default : 86400, //24H
@@ -2095,14 +2094,14 @@
                     var date = d.getTime();
 
                     var ttl = 0;
-                    if(typeof(p_ttl) != 'undefined'){
+                    if(typeof(p_ttl) !== 'undefined'){
                         ttl = p_ttl;
                     }
 
                     var storage = {
-                        "value" : p_value
-                        , "recordDate" : date
-                        , "ttl" : ttl
+                        "value" : p_value,
+                        "recordDate" : date,
+                        "ttl" : ttl
                     };
 
                     if(boolRetour){
@@ -2120,12 +2119,12 @@
 
             get: function(p_key, p_default) {
                 try {
-                    var myStorage = JSON.parse(localStorage.getItem(this.storageKey+p_key));
+                    var myStorage = JSON.parse(localStorage.getItem($.Oda.Storage.storageKey+p_key));
                     var myValue = null;
-                    if(myStorage != null){
+                    if(myStorage !== null){
                         myValue = myStorage.value;
 
-                        if((myStorage.value != null)&&(myStorage.ttl != 0)){
+                        if((myStorage.value !== null)&&(myStorage.ttl !== 0)){
                             var d = new Date();
                             var date = d.getTime();
 
@@ -2137,12 +2136,12 @@
                             }
                         }
 
-                        if((myValue == null)&&(typeof(p_default) != 'undefined')){
+                        if((myValue === null)&&(typeof(p_default) !== 'undefined')){
                             this.set(p_key, p_default);
                             myValue = p_default;
                         }
                     }else{
-                        if(typeof(p_default) != 'undefined'){
+                        if(typeof(p_default) !== 'undefined'){
                             this.set(p_key, p_default);
                             myValue = p_default;
                         }
@@ -2157,18 +2156,18 @@
 
             setTtl: function(p_key, p_ttl) {
                 try {
-                    var myValue = this.get(p_key);
+                    var myValue = $.Oda.Storage.get(p_key);
 
                     var d = new Date();
                     var date = d.getTime();
 
                     var storage = {
-                        "value" : myValue
-                        , recordDate : date
-                        , ttl : p_ttl
+                        "value" : myValue,
+                        recordDate : date,
+                        ttl : p_ttl
                     };
 
-                    var myReturn = this.set(this.storageKey+p_key, storage);
+                    var myReturn = $.Oda.Storage.set($.Oda.Storage.storageKey+p_key, storage);
 
                     return myReturn;
                 } catch (er) {
@@ -2181,9 +2180,9 @@
                 try {
                     var myReturn = 0;
 
-                    var myStorage = this.get(this.storageKey+p_key);
+                    var myStorage = $.Oda.Storage.get($.Oda.Storage.storageKey+p_key);
 
-                    if(myStorage != null){
+                    if(myStorage !== null){
 
                         var d = new Date();
                         var date = d.getTime();
@@ -2208,7 +2207,7 @@
                 try {
                     var myReturn = true;
 
-                    localStorage.removeItem(this.storageKey+p_key);
+                    localStorage.removeItem($.Oda.Storage.storageKey+p_key);
 
                     return myReturn;
                 } catch (er) {
@@ -2251,28 +2250,28 @@
                     return null;
                 }
             }
-        }
+        },
         
-        , Router : {
+        Router : {
             current : {
-                route : ""
-                , args : []
-            }
-            
-            , routeMiddleWares : {
+                route : "",
+                args : []
+            },
+
+            routeMiddleWares : {
                 "auth" : function(){
                    return "auth";
-                }
-                , "support" : function(){
+                },
+                "support" : function(){
                    return "support";
                 }
-            }
+            },
             /**
              * navigateTo
              * @param {object} p_request
              * @returns {$.Oda.Router}
              */
-            , navigateTo : function(p_request) {
+            navigateTo : function(p_request) {
                 try {
                     //hode popup if show
                     $('#oda-popup').modal("hide");
@@ -2307,14 +2306,14 @@
                     $.Oda.Log.error("$.ODa.Router.navigateTo : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
              * addRoute
              * @param {String} name description
              * @param {object} p_routeDef
              * @returns {$.Oda.Router}
              */
-            , addRoute : function(p_name, p_routeDef) {
+            addRoute : function(p_name, p_routeDef) {
                 try {
                     p_routeDef.go = function(p_request){
                         _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
@@ -2331,14 +2330,14 @@
                     $.Oda.Log.error("$.ODa.Router.addRoute : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
              * addMiddleWare
              * @param {string} p_name
              * @param {object} p_midlleWareDef
              * @returns {$.Oda.Router}
              */
-            , addMiddleWare : function(p_name, p_midlleWareDef) {
+            addMiddleWare : function(p_name, p_midlleWareDef) {
                 try {
                     _routeMiddleWares[p_name] = p_midlleWareDef;
                     _routeMiddleWares[p_name].name = p_name;
@@ -2347,19 +2346,19 @@
                     $.Oda.Log.error("$.ODa.Router.addMiddleWare : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
              * addDependencies
              * @param {string} p_name
              * @param {object} p_dependenciesLoad
              * @returns {$.Oda.Router}
              */
-            , addDependencies : function(p_name, p_dependenciesLoad) {
+            addDependencies : function(p_name, p_dependenciesLoad) {
                 try {
                     _routeDependencies[p_name] = {
-                        "name" : p_name
-                        , "statut" : _routeDependenciesStatus.notLoaded()
-                        , "load" : function(){
+                        "name" : p_name,
+                        "statut" : _routeDependenciesStatus.notLoaded(),
+                        "load" : function(){
                             if(this.statut === _routeDependenciesStatus.notLoaded()){
                                 this.statut = _routeDependenciesStatus.loading();
                                 p_dependenciesLoad();
@@ -2375,13 +2374,13 @@
                     $.Oda.Log.error("$.ODa.Router.addDependencies : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
              * 
              * @param {type} p_name
              * @returns {$.Oda.Router}
              */
-            , dependencieLoaded : function(p_name) {
+            dependencieLoaded : function(p_name) {
                 try {
                     _routeDependencies[p_name].statut = _routeDependenciesStatus.loaded();
                     $.Oda.Log.debug(p_name+" loaded");
@@ -2390,20 +2389,20 @@
                     $.Oda.Log.error("$.ODa.Router.dependencieLoaded : " + er.message);
                     return null;
                 }
-            }
+            },
             /**
              * 
              * @returns {$.Oda.Router}
              */
-            , startRooter : function() {
+            startRooter : function() {
                 try {
                     $("#projectLabel").text($.Oda.Context.projectLabel);
                     
                     var hash = $.Oda.Context.window.location.hash;
                     
                     $.Oda.Router.current = {
-                        route : $.Oda.Tooling.clearSlashes(decodeURI(hash)).substring(1).replace(/\?(.*)$/, '')
-                        , args : _getListParamsGet()
+                        route : $.Oda.Tooling.clearSlashes(decodeURI(hash)).substring(1).replace(/\?(.*)$/, ''),
+                        args : _getListParamsGet()
                     };
 
                     this.navigateTo($.Oda.Router.current);
@@ -2413,32 +2412,25 @@
                     return null;
                 }
             }
-        }
+        },
         
-        , Google : {
+        Google : {
             
-            gapi : false
-            
-            , clientId : "249758124548-fgt33dblm1r8jm0nh9snn53pkghpjtsu.apps.googleusercontent.com"
-            
-            , apiKey : "PgCsKeWAsVGdOj3KjPn-JPS3"
-            
-            , scopes : 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email'
-            
-            , methodeSessionAuthKo : null
-            
-            , methodeSessionAuthOk : null
-            
-            , sessionInfo : null
-            
-            , gaips : []
-            
-            , init : function () {
+            gapi : false,
+            clientId : "249758124548-fgt33dblm1r8jm0nh9snn53pkghpjtsu.apps.googleusercontent.com",
+            apiKey : "PgCsKeWAsVGdOj3KjPn-JPS3",
+            scopes : 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+            methodeSessionAuthKo : null,
+            methodeSessionAuthOk : null,
+            sessionInfo : null,
+            gaips : [],
+
+            init : function () {
                 try {
                     if(!$.Oda.Google.gapi) {
-                        $.getScript("https://apis.google.com/js/client.js?onload=handleClientLoad",$.Oda.Google.handleClientLoad);
+                        $.getScript("https://apis.google.com/js/src.js?onload=handleClientLoad",$.Oda.Google.handleClientLoad);
                     }else{
-                        $.Oda.Log.debug("gapi.client already load.");
+                        $.Oda.Log.debug("gapi.src already load.");
                     }
                     $.Oda.Log.debug("$.Oda.Google.init finish.");
                 } catch (er) {
@@ -2488,7 +2480,7 @@
                         }
                         
                         $.Oda.Google.gapi.client.load(tabApi[0].api, tabApi[0].version,function(resp){
-                            if(typeof resp == "undefined"){
+                            if(typeof resp === "undefined"){
                                 $.Oda.Google.gaips.push({"api":tabApi[0].api, "version" : tabApi[0].version});
                                 $.Oda.Log.debug('Chargement ok pour : '+tabApi[0].api + " en "+tabApi[0].version);
                                 tabApi.splice(0,1);
@@ -2516,7 +2508,7 @@
             },
             handleAuthResult : function(authResult) {
                 try {
-                    if ((authResult) && (!authResult.error) && (authResult.access_token != undefined)) {
+                    if ((authResult) && (!authResult.error) && (authResult.access_token !== undefined)) {
                         $.Oda.Google.sessionInfo = authResult;
                         $.Oda.Google.methodeSessionAuthOk();
                     } else {
@@ -2536,7 +2528,7 @@
                     $.Oda.Log.error("$.Oda.Google.callServiceGoogleAuth :" + er.message);
                 }
             }
-        }
+        },
         
         /**
         * log
@@ -2544,55 +2536,55 @@
         * @param {string} p_msg
         * @returns {boolean}
         */
-        , Log : {
+        Log : {
             "info" : function(p_msg) {
                 try {
                     $.Oda.Context.console.info(p_msg);
                     return this;
                 } catch (er) {
-                    throw new Error("$.Oda.Log.info : " + er.message);
+                    console.log("$.Oda.Log.info : " + er.message);
                     return null;
                 }
-            }
-            , "trace" : function(p_msg) {
+            },
+            "trace" : function(p_msg) {
                 try {
                     $.Oda.Context.console.log(p_msg);
                     return this;
                 } catch (er) {
-                    throw new Error("$.Oda.Log.trace : " + er.message);
+                    console.log("$.Oda.Log.trace : " + er.message);
                     return null;
                 }
-            }
-            , "debug" : function(p_msg) {
+            },
+            "debug" : function(p_msg) {
                 try {
                     if(_debug){
                         $.Oda.Context.console.debug(p_msg);
                     }
                     return this;
                 } catch (er) {
-                    throw new Error("$.Oda.Log.debug : " + er.message);
+                    console.log("$.Oda.Log.debug : " + er.message);
                     return null;
                 }
-            }
-            , "error" : function(p_msg) {
+            },
+            "error" : function(p_msg) {
                 try {
                     $.Oda.Context.console.error(p_msg);
                     return this;
                 } catch (er) {
-                    throw new Error("$.Oda.Log.error : " + er.message);
+                    console.log("$.Oda.Log.error : " + er.message);
                     return null;
                 }
-            }
-            , "warning" : function(p_msg) {
+            },
+            "warning" : function(p_msg) {
                 try {
                     $.Oda.Context.console.warn(p_msg);
                     return this;
                 } catch (er) {
-                    throw new Error("$.Oda.Log.warning : " + er.message);
+                    console.log("$.Oda.Log.warning : " + er.message);
                     return null;
                 }
             }
-        }
+        },
         
         /**
          * 
@@ -2600,20 +2592,20 @@
          * @param {type} p_functionFeedback
          * @returns {Boolean}
          */
-        , loadDepends : function(p_depends, p_functionFeedback){
+        loadDepends : function(p_depends, p_functionFeedback){
             try {
-                if(_dependecies == null){
+                if(_dependecies === null){
                     _dependecies = p_depends;
                 }
                 
-                if(_dependeciesFeedback == null){
+                if(_dependeciesFeedback === null){
                     _dependeciesFeedback = p_functionFeedback;
                 }
                 
                 var retour = true;
 
                 for (var indice in _dependecies) {
-                    if(($.Oda.Tooling.isUndefined(_dependecies[indice].status)) || (_dependecies[indice].status != "done")){
+                    if(($.Oda.Tooling.isUndefined(_dependecies[indice].status)) || (_dependecies[indice].status !== "done")){
                         $.Oda.Log.debug("Loading list of dependecies : "+_dependecies[indice].name+".");
                         _dependecies[indice].status = "doing";
                         if(_dependecies[indice].ordered){
@@ -2634,26 +2626,26 @@
             } catch (er) {
                $.Oda.Log.error("$.Oda.loadDepends : " + er.message);
             }
-        }
+        },
         
-        , Notification : {
-            id : 0
-            , success : function(p_message){
+        Notification : {
+            id : 0,
+            success : function(p_message){
                 this.create(p_message,"success", 2000);
-            }
-            , info : function(p_message){
+            },
+            info : function(p_message){
                 this.create(p_message,"info", 3000);
-            }
-            , warning : function(p_message){
+            },
+            warning : function(p_message){
                 this.create(p_message,"warning", 5000);
-            }
-            , danger : function(p_message){
+            },
+            danger : function(p_message){
                 this.create(p_message,"danger");
-            }
-            , error : function(p_message){
+            },
+            error : function(p_message){
                 this.create(p_message,"danger");
                 $.Oda.Log.error(p_message);
-            }
+            },
             /**
             * notification
             * @Desc Show notification
@@ -2661,7 +2653,7 @@
             * @param {string} p_type
             * @returns {boolean}
             */
-            ,create : function(p_message, p_type, time) {
+            create : function(p_message, p_type, time) {
                 try {
                     $.Oda.Notification.id++;
                     var strHtml = "";
@@ -2681,13 +2673,13 @@
                     $.Oda.Log.error("$.Oda.Notification.notification :" + er.message);
                     return null;
                 }
-            }
+            },
             /**
              * 
              * @param {object} params
              * @returns {$.Oda.Notification}
              */
-            , remove : function(params){
+            remove : function(params){
                 try {
                     $('#oda-notification-'+params.id).fadeOut( 500, function(){
                         $( this ).remove();
@@ -2698,7 +2690,7 @@
                     return null;
                 }
             }
-        }
+        },
         
         /**
          * @name callRest
@@ -2708,19 +2700,19 @@
          * @param{json} p_tabInput
          * @returns {json}
          */
-        , callRest: function(p_url, p_tabSetting, p_tabInput) {
+        callRest: function(p_url, p_tabSetting, p_tabInput) {
             try {
                 var jsonAjaxParam = {
-                    url : p_url
-                    , contentType : 'application/x-www-form-urlencoded; charset=UTF-8'
-                    , dataType : 'json'
-                    , type : 'GET'
+                    url : p_url,
+                    contentType : 'application/x-www-form-urlencoded; charset=UTF-8',
+                    dataType : 'json',
+                    type : 'GET'
                 };
                 
-                //cr�ation du jeton pour la secu
+                //création du jeton pour la secu
                 var session = $.Oda.Storage.get("ODA-SESSION");
                 var key = null;
-                if(session != null){
+                if(session !== null){
                     key = session.key;
                 } else{
                     key = p_tabInput["keyAuthODA"];
@@ -2735,7 +2727,7 @@
 
                 //traitement determinant async ou pas
                 var async = true;
-                if(p_tabSetting.functionRetour == null){
+                if($.Oda.Tooling.isUndefined(p_tabSetting.functionRetour)){
                     async = false;
                     jsonAjaxParam.async = false;        
                 }
@@ -2749,7 +2741,7 @@
 
                 jsonAjaxParam.success = function(p_retour, p_statut){
                     try {
-                        if(typeof p_retour == 'object'){
+                        if(typeof p_retour === 'object'){
                             //object
                             var returns = p_retour;
                             
@@ -2789,7 +2781,7 @@
                 $.Oda.Log.error(msg);
                 return null;
             } 
-        }
+        },
         
         /**
         * getParameter
@@ -2797,15 +2789,15 @@
         * @param {string} p_param_name
         * @returns { int|varchar }
         */
-        , getParameter : function(p_param_name) {
+        getParameter : function(p_param_name) {
             try {
                 var strResponse;
 
                 var tabInput = { param_name : p_param_name };
-                var json_retour = this.callRest(this.Context.rest+"API/phpsql/getParam.php", {}, tabInput);   
-                if(json_retour["strErreur"] == ""){
-                    var type = json_retour["data"]["leParametre"]["param_type"];
-                    var value = json_retour["data"]["leParametre"]["param_value"];
+                var json_retour = $.Oda.callRest($.Oda.Context.rest+"API/phpsql/getParam.php", {}, tabInput);
+                if(json_retour.strErreur === ""){
+                    var type = json_retour.data.leParametre.param_type;
+                    var value = json_retour.data.leParametre.param_type;
                     switch (type) {
                         case "int":
                             strResponse = parseInt(value);
@@ -2827,7 +2819,7 @@
                $.Oda.Log.error("$.Oda.getParameter : " + er.message);
                return null;
             }
-        }
+        },
         
         /**
          * @name addStat
@@ -2836,7 +2828,7 @@
          * @param {String} p_page
          * @param {String} p_action
          */
-        , addStat : function(p_user, p_page, p_action) {
+        addStat : function(p_user, p_page, p_action) {
            try {
                 var tabSetting = { functionRetour : function(){} };
                 var tabInput = { 
@@ -2850,7 +2842,7 @@
                $.Oda.Log.error("$.Oda.addStat : " + er.message);
                return null;
            }
-        }
+        },
         
         /**
         * sendMail
@@ -2858,16 +2850,16 @@
         * @param {json} p_params
         * @returns {boolean}
         */
-        , sendMail : function(p_params) {
+        sendMail : function(p_params) {
            try {
                 var params_attempt = {
-                    email_mails_dest : null
-                    , message_html : null
-                    , sujet : null
+                    email_mails_dest : null,
+                    message_html : null,
+                    sujet : null
                  };
 
                 var params = _checkParams(p_params, params_attempt);
-                if(params == null){
+                if(params === null){
                     return false;
                 }
 
