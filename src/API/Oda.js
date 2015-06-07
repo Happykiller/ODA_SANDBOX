@@ -2415,11 +2415,19 @@
         },
         
         Google : {
-            
-            gapi : false,
+            gapiStatuts : {
+                "zero" : 0,
+                "init" : 1,
+                "loaded" : 2,
+                "finish" : 3,
+                "fail" : 4
+            },
+            gapiStatut : 0,
+            gapi : null,
             clientId : "249758124548-fgt33dblm1r8jm0nh9snn53pkghpjtsu.apps.googleusercontent.com",
             apiKey : "PgCsKeWAsVGdOj3KjPn-JPS3",
             scopes : 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+            trySessionAuth : 0,
             methodeSessionAuthKo : null,
             methodeSessionAuthOk : null,
             sessionInfo : null,
@@ -2427,40 +2435,60 @@
 
             init : function () {
                 try {
-                    if(!$.Oda.Google.gapi) {
-                        $.getScript("https://apis.google.com/js/src.js?onload=handleClientLoad",$.Oda.Google.handleClientLoad);
-                    }else{
-                        $.Oda.Log.debug("gapi.src already load.");
+                    switch($.Oda.Google.gapiStatut) {
+                        case $.Oda.Google.gapiStatuts.zero :
+                            $.Oda.Google.gapiStatut = $.Oda.Google.gapiStatuts.init;
+                            $.getScript("https://apis.google.com/js/src.js?onload=handleClientLoad",$.Oda.Google.handleClientLoad);
+                            break;
+                        case $.Oda.Google.gapiStatuts.loaded :
+                            $.Oda.Log.debug("gapi.src already load.");
+                            break;
+                        default:
+                            $.Oda.Log.error("$.Oda.Google.init : client load fail.");
                     }
                     $.Oda.Log.debug("$.Oda.Google.init finish.");
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Google.init :" + er.message);
                 }
             },
-            handleClientLoad : function() {
+            handleClientLoad : function(data) {
                 try {
-                    if(gapi.client === null) {
-                        $.Oda.Context.window.setTimeout($.Oda.Google.handleClientLoad,500);
-                    }else{
+                    if(gapi.hasOwnProperty("client")) {
+                        $.Oda.Google.gapiStatut = $.Oda.Google.gapiStatuts.loaded;
                         $.Oda.Google.gapi = gapi;
+                        $.Oda.Log.debug("$.Oda.Google.handleClientLoad finish.");
+                    }else{
+                        $.Oda.Google.gapiStatut = $.Oda.Google.gapiStatuts.fail;
+                        $.Oda.Log.error("$.Oda.Google.handleClientLoad client load fail.");
                     }
-                    $.Oda.Log.debug("$.Oda.Google.handleClientLoad finish.");
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Google.handleClientLoad :" + er.message);
                 }
             },
             startSessionAuth : function(methodOk, methodKo){
                 try {
-                    if(!$.Oda.Tooling.isUndefined(methodOk)){
-                        $.Oda.Google.methodeSessionAuthOk = methodOk;
-                    }
-                    if(!$.Oda.Tooling.isUndefined(methodKo)){
-                        $.Oda.Google.methodeSessionAuthKo = methodKo;
-                    }
-                    if($.Oda.Google.gapi) {
-                        $.Oda.Google.loadGapis([{"api":"oauth2","version":"v2"}], $.Oda.Google.callbackAuthSession);
-                    }else{
-                        setTimeout($.Oda.Google.startSessionAuth,500);
+                    switch($.Oda.Google.gapiStatut) {
+                        case $.Oda.Google.gapiStatuts.zero :
+                            $.Oda.Google.init();
+                            setTimeout($.Oda.Google.startSessionAuth,500);
+                            break;
+                        case $.Oda.Google.gapiStatuts.loaded :
+                            if(!$.Oda.Tooling.isUndefined(methodOk)){
+                                $.Oda.Google.methodeSessionAuthOk = methodOk;
+                            }
+                            if(!$.Oda.Tooling.isUndefined(methodKo)){
+                                $.Oda.Google.methodeSessionAuthKo = methodKo;
+                            }
+                            $.Oda.Google.loadGapis([{
+                                "api": "oauth2",
+                                "version": "v2"
+                            }], $.Oda.Google.callbackAuthSession);
+                            break;
+                        case $.Oda.Google.gapiStatuts.init :
+                            setTimeout($.Oda.Google.startSessionAuth,500);
+                            break;
+                        default:
+                            $.Oda.Log.error("$.Oda.Google.startSessionAuth : $.Oda.Google.gapi problem.");
                     }
                     $.Oda.Log.debug("$.Oda.Google.startSessionAuth finish.");
                 } catch (er) {
@@ -2469,27 +2497,27 @@
             },
             loadGapis : function(tabApi, callbackFunction) {
                 try {
-                    if(tabApi.length>0){
-                        for(var indice in $.Oda.Google.gaips){
-                            if(($.Oda.Google.gaips[indice].api === tabApi[0].api) && ($.Oda.Google.gaips[indice].version === tabApi[0].version)){
-                                $.Oda.Log.debug('Already ok pour : '+tabApi[0].api + " en "+tabApi[0].version);
-                                tabApi.splice(0,1);
-                                $.Oda.Google.loadGapis(tabApi,callbackFunction);
+                    if (tabApi.length > 0) {
+                        for (var indice in $.Oda.Google.gaips) {
+                            if (($.Oda.Google.gaips[indice].api === tabApi[0].api) && ($.Oda.Google.gaips[indice].version === tabApi[0].version)) {
+                                $.Oda.Log.debug('Already ok pour : ' + tabApi[0].api + " en " + tabApi[0].version);
+                                tabApi.splice(0, 1);
+                                $.Oda.Google.loadGapis(tabApi, callbackFunction);
                                 return true;
                             }
                         }
-                        
-                        $.Oda.Google.gapi.client.load(tabApi[0].api, tabApi[0].version,function(resp){
-                            if(typeof resp === "undefined"){
-                                $.Oda.Google.gaips.push({"api":tabApi[0].api, "version" : tabApi[0].version});
-                                $.Oda.Log.debug('Chargement ok pour : '+tabApi[0].api + " en "+tabApi[0].version);
-                                tabApi.splice(0,1);
-                                $.Oda.Google.loadGapis(tabApi,callbackFunction);
-                            }else{
-                                $.Oda.Log.debug('Chargement ko pour : '+tabApi[0].api + " en "+tabApi[0].version + "("+resp.error.message+")");
+
+                        $.Oda.Google.gapi.client.load(tabApi[0].api, tabApi[0].version, function (resp) {
+                            if (typeof resp === "undefined") {
+                                $.Oda.Google.gaips.push({"api": tabApi[0].api, "version": tabApi[0].version});
+                                $.Oda.Log.debug('Chargement ok pour : ' + tabApi[0].api + " en " + tabApi[0].version);
+                                tabApi.splice(0, 1);
+                                $.Oda.Google.loadGapis(tabApi, callbackFunction);
+                            } else {
+                                $.Oda.Log.debug('Chargement ko pour : ' + tabApi[0].api + " en " + tabApi[0].version + "(" + resp.error.message + ")");
                             }
                         });
-                    }else{
+                    } else {
                         callbackFunction();
                     }
                     $.Oda.Log.debug("$.Oda.Google.loadGapis finish.");
@@ -2501,9 +2529,9 @@
                 try {
                     $.Oda.Google.gapi.client.setApiKey($.Oda.Google.apiKey);
                     $.Oda.Google.gapi.auth.authorize({"client_id": $.Oda.Google.clientId, "scope": $.Oda.Google.scopes, "immediate": true}, $.Oda.Google.handleAuthResult);
-                    $.Oda.Log.debug("$.Oda.Google.callbackLaodGapis finish.");
+                    $.Oda.Log.debug("$.Oda.Google.callbackAuthSession finish.");
                 } catch (er) {
-                    $.Oda.Log.error("$.Oda.Google.callbackLaodGapis :" + er.message);
+                    $.Oda.Log.error("$.Oda.Google.callbackAuthSession :" + er.message);
                 }
             },
             handleAuthResult : function(authResult) {
