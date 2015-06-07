@@ -269,7 +269,7 @@
                             type: 'text/css',
                             href: "API/css/dataTables.bootstrap.css"
                         }).appendTo('head');
-                        $.getScript("API/libs/dataTables/media/js/jquery.dataTables.min.js",function(){
+                        $.getScript("API/libs/datatables/media/js/jquery.dataTables.min.js",function(){
                             $.getScript("API/js/dataTables.bootstrap.js",function(){
                                 $.Oda.Router.dependencieLoaded("dataTables");
                             });
