@@ -2438,7 +2438,7 @@
                     switch($.Oda.Google.gapiStatut) {
                         case $.Oda.Google.gapiStatuts.zero :
                             $.Oda.Google.gapiStatut = $.Oda.Google.gapiStatuts.init;
-                            $.getScript("https://apis.google.com/js/src.js?onload=handleClientLoad",$.Oda.Google.handleClientLoad);
+                            $.getScript("https://apis.google.com/js/client.js?onload=handleClientLoad",$.Oda.Google.handleClientLoad);
                             break;
                         case $.Oda.Google.gapiStatuts.loaded :
                             $.Oda.Log.debug("gapi.src already load.");
@@ -2451,15 +2451,15 @@
                     $.Oda.Log.error("$.Oda.Google.init :" + er.message);
                 }
             },
-            handleClientLoad : function(data) {
+            handleClientLoad : function() {
                 try {
                     if(gapi.hasOwnProperty("client")) {
-                        $.Oda.Google.gapiStatut = $.Oda.Google.gapiStatuts.loaded;
                         $.Oda.Google.gapi = gapi;
+                        $.Oda.Google.gapiStatut = $.Oda.Google.gapiStatuts.loaded;
                         $.Oda.Log.debug("$.Oda.Google.handleClientLoad finish.");
                     }else{
-                        $.Oda.Google.gapiStatut = $.Oda.Google.gapiStatuts.fail;
-                        $.Oda.Log.error("$.Oda.Google.handleClientLoad client load fail.");
+                        $.Oda.Log.debug("$.Oda.Google.handleClientLoad waiting");
+                        setTimeout($.Oda.Google.handleClientLoad,100);
                     }
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Google.handleClientLoad :" + er.message);
@@ -2467,10 +2467,17 @@
             },
             startSessionAuth : function(methodOk, methodKo){
                 try {
+                    if(!$.Oda.Tooling.isUndefined(methodOk)){
+                        $.Oda.Google.methodeSessionAuthOk = methodOk;
+                    }
+                    if(!$.Oda.Tooling.isUndefined(methodKo)){
+                        $.Oda.Google.methodeSessionAuthKo = methodKo;
+                    }
+
                     switch($.Oda.Google.gapiStatut) {
                         case $.Oda.Google.gapiStatuts.zero :
                             $.Oda.Google.init();
-                            setTimeout($.Oda.Google.startSessionAuth,500);
+                            setTimeout($.Oda.Google.startSessionAuth,100);
                             break;
                         case $.Oda.Google.gapiStatuts.loaded :
                             if(!$.Oda.Tooling.isUndefined(methodOk)){
@@ -2485,7 +2492,7 @@
                             }], $.Oda.Google.callbackAuthSession);
                             break;
                         case $.Oda.Google.gapiStatuts.init :
-                            setTimeout($.Oda.Google.startSessionAuth,500);
+                            setTimeout($.Oda.Google.startSessionAuth,100);
                             break;
                         default:
                             $.Oda.Log.error("$.Oda.Google.startSessionAuth : $.Oda.Google.gapi problem.");
