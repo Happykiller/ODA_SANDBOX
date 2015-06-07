@@ -31,7 +31,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
         });
         
         $.Oda.Router.addRoute("home", {
-            "path" : "partial/home.html",
+            "path" : "partials/home.html",
             "title" : "oda-main.home-title",
             "urls" : ["","home"],
             "dependencies" : ["dataTables","wowhead"],
@@ -39,7 +39,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
         });
         
         $.Oda.Router.addRoute("saisir_paquet", {
-            "path" : "partial/paquet-add.html",
+            "path" : "partials/paquet-add.html",
             "title" : "paquet-add.title",
             "urls" : ["saisir_paquet"],
             "dependencies" : ["dataTables","wowhead"],
@@ -47,7 +47,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
         });
 
         $.Oda.Router.addRoute("rapports_cartes", {
-            "path" : "partial/rapports_cartes.html",
+            "path" : "partials/rapports_cartes.html",
             "title" : "rapports-cartes.title",
             "urls" : ["rapports_cartes"],
             "dependencies" : ["dataTables","hightcharts","wowhead"],
@@ -55,7 +55,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
         });
 
         $.Oda.Router.addRoute("gerer_collection", {
-            "path" : "partial/gerer_collection.html",
+            "path" : "partials/gerer_collection.html",
             "title" : "gerer-coll.title",
             "urls" : ["gerer_collection"],
             "dependencies" : ["dataTables","wowhead"],

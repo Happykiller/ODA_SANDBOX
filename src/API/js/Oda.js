@@ -32,7 +32,7 @@
         
         _routes = {
             "404" : {
-                "path" : "API/partial/404.html",
+                "path" : "API/partials/404.html",
                 "title" : "oda-main.404-title",
                 "urls" : ["404"],
                 "middleWares" : [],
@@ -42,7 +42,7 @@
                 }
             },
             "auth" : {
-                "path" : "API/partial/auth.html",
+                "path" : "API/partials/auth.html",
                 "title" : "oda-main.authentification",
                 "urls" : ["auth"],
                 "middleWares" : ["support"],
@@ -52,7 +52,7 @@
                 }
             },
             "support" : {
-                "path" : "API/partial/support.html",
+                "path" : "API/partials/support.html",
                 "title" : "oda-main.support-title",
                 "urls" : ["support"],
                 "middleWares" : [],
@@ -62,7 +62,7 @@
                 }
             },
             "contact" : {
-                "path" : "API/partial/contact.html",
+                "path" : "API/partials/contact.html",
                 "title" : "oda-main.contact",
                 "urls" : ["contact"],
                 "middleWares" : ["support"],
@@ -72,7 +72,7 @@
                 }
             },
             "forgot" : {
-                "path" : "API/partial/forgot.html",
+                "path" : "API/partials/forgot.html",
                 "title" : "oda-main.forgot-title",
                 "urls" : ["forgot"],
                 "middleWares" : ["support"],
@@ -82,7 +82,7 @@
                 }
             },
             "subscrib" : {
-                "path" : "API/partial/subscrib.html",
+                "path" : "API/partials/subscrib.html",
                 "title" : "oda-main.subscrib-title",
                 "urls" : ["subscrib"],
                 "middleWares" : ["support"],
@@ -92,7 +92,7 @@
                 }
             },
             "home" : {
-                "path" : "API/partial/home.html",
+                "path" : "API/partials/home.html",
                 "title" : "oda-main.home-title",
                 "urls" : ["","home"],
                 "middleWares" : ["support", "auth"],
@@ -102,7 +102,7 @@
                 }
             },
             "profile" : {
-                "path" : "API/partial/profile.html",
+                "path" : "API/partials/profile.html",
                 "title" : "oda-main.profile-title",
                 "urls" : ["profile"],
                 "middleWares" : ["support", "auth"],
@@ -112,7 +112,7 @@
                 }
             },
             "stats" : {
-                "path" : "API/partial/stats.html",
+                "path" : "API/partials/stats.html",
                 "title" : "oda-stats.title",
                 "urls" : ["stats"],
                 "middleWares" : ["support", "auth"],
@@ -122,7 +122,7 @@
                 }
             },
             "admin" : {
-                "path" : "API/partial/admin.html",
+                "path" : "API/partials/admin.html",
                 "title" : "oda-admin.title",
                 "urls" : ["admin"],
                 "middleWares" : ["support", "auth"],
@@ -132,7 +132,7 @@
                 }
             },
             "supervision" : {
-                "path" : "API/partial/supervision.html",
+                "path" : "API/partials/supervision.html",
                 "title" : "oda-supervision.title",
                 "urls" : ["supervision"],
                 "middleWares" : ["support", "auth"],
@@ -267,10 +267,10 @@
                         $('<link/>', {
                             rel: 'stylesheet',
                             type: 'text/css',
-                            href: "API/lib/DataTables/css/dataTables.bootstrap.css"
+                            href: "API/css/dataTables.bootstrap.css"
                         }).appendTo('head');
-                        $.getScript("API/lib/DataTables/js/jquery.dataTables.min.js",function(){
-                            $.getScript("API/lib/DataTables/js/dataTables.bootstrap.js",function(){
+                        $.getScript("API/libs/dataTables/media/js/jquery.dataTables.min.js",function(){
+                            $.getScript("API/js/dataTables.bootstrap.js",function(){
                                 $.Oda.Router.dependencieLoaded("dataTables");
                             });
                         });
@@ -287,7 +287,7 @@
                 "load" : function(){
                     if(this.statut === _routeDependenciesStatus.notLoaded()){
                         this.statut = _routeDependenciesStatus.loading();
-                        $.getScript("API/lib/Highcharts/highcharts.js",function(){
+                        $.getScript("API/libs/highcharts-release/highcharts.js",function(){
                             $.Oda.Router.dependencieLoaded("hightcharts");
                         });
                     }else if(this.statut === _routeDependenciesStatus.loading()){
@@ -367,7 +367,7 @@
             
             $.Oda.loadDepends([
                 {"name" : "app" , ordered : true, "list" : [
-                    { "elt" : "OdaApp.js", "type" : "script" }
+                    { "elt" : "js/OdaApp.js", "type" : "script" }
                 ]}
             ],_appStarted);
         } catch (er) {
@@ -2743,8 +2743,8 @@
                 if(session !== null){
                     key = session.key;
                 } else{
-                    key = p_tabInput["keyAuthODA"];
-                    delete p_tabInput["keyAuthODA"];
+                    key = p_tabInput.keyAuthODA;
+                    delete p_tabInput.keyAuthODA;
                 }
 
                 p_tabInput.milis = $.Oda.Tooling.getMilise();

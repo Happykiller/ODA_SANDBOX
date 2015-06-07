@@ -3,12 +3,11 @@
 'use strict';
 
 var gulp = require('gulp');
-var watch = require('gulp-watch');
-var connect = require('gulp-connect');
-var launch = require('gulp-open');
 var bower = require('gulp-bower');
-var plumber = require('gulp-plumber');
+var connect = require('gulp-connect');
 var jshint = require('gulp-jshint');
+var launch = require('gulp-open');
+var plumber = require('gulp-plumber');
 
 var opt = {
   port: 3000,
@@ -17,24 +16,25 @@ var opt = {
 
 var paths = {
     scripts : [
-        'src/API/Oda.js',
-        'src/OdaApp.js',
-        'src/API/partial/**/*',
-        'src/partial/**/*'
+        'src/API/js/Oda.js',
+        'src/js/OdaApp.js',
+        'src/API/partials/**/*.js',
+        'src/partials/**/*.js'
     ],
     sources : [
         'src/API/css/**/*',
         'src/API/i8n/**/*',
         'src/API/img/**/*',
-        'src/API/partial/**/*',
+        'src/API/partials/**/*',
+        'src/js/**/*',
         'src/API/*',
         'src/css/**/*',
         'src/i8n/**/*',
         'src/img/**/*',
-        'src/partial/**/*',
+        'src/partials/**/*',
+        'src/js/**/*',
         'src/*'
-    ],
-    destLib : 'src/API/libs/'
+    ]
 };
 
 /**
@@ -53,9 +53,7 @@ gulp.task('jshint', function() {
  * Fetch bower dependencies
  */
 gulp.task('bower', function() {
-  return bower()
-    .pipe(plumber())
-    .pipe(gulp.dest(paths.destLib));
+    bower({ directory: 'libs', cwd: './src/API' }).pipe(bower({ directory: 'libs', cwd: './src' }));
 });
 
 /**
@@ -76,7 +74,7 @@ gulp.task('watch', ['jshint'], function() {
 /**
  * Server task
  */
-gulp.task('server', ['bower'], function() {
+gulp.task('server', function() {
   return connect.server({
     root: ['src', '.'],
     port: opt.port,
@@ -95,4 +93,4 @@ gulp.task('open', function() {
     }));
 });
 
-gulp.task('dev', ['server', 'watch', 'open']);
+gulp.task('dev', ['bower', 'watch', 'server', 'open']);

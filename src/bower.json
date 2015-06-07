@@ -11,12 +11,8 @@
 		"**/.*",
 		"node_modules"
 	],
-    "directory": "src/libs",
+    "directory": "libs",
 	"dependencies": {
-		"bootstrap" : "latest",
-        "datatables" : "latest",
-        "datatables-bootstrap3" : "latest",
-        "highcharts-release" : "latest",
         "ckeditor" : "latest"
 	}
 }
