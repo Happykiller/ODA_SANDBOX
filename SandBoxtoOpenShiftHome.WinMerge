@@ -2,7 +2,7 @@
 
 <project>
    <paths>
-      <left>D:\Travail\APP\ODA_SANDBOX\client\</left>
+      <left>D:\Travail\APP\ODA_SANDBOX\src\</left>
       <right>D:\Travail\APP\OpenShift\perso\php\SANDBOX\</right>
       <filter>FiltreODAToOpenshift</filter>
       <subfolders>1</subfolders>
