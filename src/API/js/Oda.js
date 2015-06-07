@@ -2446,7 +2446,6 @@
                         default:
                             $.Oda.Log.error("$.Oda.Google.init : client load fail.");
                     }
-                    $.Oda.Log.debug("$.Oda.Google.init finish.");
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Google.init :" + er.message);
                 }
@@ -2476,28 +2475,24 @@
 
                     switch($.Oda.Google.gapiStatut) {
                         case $.Oda.Google.gapiStatuts.zero :
+                            $.Oda.Log.debug("$.Oda.Google.startSessionAuth waiting");
                             $.Oda.Google.init();
                             setTimeout($.Oda.Google.startSessionAuth,100);
                             break;
                         case $.Oda.Google.gapiStatuts.loaded :
-                            if(!$.Oda.Tooling.isUndefined(methodOk)){
-                                $.Oda.Google.methodeSessionAuthOk = methodOk;
-                            }
-                            if(!$.Oda.Tooling.isUndefined(methodKo)){
-                                $.Oda.Google.methodeSessionAuthKo = methodKo;
-                            }
                             $.Oda.Google.loadGapis([{
                                 "api": "oauth2",
                                 "version": "v2"
                             }], $.Oda.Google.callbackAuthSession);
+                            $.Oda.Log.debug("$.Oda.Google.startSessionAuth finish.");
                             break;
                         case $.Oda.Google.gapiStatuts.init :
+                            $.Oda.Log.debug("$.Oda.Google.startSessionAuth waiting");
                             setTimeout($.Oda.Google.startSessionAuth,100);
                             break;
                         default:
                             $.Oda.Log.error("$.Oda.Google.startSessionAuth : $.Oda.Google.gapi problem.");
                     }
-                    $.Oda.Log.debug("$.Oda.Google.startSessionAuth finish.");
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Google.startSessionAuth :" + er.message);
                 }
@@ -2525,9 +2520,9 @@
                             }
                         });
                     } else {
+                        $.Oda.Log.debug("$.Oda.Google.loadGapis finish.");
                         callbackFunction();
                     }
-                    $.Oda.Log.debug("$.Oda.Google.loadGapis finish.");
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Google.loadGapis :" + er.message);
                 }
