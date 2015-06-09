@@ -246,7 +246,7 @@
     function retourCollection(json_retour){
         try {
             if(json_retour["strErreur"] == ""){
-                var strhtml = '<table cellpadding="0" cellspacing="0" border="0" class="display" id="table_collection" style="width: 100%"></table></br></br>';
+                var strhtml = '<table cellpadding="0" cellspacing="0" border="0" class="display hover" id="table_collection" style="width: 100%"></table></br></br>';
                 $('#div_collection').html(strhtml).trigger('create');
 
                 var objDataTable = $.Oda.Tooling.objDataTableFromJsonArray(json_retour["data"]["collection"]["data"]);

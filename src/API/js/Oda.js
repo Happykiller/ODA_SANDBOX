@@ -498,7 +498,9 @@
             $.get(p_params.routeDef.path, function(data) {
                 $('#'+$.Oda.Context.mainDiv).html(data);
                 $.Oda.Scope.init({id:$.Oda.Context.mainDiv});
-                $.Oda.Tuto.start();
+                if($.Oda.Session.code_user !== ""){
+                    $.Oda.Tuto.start();
+                }
             });
             return true;
         } catch (er) {
@@ -1031,6 +1033,10 @@
                  */
                 open : function(p_params){
                     try {
+                        if(p_params.hasOwnProperty("size")){
+                            $('#oda-popup .modal-dialog').addClass("modal-"+p_params.size);
+                        }
+
                         $('#oda-popup_label').html("<b>"+p_params.label+"</b>");
                         $.Oda.Scope.init({id:'oda-popup_label'});
 
