@@ -13,6 +13,8 @@
         VERSION = '0.1',
         
         _debug = true,
+
+        _mokup = true,
         
         _dependecies = null,
         
@@ -328,7 +330,7 @@
             _routesAllowed = _routesAllowedDefault.slice(0);
             
             //depdends
-            $.Oda.loadDepends([
+            var listDepends = [
                 {"name" : "style" , ordered : false, "list" : [
                     { "elt" : "API/css/css.css", "type" : "css" },
                     { "elt" : "css/css.css", "type" : "css" }
@@ -340,7 +342,20 @@
                 {"name" : "include" , ordered : true, "list" : [
                     { "elt" : "include/config.js", "type" : "script" }
                 ]}
-            ],_loaded);
+            ];
+
+            if(_mokup){
+                _mokup = [];
+                var listDependsMokup = [
+                    {"name" : "mokup" , ordered : false, "list" : [
+                        { "elt" : "API/mokup/mokup.json", "type" : "json", "target" : function(p_json){_mokup = _mokup.concat(p_json);}},
+                        { "elt" : "mokup/mokup.json", "type" : "json", "target" : function(p_json){_mokup = _mokup.concat(p_json);}}
+                    ]}
+                ];
+                listDepends = listDepends.concat(listDependsMokup);
+            }
+
+            $.Oda.loadDepends(listDepends,_loaded);
         } catch (er) {
            $.Oda.Log.error("_init : " + er.message);
         }
@@ -418,66 +433,70 @@
         try {
             $.Oda.Log.debug("RouterGo : ");
             $.Oda.Log.debug(p_params);
-            
-            $('#'+$.Oda.Context.mainDiv).html('<img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">');
-            
+
+            $('#' + $.Oda.Context.mainDiv).html('<img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">');
+
             //rewrite hash
-            if(!p_params.system){
+            if (!p_params.system) {
                 var urlRoute = $.Oda.Router.current.route;
                 var urlArg = "";
-                for(var key in $.Oda.Router.current.args){
-                    if(($.Oda.Router.current.args[key] !== "getUser")&&($.Oda.Router.current.args[key] !== "getPass")){
-                        if(urlArg === ""){
+                for (var key in $.Oda.Router.current.args) {
+                    if (($.Oda.Router.current.args[key] !== "getUser") && ($.Oda.Router.current.args[key] !== "getPass")) {
+                        if (urlArg === "") {
                             urlArg += "?";
-                        }else{
+                        } else {
                             urlArg += "&";
                         }
                         urlArg += key + "=" + $.Oda.Router.current.args[key];
                     }
                 }
                 $.Oda.Context.window.location.hash = urlRoute + urlArg;
-                
+
                 var decoded = $.Oda.Tooling.decodeHtml($.Oda.I8n.getByString(p_params.routeDef.title));
-                
+
                 $.Oda.Context.window.document.title = $.Oda.Context.projectLabel + " - " + decoded;
             }
-            
+
             //load dependencies
-            if(p_params.routeDef.dependencies.length > 0){
-                for(var indice in p_params.routeDef.dependencies){
+            if (p_params.routeDef.dependencies.length > 0) {
+                for (var indice in p_params.routeDef.dependencies) {
                     _routeDependencies[p_params.routeDef.dependencies[indice]].load();
                 }
             }
-            
-            if(p_params.routeDef.dependencies.length > 0){
-                for(var indice in p_params.routeDef.dependencies){
-                    if(_routeDependencies[p_params.routeDef.dependencies[indice]].statut !== _routeDependenciesStatus.loaded()){
-                        $.Oda.Log.debug("Waiting : "+p_params.routeDef.dependencies[indice]);
-                        setTimeout(function(){_routerGo(p_params);}, 100);
+
+            if (p_params.routeDef.dependencies.length > 0) {
+                for (var indice in p_params.routeDef.dependencies) {
+                    if (_routeDependencies[p_params.routeDef.dependencies[indice]].statut !== _routeDependenciesStatus.loaded()) {
+                        $.Oda.Log.debug("Waiting : " + p_params.routeDef.dependencies[indice]);
+                        setTimeout(function () {
+                            _routerGo(p_params);
+                        }, 100);
                         return true;
                     }
                 }
             }
-            
+
             //exec middleware
-            if(p_params.routeDef.middleWares.length > 0){
-                for(var indice in p_params.routeDef.middleWares){
+            if (p_params.routeDef.middleWares.length > 0) {
+                for (var indice in p_params.routeDef.middleWares) {
                     _routeMiddleWares[p_params.routeDef.middleWares[indice]]();
                 }
             }
 
-            if((_RouterExit)&&(!p_params.system)){
+            if ((_RouterExit) && (!p_params.system)) {
                 return true;
             }
-            
+
             //load menus
-            if(($.Oda.Session.hasOwnProperty("code_user"))&&($.Oda.Session.code_user !== "")){
+            if (($.Oda.Session.hasOwnProperty("code_user")) && ($.Oda.Session.code_user !== "")) {
                 $.Oda.Display.MenuSlide.show();
                 $.Oda.Display.Menu.show();
             }
 
             //show message
-            $.Oda.Display.Message.show();
+            if ($.Oda.Session.code_user !== "") {
+                $.Oda.Display.Message.show();
+            }
 
             //call content
              _loadPartial({"routeDef" : p_params.routeDef});
@@ -779,8 +798,38 @@
 
                 return valeur;
             } catch (er) {
-                $.Oda.Log.error("$.functionsLib.geRangs : " + er.message);
+                $.Oda.Log.error("$.Oda.geRangs : " + er.message);
                 return null;
+            }
+        },
+        MokUp : {
+            /**
+             * @param params
+             * @param params.url
+             * @param params.tabInput
+             * @returns {*}
+             */
+            get : function(params){
+                try {
+                    var strInterface = params.url.replace($.Oda.Context.rest,"");
+
+                    var elt;
+                    for(var indice in _mokup){
+                        if(_mokup[indice].interface === strInterface){
+                            elt = _mokup[indice];
+                            break;
+                        }
+                    }
+
+                    if($.Oda.Tooling.isUndefined(elt)){
+                        return {"strErreur":"No mokup found for "+strInterface,"data":{},"statut":4};
+                    }
+
+                    return elt.value[0].return;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.MokUp.get : " + er.message);
+                    return null;
+                }
             }
         },
         /**
@@ -2744,6 +2793,17 @@
                     dataType : 'json',
                     type : 'GET'
                 };
+
+                //Mokup
+                if(_mokup){
+                    var response = {};
+                    if($.Oda.Tooling.isUndefined(p_tabSetting.functionRetour)){
+                        return $.Oda.MokUp.get({url : p_url, tabInput : p_tabInput });
+                    }else{
+                        p_tabSetting.functionRetour(response);
+                        return;
+                    }
+                }
                 
                 //création du jeton pour la secu
                 var session = $.Oda.Storage.get("ODA-SESSION");
