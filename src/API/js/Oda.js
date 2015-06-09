@@ -14,7 +14,9 @@
         
         _debug = true,
 
-        _mokup = true,
+        _modeInterface = ["ajax","mokup"],//["cache","ajax","mokup"]
+
+        _mokup = [],
         
         _dependecies = null,
         
@@ -344,8 +346,7 @@
                 ]}
             ];
 
-            if(_mokup){
-                _mokup = [];
+            if($.Oda.Tooling.isInArray("mokup",_modeInterface)){
                 var listDependsMokup = [
                     {"name" : "mokup" , ordered : false, "list" : [
                         { "elt" : "API/mokup/mokup.json", "type" : "json", "target" : function(p_json){_mokup = _mokup.concat(p_json);}},
@@ -928,6 +929,70 @@
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Date.getStrDateTime : " + er.message);
                     return null;
+                }
+            }
+        },
+
+        Interface : {
+            call : function(params){
+                var response = {"strErreur": "No call", "data": {}, "statut": 4}
+                if(params.odaInterface.length>0){
+                    var theInterface = params.odaInterface[0]
+                    params.odaInterface.splice(0,1);
+                    response = $.Oda.Interface.Methode[theInterface](params);
+                }
+                return response;
+            },
+            Methode : {
+                "ajax": function (params) {
+                    var retour;
+                    var jqXHRMaster = $.ajax(params)
+                            .done(function (data, textStatus, jqXHR) {
+                                if (typeof data === 'object') {
+                                    if ((data.hasOwnProperty("strErreur"))&&((data.strErreur == "key auth expiree.") || (data.strErreur == "key auth invalid."))) {
+                                        $.Oda.Security.logout();
+                                    }
+                                } else {
+                                    if (params.dataType === "json") {
+                                        data = {"strErreur": data, "data": {}, "statut": 4};
+                                    }
+                                }
+                                if (params.async) {
+                                    params.functionRetour(data);
+                                } else {
+                                    retour = data;
+                                }
+                            })
+                            .fail(function (jqXHR, textStatus, errorThrown) {
+                                var msg = textStatus + " - " + errorThrown.message + " on " + params.url;
+                                $.Oda.Log.error("$.Oda.Interface.Methode.ajax : " + msg);
+                                var data = {"strErreur": msg, "data": {}, "statut": 404};
+
+                                //textStatus = error for 404, next interface
+                                if((params.odaInterface.length>0)&&(textStatus === "error")){
+                                    retour = $.Oda.Interface.call(params);
+                                }else{
+                                    if (params.async) {
+                                        params.functionRetour(data);
+                                    } else {
+                                        retour = data;
+                                    }
+                                }
+                            })
+                        ;
+                    return retour;
+                },
+                "mokup": function (params) {
+                    var retour = $.Oda.MokUp.get({url: params.url, tabInput: params.data});
+                    if ($.Oda.Tooling.isUndefined(params.functionRetour)) {
+                        return retour;
+                    } else {
+                        params.functionRetour(retour);
+                        return;
+                    }
+                },
+                "cache": function (params) {
+                    return;
                 }
             }
         },
@@ -1761,13 +1826,13 @@
                                     break; 
                             }
 
-                            v_retourSync = "Vide";
+                            v_retourSync =  {"strErreur": "No call", "data": {}, "statut": 4};
                             switch (jsonAjaxParam.dataType) { 
                                 case "json": 
                                     if (xhr_object.readyState === 4 && xhr_object.status === 200) {
                                         v_retourSync = JSON.parse(xhr_object.responseText);
                                     } else {
-                                        v_retourSync = "ERROR";
+                                        v_retourSync = {"strErreur": "$.Worker.Oda.callRest : " + xhr_object.status + " " + xhr_object.statusText, "data": {}, "statut": 4};
                                     }
                                     break;   
                                 case "text": 
@@ -1775,7 +1840,7 @@
                                     if (xhr_object.readyState === 4) {
                                         v_retourSync = xhr_object.responseText;
                                     } else {
-                                        v_retourSync = "ERROR";
+                                        v_retourSync = "$.Worker.Oda.callRest : " + xhr_object.status + " " + xhr_object.statusText;
                                     }
                                 break; 
                             }
@@ -1784,7 +1849,7 @@
 
                             return v_retourSync;
                         } catch (er) {
-                            var msg = "ERROR($.Oda.callRest) : " + er.message;
+                            var msg = "ERROR($.Worker.Oda.callRest) : " + er.message;
                             $.Oda.log(msg);
                             return null;
                         }
@@ -2782,35 +2847,28 @@
          * @desc Hello
          * @param{string} p_url
          * @param{json} p_tabSetting
+         * @param{json} p_tabSetting.functionRetour (opt)
          * @param{json} p_tabInput
          * @returns {json}
          */
         callRest: function(p_url, p_tabSetting, p_tabInput) {
             try {
+                var interfaces = $.Oda.Tooling.clone(_modeInterface);
                 var jsonAjaxParam = {
-                    url : p_url,
-                    contentType : 'application/x-www-form-urlencoded; charset=UTF-8',
-                    dataType : 'json',
-                    type : 'GET'
+                    url: p_url,
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                    dataType: 'json',
+                    type: 'GET',
+                    async: p_tabSetting.hasOwnProperty("functionRetour"),
+                    odaInterface:interfaces
                 };
 
-                //Mokup
-                if(_mokup){
-                    var response = {};
-                    if($.Oda.Tooling.isUndefined(p_tabSetting.functionRetour)){
-                        return $.Oda.MokUp.get({url : p_url, tabInput : p_tabInput });
-                    }else{
-                        p_tabSetting.functionRetour(response);
-                        return;
-                    }
-                }
-                
                 //création du jeton pour la secu
                 var session = $.Oda.Storage.get("ODA-SESSION");
                 var key = null;
-                if(session !== null){
+                if (session !== null) {
                     key = session.key;
-                } else{
+                } else {
                     key = p_tabInput.keyAuthODA;
                     delete p_tabInput.keyAuthODA;
                 }
@@ -2821,57 +2879,11 @@
 
                 jsonAjaxParam.data = p_tabInput;
 
-                //traitement determinant async ou pas
-                var async = true;
-                if($.Oda.Tooling.isUndefined(p_tabSetting.functionRetour)){
-                    async = false;
-                    jsonAjaxParam.async = false;        
-                }
-
-                for(var indice in p_tabSetting){
+                for (var indice in p_tabSetting) {
                     jsonAjaxParam[indice] = p_tabSetting[indice];
                 }
 
-                //si retour synchron init retour
-                var v_retourSync = null;
-
-                jsonAjaxParam.success = function(p_retour, p_statut){
-                    try {
-                        if(typeof p_retour === 'object'){
-                            //object
-                            var returns = p_retour;
-                            
-                            if((returns.strErreur == "key auth expiree.")||(returns.strErreur == "key auth invalid.")){
-                                $.Oda.Notification.warning("Session invalid.");
-                                $.Oda.Security.logout();
-                            }
-                        }else{
-                            var returns = p_retour;
-                        }
-
-                        if(async){
-                            p_tabSetting.functionRetour(p_retour);
-                        }else{
-                            v_retourSync = p_retour;
-                        }
-                    } catch (er) {
-                        var msg = "$.Oda.callRest.success : " + er.message;
-                        $.Oda.Log.error(msg);
-                    }
-                };
-
-                jsonAjaxParam.error = function(p_resultat, p_statut, p_erreur){
-                    var msg = p_resultat.responseText + " - " + p_statut + " - " + p_erreur.message;
-                    if(async){
-                        p_tabSetting.functionRetour(msg);
-                    }else{
-                        v_retourSync = msg;
-                    }
-                };
-
-                var ajax = $.ajax(jsonAjaxParam);
-
-                return v_retourSync;
+                return $.Oda.Interface.call(jsonAjaxParam);
             } catch (er) {
                 var msg = "$.Oda.callRest : " + er.message;
                 $.Oda.Log.error(msg);
