@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>QUnit APP All</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="../API/js/JqueryTest/qunit.css">
+
+    <!-- JS -->
+    <!-- Dépendance QUnit -->
+    <script type="text/javascript" src="../API/js/JqueryTest/qunit.js"></script>
+    <script type="text/javascript" src="../API/js/Jquery/jquery.min.js"></script>
+    
+    <!-- Dépendance API projet -->
+    <script type="text/javascript" src="../include/config.js"></script>
+    <script>
+        var customWindowODA = {
+        location : {
+            pathname : "/index.html",
+            href : "http://localhost/index.html"
+        }
+    };
+    </script>
+    <script type="text/javascript" src="../API/js/functionsLib.js"></script>
+  
+    <!-- Les test choisi -->
+    <script type="text/javascript" src="resources/test.js"></script>
+    <script type="text/javascript" src="resources/php.js"></script>
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+</body>
+</html>
