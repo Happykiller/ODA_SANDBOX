@@ -11,10 +11,10 @@
 		"**/.*",
 		"node_modules"
 	],
-    "directory": "libs",
 	"dependencies": {
 		"bootstrap" : "latest",
         "datatables" : "latest",
-        "highcharts-release" : "latest"
+        "highcharts-release" : "latest",
+        "qunit" : "latest"
 	}
 }

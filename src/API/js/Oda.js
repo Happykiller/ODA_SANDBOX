@@ -4,6 +4,10 @@
 /**
  * @author FRO
  * @date 15/05/08
+ *
+ * If you want to define the modeExecute
+ * g_odaModeExecute
+ *
  */
 (function() {
     'use strict';
@@ -11,10 +15,6 @@
     var
         /* version */
         VERSION = '0.1',
-        
-        _debug = true,
-
-        _modeInterface = ["ajax","mokup"],//["cache","ajax","mokup"]
 
         _mokup = [],
         
@@ -274,7 +274,7 @@
                             href: "API/css/dataTables.bootstrap.css"
                         }).appendTo('head');
                         $.getScript("API/libs/datatables/media/js/jquery.dataTables.min.js",function(){
-                            $.getScript("API/js/dataTables.bootstrap.js",function(){
+                            $.getScript("API/js/dataTables/dataTables.bootstrap.js",function(){
                                 $.Oda.Router.dependencieLoaded("dataTables");
                             });
                         });
@@ -327,30 +327,36 @@
      * @name _init
      * @desc Initialize
      */
-    function _init() { 
+    function _init() {
         try {
             _routesAllowed = _routesAllowedDefault.slice(0);
-            
+
             //depdends
             var listDepends = [
-                {"name" : "style" , ordered : false, "list" : [
-                    { "elt" : "API/css/css.css", "type" : "css" },
-                    { "elt" : "css/css.css", "type" : "css" }
-                ]},
                 {"name" : "datas" , ordered : false, "list" : [
-                    { "elt" : "API/i8n/i8n.json", "type" : "json", "target" : function(p_json){_i8n = _i8n.concat(p_json);}},
-                    { "elt" : "i8n/i8n.json", "type" : "json", "target" : function(p_json){_i8n = _i8n.concat(p_json);}}
+                    { "elt" : $.Oda.Context.rootPath+"API/i8n/i8n.json", "type" : "json", "target" : function(p_json){_i8n = _i8n.concat(p_json);}},
+                    { "elt" : $.Oda.Context.rootPath+"i8n/i8n.json", "type" : "json", "target" : function(p_json){_i8n = _i8n.concat(p_json);}}
                 ]},
                 {"name" : "include" , ordered : true, "list" : [
-                    { "elt" : "include/config.js", "type" : "script" }
+                    { "elt" : $.Oda.Context.rootPath+"include/config.js", "type" : "script" }
                 ]}
             ];
 
-            if($.Oda.Tooling.isInArray("mokup",_modeInterface)){
+            if($.Oda.Context.modeExecute === "full"){
+                var listDependsFull = [
+                    {"name" : "style" , ordered : false, "list" : [
+                        { "elt" : $.Oda.Context.rootPath+"API/css/css.css", "type" : "css" },
+                        { "elt" : $.Oda.Context.rootPath+"css/css.css", "type" : "css" }
+                    ]}
+                ];
+                listDepends = listDepends.concat(listDependsFull);
+            }
+
+            if($.Oda.Tooling.isInArray("mokup",$.Oda.Context.modeInterface)){
                 var listDependsMokup = [
                     {"name" : "mokup" , ordered : false, "list" : [
-                        { "elt" : "API/mokup/mokup.json", "type" : "json", "target" : function(p_json){_mokup = _mokup.concat(p_json);}},
-                        { "elt" : "mokup/mokup.json", "type" : "json", "target" : function(p_json){_mokup = _mokup.concat(p_json);}}
+                        { "elt" : $.Oda.Context.rootPath+"API/mokup/mokup.json", "type" : "json", "target" : function(p_json){_mokup = _mokup.concat(p_json);}},
+                        { "elt" : $.Oda.Context.rootPath+"mokup/mokup.json", "type" : "json", "target" : function(p_json){_mokup = _mokup.concat(p_json);}}
                     ]}
                 ];
                 listDepends = listDepends.concat(listDependsMokup);
@@ -361,31 +367,28 @@
            $.Oda.Log.error("_init : " + er.message);
         }
     }
-    
+
     /**
      * @name _loaded
      */
     function _loaded() {
         try {
             // init from config
-            if (typeof g_urlHostClient !== "undefined"){
-                $.Oda.Context.host = g_urlHostClient;
-                $.Oda.Storage.storageKey = "ODA__"+g_urlHostClient+"__";
+            if ($.Oda.Context.host !== ""){
+                $.Oda.Storage.storageKey = "ODA__"+$.Oda.Context.host+"__";
             }
-            
-            if (typeof g_urlHostServer !== "undefined"){
-                $.Oda.Context.rest = g_urlHostServer;
+
+            if($.Oda.Context.modeExecute === "full") {
+                $.Oda.loadDepends([
+                    {
+                        "name": "app", ordered: true, "list": [
+                            {"elt": $.Oda.Context.rootPath+"js/OdaApp.js", "type": "script"}
+                        ]
+                    }
+                ], _appStarted);
+            }else{
+                _appStarted();
             }
-            
-            if (typeof g_resources !== "undefined"){
-                $.Oda.Context.resources = g_resources;
-            }
-            
-            $.Oda.loadDepends([
-                {"name" : "app" , ordered : true, "list" : [
-                    { "elt" : "js/OdaApp.js", "type" : "script" }
-                ]}
-            ],_appStarted);
         } catch (er) {
            $.Oda.Log.error("_loaded : " + er.message);
         }  
@@ -396,6 +399,7 @@
      */
     function _appStarted() {
         try {
+            $.Oda.Event.send({name:"oda-fully-loaded", data : { truc : "coucou" }});
             $.Oda.Log.info("Oda fully loaded.");
         } catch (er) {
            $.Oda.Log.error("_appStarted : " + er.message);
@@ -758,6 +762,25 @@
         },
 
         Context : {
+            /*
+             ["cache","ajax","mokup"]
+             Order is important
+             mokup always in last because no chain action if fail
+             */
+            modeInterface : ["ajax","mokup"],
+            /*
+             full, stric
+
+             in stric mode :
+             no auto init
+             load i8n, config
+
+             in full mode :
+             load css, OdaApp.js, who start the rooter
+             */
+            modeExecute : "full",
+            debug : true,
+            rootPath : "",
             projectLabel : "Project",
             mainDiv : "oda-content",
             host : "",
@@ -774,6 +797,10 @@
             fristName : "^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{3,}$",
             lastName : "^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{3,}$",
             noInjection : "^(?!.*?function())"
+        },
+
+        init : function(){
+            _init();
         },
 
         /**
@@ -829,6 +856,40 @@
                     return elt.value[0].return;
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.MokUp.get : " + er.message);
+                    return null;
+                }
+            }
+        },
+        Event : {
+            /**
+             * @param {Object} p_params
+             * @param p_params.name
+             * @param p_params.callback function (e) { ... }
+             * @returns {$.Oda.Event}
+             */
+            addListener: function (p_params) {
+                try {
+                    // Listen for the event.
+                    $.Oda.Context.window.addEventListener(p_params.name, p_params.callback, false);
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Event.addListener : " + er.message);
+                    return null;
+                }
+            },
+            /**
+             * @param {Object} p_params
+             * @param p_params.name
+             * @param p_params.data
+             * @returns {$.Oda.Event}
+             */
+            send: function (p_params) {
+                try {
+                    var event = new CustomEvent(p_params.name, { detail : p_params.data });
+                    $.Oda.Context.window.dispatchEvent(event);
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Event.send : " + er.message);
                     return null;
                 }
             }
@@ -2707,7 +2768,7 @@
             },
             "debug" : function(p_msg) {
                 try {
-                    if(_debug){
+                    if($.Oda.Context.debug){
                         $.Oda.Context.console.debug(p_msg);
                     }
                     return this;
@@ -2853,7 +2914,7 @@
          */
         callRest: function(p_url, p_tabSetting, p_tabInput) {
             try {
-                var interfaces = $.Oda.Tooling.clone(_modeInterface);
+                var interfaces = $.Oda.Tooling.clone($.Oda.Context.modeInterface);
                 var jsonAjaxParam = {
                     url: p_url,
                     contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -2981,7 +3042,13 @@
         }
     };
 
-    // Initialize
-    _init();
+    //check global var
+    if (typeof g_odaModeExecute !== "undefined"){
+        $.Oda.Context.modeExecute = g_odaModeExecute;
+    }
 
+    // Initialize
+    if($.Oda.Context.modeExecute !== "stric"){
+        _init();
+    }
 })();
