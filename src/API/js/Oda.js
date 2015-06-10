@@ -1846,7 +1846,7 @@
                             var async = true;
                             if(p_tabSetting.functionRetour === null){
                                 async = false;
-                                jsonAjaxParam.async = false;        
+                                jsonAjaxParam.async = false;
                             }
 
                             for(var indice in p_tabSetting){
@@ -1859,11 +1859,11 @@
                             //Utilisé notament pour les workers qui ne peuvent avoir Jquey et donc Ajax
                             var xhr_object = new XMLHttpRequest();
 
-                            switch (jsonAjaxParam.type){ 
-                                case "GET": 
-                                case "get": 
+                            switch (jsonAjaxParam.type){
+                                case "GET":
+                                case "get":
                                     var url = jsonAjaxParam.url+"?tag=1";
-                                    
+
                                     for(var key in jsonAjaxParam.data){
                                        var param = jsonAjaxParam.data[key].toString();
                                        url += "&"+key+"="+(param.replace(new RegExp("&", "g"), '%26'));
@@ -1871,10 +1871,10 @@
 
                                     xhr_object.open(jsonAjaxParam.type, url, false);
                                     xhr_object.send(null);
-                                    break;  
-                                case "POST": 
-                                case "post": 
-                                default: 
+                                    break;
+                                case "POST":
+                                case "post":
+                                default:
                                     var params = "tag=1";
                                     for(var key in jsonAjaxParam.data){
                                        var param = jsonAjaxParam.data[key].toString();
@@ -1884,26 +1884,26 @@
                                     xhr_object.open(jsonAjaxParam.type,jsonAjaxParam.url, false);
                                     xhr_object.setRequestHeader("Content-type","application/x-www-form-urlencoded");
                                     xhr_object.send(params);
-                                    break; 
+                                    break;
                             }
 
                             v_retourSync =  {"strErreur": "No call", "data": {}, "statut": 4};
-                            switch (jsonAjaxParam.dataType) { 
-                                case "json": 
+                            switch (jsonAjaxParam.dataType) {
+                                case "json":
                                     if (xhr_object.readyState === 4 && xhr_object.status === 200) {
                                         v_retourSync = JSON.parse(xhr_object.responseText);
                                     } else {
                                         v_retourSync = {"strErreur": "$.Worker.Oda.callRest : " + xhr_object.status + " " + xhr_object.statusText, "data": {}, "statut": 4};
                                     }
-                                    break;   
-                                case "text": 
-                                default: 
+                                    break;
+                                case "text":
+                                default:
                                     if (xhr_object.readyState === 4) {
                                         v_retourSync = xhr_object.responseText;
                                     } else {
                                         v_retourSync = "$.Worker.Oda.callRest : " + xhr_object.status + " " + xhr_object.statusText;
                                     }
-                                break; 
+                                break;
                             }
 
                             delete self.xhr_object;
@@ -1929,7 +1929,7 @@
                             return null;
                         }
                     },
-                    
+
                     /**
                     * arrondir
                     * @param {float|int} p_value

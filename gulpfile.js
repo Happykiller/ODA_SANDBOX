@@ -8,6 +8,8 @@ var connect = require('gulp-connect');
 var jshint = require('gulp-jshint');
 var launch = require('gulp-open');
 var plumber = require('gulp-plumber');
+var uglify = require('gulp-uglify');
+var rename = require('gulp-rename');
 
 var opt = {
   port: 3000,
@@ -17,9 +19,7 @@ var opt = {
 var paths = {
     scripts : [
         'src/API/js/Oda.js',
-        'src/js/OdaApp.js',
-        'src/API/partials/**/*.js',
-        'src/partials/**/*.js'
+        'src/js/OdaApp.js'
     ],
     sources : [
         'src/API/css/**/*',
@@ -39,6 +39,29 @@ var paths = {
         'src/*'
     ]
 };
+
+/**
+ * Compress
+ * For build the Oda.min.js
+ */
+gulp.task('compress', function() {
+    gulp.src('src/API/js/Oda.js')
+        .pipe(uglify({mangle: false}))
+        .pipe(rename({
+            extname: '.min.js'
+        }))
+        .pipe(gulp.dest('src/API/js/'));
+
+
+    gulp.src('src/js/OdaApp.js')
+        .pipe(uglify({mangle: false}))
+        .pipe(rename({
+            extname: '.min.js'
+        }))
+        .pipe(gulp.dest('src/js/'));
+
+    return;
+});
 
 /**
  * JsHint
@@ -72,6 +95,8 @@ gulp.task('watch', ['jshint'], function() {
     ;
 
     gulp.watch(paths.scripts, ['jshint']);
+
+    gulp.watch(paths.scripts, ['compress']);
 });
 
 /**
@@ -96,4 +121,4 @@ gulp.task('open', function() {
     }));
 });
 
-gulp.task('dev', ['bower', 'watch', 'server', 'open']);
+gulp.task('dev', ['bower', 'compress', 'watch', 'server', 'open']);
