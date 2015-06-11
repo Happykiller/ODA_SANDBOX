@@ -32,7 +32,7 @@
             $('#div_paquet').html(strhtml);
             var tabSetting = { "functionRetour" : retourPaquet};
             var tabInput = { "code_user" : $.Oda.Session.code_user };
-            $.Oda.callRest($.Oda.Context.rest+"phpsql/getPaquet.php", tabSetting, tabInput);            
+            $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getPaquet.php", tabSetting, tabInput);
         } catch (er) {
             $.Oda.Log.error("chargerPaquet : " + er.message);
         }
@@ -47,7 +47,7 @@
             $('#div_inventaire').html(strhtml);
             var tabSetting = { "functionRetour" : retourCards};
             var tabInput = { "type" : "", "code_user" : $.Oda.Session.code_user };
-            $.Oda.callRest($.Oda.Context.rest+"phpsql/getCards.php", tabSetting, tabInput);            
+            $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getCards.php", tabSetting, tabInput);
         } catch (er) {
             $.Oda.Log.error("chargerCars : " + er.message);
         }
@@ -197,7 +197,7 @@
             var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
             $('#div_paquet').html(strhtml);
             var tabInput = { code_user : $.Oda.Session.code_user, id_card : p_id_card, gold : p_gold };
-            var json_retour = $.Oda.callRest($.Oda.Context.rest+"phpsql/addPaquet.php", {}, tabInput);
+            var json_retour = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/addPaquet.php", {}, tabInput);
             if(json_retour["strErreur"] == ""){
                 $.Oda.Notification.success("Selection r&eacute;ussi."); 
                 if(json_retour["data"]["retour"]["full"]=="true"){
@@ -221,7 +221,7 @@
     function retirer(p_nb_avant, p_id){
         try {
             var tabInput = { id: p_id, code_user : $.Oda.Session.code_user };
-            var json_retour = $.Oda.callRest($.Oda.Context.rest+"phpsql/removePaquet.php", {}, tabInput);
+            var json_retour = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/removePaquet.php", {}, tabInput);
             if(json_retour["strErreur"] == ""){
                 $.Oda.Notification.success("Bravo");
                 if($('#div_inventaire').html()==$.Oda.I8n.get("paquet-add","noMore")){
@@ -245,7 +245,7 @@
             var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
             $('#div_paquet').html(strhtml);
             var tabInput = { code_user : $.Oda.Session.code_user };
-            var json_retour = $.Oda.callRest($.Oda.Context.rest+"phpsql/validerPaquet.php", {}, tabInput);
+            var json_retour = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/validerPaquet.php", {}, tabInput);
             if(json_retour["strErreur"] == ""){
                 $.Oda.Notification.success("Paquet bien int&eacute;gr&eacute;. ("+json_retour["data"]["nbDez"]+" carte(s) desanchant&eacute;e(s))"); 
                 chargerPaquet();

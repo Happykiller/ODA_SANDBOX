@@ -31,7 +31,7 @@
             
             var tabSetting = { functionRetour : retourActivitePaquets};
             var tabInput = { };
-            $.Oda.callRest($.Oda.Context.rest+"phpsql/getActivitePaquetsMatchs.php", tabSetting, tabInput); 
+            $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getActivitePaquetsMatchs.php", tabSetting, tabInput);
             
             return myReturn;
         } catch (er) {
@@ -106,7 +106,7 @@
 
             var tabSetting = { functionRetour : retourCoolCards};
             var tabInput = { "code_user" : p_params.code_user, "date" : p_params.date, "mode" : p_params.mode };
-            $.Oda.callRest($.Oda.Context.rest+"phpsql/getCoolCards.php", tabSetting, tabInput); 
+            $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getCoolCards.php", tabSetting, tabInput);
 
             return myReturn;
         } catch (er) {

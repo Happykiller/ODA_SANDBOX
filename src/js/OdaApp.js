@@ -104,11 +104,11 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
          * @p_param{string} param
          * @returns {boolean}
          */
-        exemple: function(p_param) {
+        example: function(p_param) {
             try {
                 return true;
             } catch (er) {
-                $.Oda.log.error("$.Oda.App.exemple):" + er.message);
+                $.Oda.log.error("$.Oda.App.example):" + er.message);
                 return false;
             }
         }

@@ -27,7 +27,6 @@ var paths = {
         'src/API/img/**/*',
         'src/API/partials/**/*',
         'src/API/js/**/*',
-        'src/API/tests/**/*',
         'src/API/*',
         'src/js/**/*',
         'src/css/**/*',
@@ -35,7 +34,6 @@ var paths = {
         'src/img/**/*',
         'src/partials/**/*',
         'src/js/**/*',
-        'src/test/**/*',
         'src/*'
     ]
 };

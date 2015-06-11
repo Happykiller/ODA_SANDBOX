@@ -94,6 +94,7 @@
         try {
             $.Oda.Storage.set('ODA-HOW_currentSet', idSet);
             buildNavBarSets();
+            //TODO gerer le loading
             var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
             $("#div_metrics_dropRate").html(strhtml);
             monWorker.postMessage(new $.Oda.Worker.message('start', { "color" : $.Oda.Color, set : $.Oda.App.tab_sets[$.Oda.Storage.get('ODA-HOW_currentSet')] }));
@@ -472,7 +473,7 @@
                 }
             }};
             var tabInput = { code_user : $.Oda.Session.code_user, set : $.Oda.App.tab_sets[$.Oda.Storage.get('ODA-HOW_currentSet')] };
-            $.Oda.callRest($.Oda.Context.rest+"phpsql/getMetricsCollection.php", tabSetting, tabInput);
+            $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getMetricsCollection.php", tabSetting, tabInput);
         } catch (er) {
             $.Oda.Log.error("chargerMetricsCollection : " + er.message);
         }
@@ -584,7 +585,7 @@
                 }
             }};
             var tabInput = { code_user : $.Oda.Session.code_user, set : $.Oda.App.tab_sets[$.Oda.Storage.get('ODA-HOW_currentSet')] };
-            $.Oda.callRest($.Oda.Context.rest+"phpsql/getMetricsCollectionNeutre.php", tabSetting, tabInput);
+            $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getMetricsCollectionNeutre.php", tabSetting, tabInput);
         } catch (er) {
             $.Oda.Log.error("ERROR(chargerMetricsCollectionNeutre :" + er.message);
         }
@@ -655,7 +656,7 @@
                 }
             }};
             var tabInput = { code_user : $.Oda.Session.code_user, set : $.Oda.App.tab_sets[$.Oda.Storage.get('ODA-HOW_currentSet')] };
-            $.Oda.callRest($.Oda.Context.rest+"phpsql/getQualitePaquets.php", tabSetting, tabInput);
+            $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getQualitePaquets.php", tabSetting, tabInput);
         } catch (er) {
             $.Oda.Log.error("chargerMetricsPaquets : " + er.message);
         }
@@ -687,7 +688,7 @@
             var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
             $('#div_drop_'+p_qualite).html(strhtml);
             var tabInput = { code_user : $.Oda.Session.code_user, qualite : dbQualite, set : $.Oda.App.tab_sets[$.Oda.Storage.get('ODA-HOW_currentSet')] };
-            $.Oda.callRest($.Oda.Context.rest+"phpsql/getClassementDrop.php", { functionRetour : function(retour){
+            $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getClassementDrop.php", { functionRetour : function(retour){
                 if(retour["strErreur"] == ""){
                     var datas = retour["data"]["resultat"]["data"];
 
@@ -715,7 +716,7 @@
             var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
             $("#div_best_paquets").html(strhtml);
             var tabInput = { code_user : $.Oda.Session.code_user, set : $.Oda.App.tab_sets[$.Oda.Storage.get('ODA-HOW_currentSet')] };
-            $.Oda.callRest($.Oda.Context.rest+"phpsql/bestPaquetes.php", {functionRetour : function(datas){
+            $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/bestPaquetes.php", {functionRetour : function(datas){
                 if(datas["strErreur"] == ""){
                     var datas = datas["data"]["resultat"]["data"];
 
@@ -803,7 +804,7 @@
                 }
             }};
             var tabInput = { "code_user" : $.Oda.Session.code_user, "set" : $.Oda.App.tab_sets[$.Oda.Storage.get('ODA-HOW_currentSet')], "classe" : p_params.classe, "qualite" : p_params.qualite };
-            $.Oda.callRest($.Oda.Context.rest+"phpsql/getMissedCards.php", tabSetting, tabInput);
+            $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getMissedCards.php", tabSetting, tabInput);
         } catch (er) {
             $.Oda.Log.error("chargerMetricsCollection : " + er.message);
         }
