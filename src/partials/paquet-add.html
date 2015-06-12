@@ -3,7 +3,7 @@
         <div class="panel panel-default">
             <div class="panel-heading"><span oda-label="paquet-add.labrary"></span></div>
             <div id="div_inventaire" class="panel-body">
-                <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                <oda-loading></oda-loading>
             </div>
         </div>
     </div>
@@ -11,7 +11,7 @@
         <div class="panel panel-default">
             <div class="panel-heading"><span oda-label="paquet-add.packet"></span></div>
             <div id="div_paquet" class="panel-body">
-                <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                <oda-loading></oda-loading>
             </div>
             <div id="div_valider"></div>
         </div>
@@ -28,8 +28,8 @@
      */
     function chargerPaquet(){
         try {
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $('#div_paquet').html(strhtml);
+            $.Oda.Display.loading({elt : $('#div_paquet')});
+
             var tabSetting = { "functionRetour" : retourPaquet};
             var tabInput = { "code_user" : $.Oda.Session.code_user };
             $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getPaquet.php", tabSetting, tabInput);
@@ -43,8 +43,7 @@
      */
     function chargerCars(){
         try {
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $('#div_inventaire').html(strhtml);
+            $.Oda.Display.loading({elt : $('#div_inventaire')});
             var tabSetting = { "functionRetour" : retourCards};
             var tabInput = { "type" : "", "code_user" : $.Oda.Session.code_user };
             $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getCards.php", tabSetting, tabInput);
@@ -194,8 +193,7 @@
      */
     function choisir(p_id_card, p_gold){
         try {
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $('#div_paquet').html(strhtml);
+            $.Oda.Display.loading({elt : $('#div_paquet')});
             var tabInput = { code_user : $.Oda.Session.code_user, id_card : p_id_card, gold : p_gold };
             var json_retour = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/addPaquet.php", {}, tabInput);
             if(json_retour["strErreur"] == ""){
@@ -242,8 +240,7 @@
      */
     function valider(){
         try {
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $('#div_paquet').html(strhtml);
+            $.Oda.Display.loading({elt : $('#div_paquet')});
             var tabInput = { code_user : $.Oda.Session.code_user };
             var json_retour = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/validerPaquet.php", {}, tabInput);
             if(json_retour["strErreur"] == ""){

@@ -8,7 +8,7 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-12" id="div_metrics_interface">
-                            <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                            <oda-loading></oda-loading>
                         </div>
                     </div>
                 </div>
@@ -20,7 +20,7 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-12" id="div_maintenance">
-                            <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                            <oda-loading></oda-loading>
                         </div>
                     </div>
                 </div>
@@ -35,8 +35,7 @@
      */
     function chargerMetricsInterface(){
         try {
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $('#div_metrics_interface').html(strhtml);
+            $.Oda.Display.loading({elt : $('#div_metrics_interface')});
             var tabInput = { };
             var tabSetting = { functionRetour : retourMetricsInterface };
             $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/getMetricsInterface.php", tabSetting, tabInput);
@@ -134,8 +133,7 @@
      */
     function chargerMaintenance(p_execution){
         try {
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $('#div_maintenance').html(strhtml);
+            $.Oda.Display.loading({elt : $('#div_maintenance')});
 
             var tabSetting = { functionRetour : this.retourMaintenance};
             var tabInput = { exec : p_execution };

@@ -6,7 +6,7 @@
  * @date 15/05/08
  *
  * If you want to define the modeExecute
- * ?modeExecution = lower, ready, full
+ * ?modeExecution = full
  *
  */
 (function() {
@@ -252,28 +252,19 @@
                 }
             }
         },
-        //TODO REMOVE THIS SHIT
         _routeDependenciesStatus = {
-            "notLoaded" : function(){
-                return "notLoaded";
-            },
-            "loading" : function(){
-                return "loading";
-            },
-            "loaded" : function(){
-                return "loaded";
-            },
-            "fail" : function(){
-                return "fail";
-            }
+            "notLoaded" : 0,
+            "loading" : 1,
+            "loaded" : 2,
+            "fail" : 3
         },
         _routeDependencies = {
             "dataTables" : {
                 "name" : "dataTables",
-                "statut" : _routeDependenciesStatus.notLoaded(),
+                "statut" : _routeDependenciesStatus.notLoaded,
                 "load" : function(){
-                    if(this.statut === _routeDependenciesStatus.notLoaded()){
-                        this.statut = _routeDependenciesStatus.loading();
+                    if(this.statut === _routeDependenciesStatus.notLoaded){
+                        this.statut = _routeDependenciesStatus.loading;
                         $('<link/>', {
                             rel: 'stylesheet',
                             type: 'text/css',
@@ -284,7 +275,7 @@
                                 $.Oda.Router.dependencieLoaded("dataTables");
                             });
                         });
-                    }else if(this.statut === _routeDependenciesStatus.loading()){
+                    }else if(this.statut === _routeDependenciesStatus.loading){
                         $.Oda.Log.debug(this.name +  " loading.");
                     }else{
                         $.Oda.Log.debug(this.name +  " already loaded.");
@@ -294,14 +285,14 @@
             },
             "hightcharts" : {
                 "name" : "hightcharts",
-                "statut" : _routeDependenciesStatus.notLoaded(),
+                "statut" : _routeDependenciesStatus.notLoaded,
                 "load" : function(){
-                    if(this.statut === _routeDependenciesStatus.notLoaded()){
-                        this.statut = _routeDependenciesStatus.loading();
+                    if(this.statut === _routeDependenciesStatus.notLoaded){
+                        this.statut = _routeDependenciesStatus.loading;
                         $.getScript("API/libs/highcharts-release/highcharts.js",function(){
                             $.Oda.Router.dependencieLoaded("hightcharts");
                         });
-                    }else if(this.statut === _routeDependenciesStatus.loading()){
+                    }else if(this.statut === _routeDependenciesStatus.loading){
                         $.Oda.Log.debug(this.name +  " loading.");
                     }else{
                         $.Oda.Log.debug(this.name +  " already loaded.");
@@ -311,14 +302,14 @@
             },
             "ckeditor" : {
                 "name" : "ckeditor",
-                "statut" : _routeDependenciesStatus.notLoaded(),
+                "statut" : _routeDependenciesStatus.notLoaded,
                 "load" : function(){
-                    if(this.statut === _routeDependenciesStatus.notLoaded()){
-                        this.statut = _routeDependenciesStatus.loading();
+                    if(this.statut === _routeDependenciesStatus.notLoaded){
+                        this.statut = _routeDependenciesStatus.loading;
                         $.getScript("//cdn.ckeditor.com/4.4.7/standard/ckeditor.js",function(){
                             $.Oda.Router.dependencieLoaded("ckeditor");
                         });
-                    }else if(this.statut === _routeDependenciesStatus.loading()){
+                    }else if(this.statut === _routeDependenciesStatus.loading){
                         $.Oda.Log.debug(this.name +  " loading.");
                     }else{
                         $.Oda.Log.debug(this.name +  " already loaded.");
@@ -351,15 +342,13 @@
                 ]}
             ];
 
-            if($.Oda.Context.ModeExecution.ihm){
-                var listDependsFull = [
-                    {"name" : "style" , ordered : false, "list" : [
-                        { "elt" : $.Oda.Context.rootPath+"API/css/css.css", "type" : "css" },
-                        { "elt" : $.Oda.Context.rootPath+"css/css.css", "type" : "css" }
-                    ]}
-                ];
-                listDepends = listDepends.concat(listDependsFull);
-            }
+            var listDependsFull = [
+                {"name" : "style" , ordered : false, "list" : [
+                    { "elt" : $.Oda.Context.rootPath+"API/css/css.css", "type" : "css" },
+                    { "elt" : $.Oda.Context.rootPath+"css/css.css", "type" : "css" }
+                ]}
+            ];
+            listDepends = listDepends.concat(listDependsFull);
 
             if($.Oda.Tooling.isInArray("mokup",$.Oda.Context.modeInterface)){
                 var listDependsMokup = [
@@ -387,17 +376,13 @@
                 $.Oda.Storage.storageKey = "ODA__"+$.Oda.Context.host+"__";
             }
 
-            if($.Oda.Context.ModeExecution.odaApp) {
-                $.Oda.loadDepends([
-                    {
-                        "name": "app", ordered: true, "list": [
-                            {"elt": $.Oda.Context.rootPath+"js/OdaApp.js", "type": "script"}
-                        ]
-                    }
-                ], _appStarted);
-            }else{
-                _appStarted();
-            }
+            $.Oda.loadDepends([
+                {
+                    "name": "app", ordered: true, "list": [
+                        {"elt": $.Oda.Context.rootPath+"js/OdaApp.js", "type": "script"}
+                    ]
+                }
+            ], _appStarted);
         } catch (er) {
            $.Oda.Log.error("_loaded : " + er.message);
         }  
@@ -422,12 +407,9 @@
      */
     function _routerGo(p_params) {
         try {
-            $.Oda.Log.debug("RouterGo : ");
-            $.Oda.Log.debug(p_params);
+            $.Oda.Log.debug("RouterGo : " + p_params.routeDef.path);
 
-            if($.Oda.Context.ModeExecution.ihm) {
-                $('#' + $.Oda.Context.mainDiv).html('<img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">');
-            }
+            $.Oda.Display.loading({elt:$('#' + $.Oda.Context.mainDiv)});
 
             //rewrite hash
             if (!p_params.system) {
@@ -459,10 +441,10 @@
 
             if (p_params.routeDef.dependencies.length > 0) {
                 for (var indice in p_params.routeDef.dependencies) {
-                    if (_routeDependencies[p_params.routeDef.dependencies[indice]].statut !== _routeDependenciesStatus.loaded()) {
+                    if (_routeDependencies[p_params.routeDef.dependencies[indice]].statut !== _routeDependenciesStatus.loaded) {
                         _routeDependencies[p_params.routeDef.dependencies[indice]].try++;
                         if(_routeDependencies[p_params.routeDef.dependencies[indice]].try > 10){
-                            _routeDependencies[p_params.routeDef.dependencies[indice]].statut = _routeDependenciesStatus.fail();
+                            _routeDependencies[p_params.routeDef.dependencies[indice]].statut = _routeDependenciesStatus.fail;
                             $.Oda.Log.error("Fail : " + p_params.routeDef.dependencies[indice]);
                         }else{
                             $.Oda.Log.debug("Waiting : " + p_params.routeDef.dependencies[indice]);
@@ -486,17 +468,15 @@
                 return true;
             }
 
-            if($.Oda.Context.ModeExecution.ihm) {
-                //load menus
-                if (($.Oda.Session.hasOwnProperty("code_user")) && ($.Oda.Session.code_user !== "")) {
-                    $.Oda.Display.MenuSlide.show();
-                    $.Oda.Display.Menu.show();
-                }
+            //load menus
+            if (($.Oda.Session.hasOwnProperty("code_user")) && ($.Oda.Session.code_user !== "")) {
+                $.Oda.Display.MenuSlide.show();
+                $.Oda.Display.Menu.show();
+            }
 
-                //show message
-                if ($.Oda.Session.code_user !== "") {
-                    $.Oda.Display.Message.show();
-                }
+            //show message
+            if ($.Oda.Session.code_user !== "") {
+                $.Oda.Display.Message.show();
             }
 
             //call content
@@ -765,10 +745,7 @@
              */
             modeInterface : ["ajax","mokup"],
             ModeExecution : {
-                init : false,
-                ihm : false,
-                odaApp : false,
-                rooter : false
+                init : false
             },
             debug : true,
             rootPath : "",
@@ -1098,6 +1075,20 @@
         },
 
         Display : {
+            /**
+             * @param {Object} p_params
+             * @param p_params.elt
+             * @returns {$.Oda.Display}
+             */
+            loading: function (p_params) {
+                try {
+                    p_params.elt.html('<img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">');
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Display.loading : " + er.message);
+                    return null;
+                }
+            },
             MenuSlide : {
                 /**
                  * @name : show
@@ -1885,12 +1876,9 @@
             }
         },
 
-        //TODO changer le worker en $ODA
         Worker : {
-            
             lib : function(){
-                var $ = {};
-                $.Oda = {
+                this.$Oda = {
                     Context : {
                         rest : "$$REST$$"
                     },
@@ -1905,7 +1893,7 @@
                             this.cmd = cmd;
                             this.parameter = parameter;
                         } catch (er) {
-                            $.Oda.log("ERROR($Oda.message : " + er.message);
+                            $Oda.log("ERROR($Oda.message : " + er.message);
                         }
                     },
 
@@ -1979,7 +1967,7 @@
                                     if (xhr_object.readyState === 4 && xhr_object.status === 200) {
                                         v_retourSync = JSON.parse(xhr_object.responseText);
                                     } else {
-                                        v_retourSync = {"strErreur": "$.Worker.Oda.callRest : " + xhr_object.status + " " + xhr_object.statusText, "data": {}, "statut": 4};
+                                        v_retourSync = {"strErreur": "$Oda.callRest : " + xhr_object.status + " " + xhr_object.statusText, "data": {}, "statut": 4};
                                     }
                                     break;
                                 case "text":
@@ -1987,7 +1975,7 @@
                                     if (xhr_object.readyState === 4) {
                                         v_retourSync = xhr_object.responseText;
                                     } else {
-                                        v_retourSync = "$.Worker.Oda.callRest : " + xhr_object.status + " " + xhr_object.statusText;
+                                        v_retourSync = "$Oda.callRest : " + xhr_object.status + " " + xhr_object.statusText;
                                     }
                                 break;
                             }
@@ -1996,8 +1984,8 @@
 
                             return v_retourSync;
                         } catch (er) {
-                            var msg = "ERROR($.Worker.Oda.callRest) : " + er.message;
-                            $.Oda.log(msg);
+                            var msg = "ERROR($Oda.callRest) : " + er.message;
+                            $Oda.log(msg);
                             return null;
                         }
                     },
@@ -2011,7 +1999,7 @@
                             var d = new Date();
                             return d.getTime();
                         } catch (er) {
-                            $.Oda.log("ERROR($.Oda.getMilise) : " + er.message);
+                            $Oda.log("ERROR($Oda.getMilise) : " + er.message);
                             return null;
                         }
                     },
@@ -2035,13 +2023,13 @@
 
                             return retour;
                         } catch (er) {
-                            $.Oda.log("ERROR($.Oda.arrondir) : " + er.message);
+                            $Oda.log("ERROR($Oda.arrondir) : " + er.message);
                             return null;
                         }
                     }
                 };
             },
-            
+
             message : function(cmd, parameter){
                 try {
                     this.cmd = cmd;
@@ -2209,6 +2197,11 @@
                     if(!$.Oda.Tooling.isUndefined(p_params)){
                         divTarget = '#'+p_params.id+' ';
                     }
+
+                    //oda-loading
+                    $(divTarget+'oda-loading').each(function(index, value){
+                        $.Oda.Display.loading({elt : $(value)});
+                    });
 
                     //oda-input-text
                     $(divTarget+'[oda-input-text]').each(function(index, value){
@@ -2630,12 +2623,12 @@
                 try {
                     _routeDependencies[p_name] = {
                         "name" : p_name,
-                        "statut" : _routeDependenciesStatus.notLoaded(),
+                        "statut" : _routeDependenciesStatus.notLoaded,
                         "load" : function(){
-                            if(this.statut === _routeDependenciesStatus.notLoaded()){
-                                this.statut = _routeDependenciesStatus.loading();
+                            if(this.statut === _routeDependenciesStatus.notLoaded){
+                                this.statut = _routeDependenciesStatus.loading;
                                 p_dependenciesLoad();
-                            }else if(this.statut === _routeDependenciesStatus.loading()){
+                            }else if(this.statut === _routeDependenciesStatus.loading){
                                 $.Oda.Log.debug(this.name +  " loading.");
                             }else{
                                 $.Oda.Log.debug(this.name +  " already loaded.");
@@ -2656,7 +2649,7 @@
              */
             dependencieLoaded : function(p_name) {
                 try {
-                    _routeDependencies[p_name].statut = _routeDependenciesStatus.loaded();
+                    _routeDependencies[p_name].statut = _routeDependenciesStatus.loaded;
                     $.Oda.Log.debug(p_name+" loaded");
                     return this;
                 } catch (er) {
@@ -2670,20 +2663,18 @@
              */
             startRooter : function() {
                 try {
-                    if ($.Oda.Context.ModeExecution.rooter) {
-                        if($("#projectLabel").exists()){
-                            $("#projectLabel").text($.Oda.Context.projectLabel);
-                        }
-
-                        var hash = $.Oda.Context.window.location.hash;
-
-                        $.Oda.Router.current = {
-                            route: $.Oda.Tooling.clearSlashes(decodeURI(hash)).substring(1).replace(/\?(.*)$/, ''),
-                            args: $.Oda.Tooling.getParameterGet({url: $.Oda.Context.window.location.hash})
-                        };
-
-                        this.navigateTo($.Oda.Router.current);
+                    if($("#projectLabel").exists()){
+                        $("#projectLabel").text($.Oda.Context.projectLabel);
                     }
+
+                    var hash = $.Oda.Context.window.location.hash;
+
+                    $.Oda.Router.current = {
+                        route: $.Oda.Tooling.clearSlashes(decodeURI(hash)).substring(1).replace(/\?(.*)$/, ''),
+                        args: $.Oda.Tooling.getParameterGet({url: $.Oda.Context.window.location.hash})
+                    };
+
+                    this.navigateTo($.Oda.Router.current);
                     return this;
                 } catch (er) {
                     $.Oda.Log.error("$.ODa.Router.startRooter : " + er.message);
@@ -3094,17 +3085,8 @@
     var params = $.Oda.Tooling.getParamsLibrary({library : "Oda"});
     if (params.hasOwnProperty("modeExecution")){
         switch(params.modeExecution) {
-            case "lower":
-                break;
-            case "ready":
-                $.Oda.Context.ModeExecution.init = true;
-                break;
             case "full":
-                //TODO a réfléchir trop de variable
                 $.Oda.Context.ModeExecution.init = true;
-                $.Oda.Context.ModeExecution.ihm = true;
-                $.Oda.Context.ModeExecution.odaApp = true;
-                $.Oda.Context.ModeExecution.rooter = true;
                 break;
             default:
                 break;

@@ -6,7 +6,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading"><span oda-label="paquet-add.labrary"></span></div>
                 <div id="div_inventaire" class="panel-body">
-                    <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                    <oda-loading></oda-loading>
                 </div>
             </div>
         </div>
@@ -34,7 +34,7 @@
                     <div class="panel panel-default">
                         <div class="panel-heading"><span oda-label="gerer-coll.collection"></span></div>
                         <div id="div_collection" class="panel-body">
-                            <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                            <oda-loading></oda-loading>
                         </div>
                     </div>
                 </div>
@@ -78,8 +78,8 @@
             var checkbox_epique = $('#bt-epique').hasClass('active');
             var checkbox_legendaire = $('#bt-legendaire').hasClass('active');
 
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $('#div_collection').html(strhtml);
+            $.Oda.Display.loading({elt : $('#div_collection')});
+
             var tabSetting = { functionRetour : retourCollection};
             var tabInput = { code_user : $.Oda.Session.code_user
                 , qualite_commune : checkbox_commune
@@ -98,8 +98,7 @@
      */
     function chargerCars(){
         try {
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $('#div_inventaire').html(strhtml);
+            $.Oda.Display.loading({elt : $('#div_inventaire')});
             var tabSetting = { "functionRetour" : retourCards};
             var tabInput = { "type" : "", "code_user" : $.Oda.Session.code_user };
             $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getCards.php", tabSetting, tabInput);
@@ -113,8 +112,7 @@
      */
     function importSet(p_setName) {
         try {
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $('#div_collection').html(strhtml);
+            $.Oda.Display.loading({elt : $('#div_collection')});
             var tabSetting = { functionRetour : function(datas) {
                 if(datas["strErreur"] == ""){
                     $.Oda.Notification.success("Import r&eacute;ussi.");

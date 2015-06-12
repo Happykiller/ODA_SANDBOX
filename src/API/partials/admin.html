@@ -8,7 +8,7 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-12" id="div_listUtilisateurs">
-                            <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                            <oda-loading></oda-loading>
                         </div>
                     </div>
                 </div>
@@ -20,7 +20,7 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-12" id="div_messages">
-                            <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                            <oda-loading></oda-loading>
                         </div>
                     </div>
                 </div>
@@ -32,7 +32,7 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-12" id="div_listDiffusion">
-                            <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                            <oda-loading></oda-loading>
                         </div>
                     </div>
                 </div>
@@ -291,8 +291,7 @@
      */
     function chargerMessages(){
         try {
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $('#div_messages').html(strhtml);
+            $.Oda.Display.loading({elt : $('#div_messages')});
             var tabInput = { code_user : $.Oda.Session.code_user };
             $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/getMessages.php", {functionRetour : retourMessages}, tabInput);
         } catch (er) {

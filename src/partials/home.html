@@ -3,7 +3,7 @@
         <div class="panel panel-default">
             <div class="panel-heading"><span oda-label="home.activity">Activit&eacute; de la communaut&eacute;</span></div>
             <div id="div_activitePaquets" class="panel-body">
-                <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                <oda-loading></oda-loading>
             </div>
         </div>  
     </div>
@@ -11,7 +11,7 @@
         <div class="panel panel-default">
             <div class="panel-heading"><span oda-label="home.mectrics">M&eacute;trique des paquets</span></div>
             <div id="div_metrics_dropRate" class="panel-body">
-                <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                <oda-loading></oda-loading>
             </div>
         </div>  
     </div>
@@ -35,7 +35,7 @@
             
             return myReturn;
         } catch (er) {
-            $.Oda.log("ERROR(chargerActivitePaquets):" + er.message);
+            $.Oda.Log.error("chargerActivitePaquets :" + er.message);
             return null;
         }
     }
@@ -84,12 +84,12 @@
                 
                 $('#div_activitePaquets').html(strHtml);
             } else{
-                $.Oda.Notification.danger()("Erreur : "+p_retour["strErreur"]);
+                $.Oda.Notification.danger("Erreur : "+p_retour["strErreur"]);
             }
             
             return myReturn;
         } catch (er) {
-            $.Oda.log("ERROR(retourActivitePaquets):" + er.message);
+            $.Oda.Log.error("retourActivitePaquets :" + er.message);
             return null;
         }
     }
@@ -99,7 +99,7 @@
      */
     function afficherCool(p_params){
         try {
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
+            var strhtml = "<oda-loading></oda-loading>";
             $.Oda.Display.Popup.open({"label" : 'Cartes cools !', "details" : strhtml});
 
             var myReturn = true;
@@ -110,7 +110,7 @@
 
             return myReturn;
         } catch (er) {
-            $.Oda.log("ERROR(openMissedCards):" + er.message);
+            $.Oda.Log.error("openMissedCards :" + er.message);
         }
     }
     
@@ -176,10 +176,10 @@
                     }
                 });
             } else{
-                $.Oda.Notification.danger()("Erreur : "+json_retour["strErreur"]);
+                $.Oda.Notification.danger("Erreur : "+json_retour["strErreur"]);
             }
         } catch (er) {
-            $.Oda.log("ERROR(retourCoolCards):" + er.message);
+            $.Oda.Log.error("retourCoolCards :" + er.message);
         }
     }
     
@@ -197,7 +197,7 @@
 
                         //COMMUN
                         var tabInput = { };   
-                        var json_retour_qualitePaquets = $.Oda.callRest($.Oda.Context.rest+"phpsql/getQualitePaquets.php", {}, tabInput);
+                        var json_retour_qualitePaquets = $Oda.callRest($Oda.Context.rest+"phpsql/getQualitePaquets.php", {}, tabInput);
 
                         if((json_retour_qualitePaquets["strErreur"] === "")&&(json_retour_qualitePaquets["strErreur"] === "")){
                             var nbPaquets = parseInt(json_retour_qualitePaquets["data"]["nbpaquets"]["nb"]);
@@ -217,24 +217,24 @@
                             for (var indice in repartitionQualite){
                                 switch (repartitionQualite[indice]["qualite"]){ 
                                     case "Commune": 
-                                        dropRate_comm = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRate_comm = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                     break; 
                                     case "Rare": 
-                                        dropRate_rare = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRate_rare = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                     break;
                                     case "Épique": 
-                                        dropRate_epic = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRate_epic = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                     break;
                                     case "Légendaire": 
-                                        dropRate_legend = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRate_legend = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                     break;
                                 }
                             }  
 
-                            dropRate_gold = $.Oda.arrondir(parseInt(json_retour_qualitePaquets["data"]["repartitionGold"]["nb"]) / total * 100,2);
+                            dropRate_gold = $Oda.arrondir(parseInt(json_retour_qualitePaquets["data"]["repartitionGold"]["nb"]) / total * 100,2);
 
                         }else{
-                            $.Oda.log("Erreur : "+json_retour_dropRate["strErreur"]+", "+json_retour_qualitePaquets["strErreur"]);
+                            $Oda.log("Erreur : "+json_retour_dropRate["strErreur"]+", "+json_retour_qualitePaquets["strErreur"]);
                         }
 
                         strhtml += 'Chance au tirage g&eacute;n&eacute;ral : ';
@@ -248,10 +248,10 @@
                         strhtml += '</ul>';
 
                         //PERSO
-                        var tabInput = { code_user : $.Oda.Session.code_user };
-                        var json_retour_dropRate = $.Oda.callRest($.Oda.Context.rest+"phpsql/getMetricsDropRate.php", {}, tabInput);
+                        var tabInput = { code_user : $Oda.Session.code_user };
+                        var json_retour_dropRate = $Oda.callRest($Oda.Context.rest+"phpsql/getMetricsDropRate.php", {}, tabInput);
 
-                        var json_retour_qualitePaquets = $.Oda.callRest($.Oda.Context.rest+"phpsql/getQualitePaquets.php", {}, tabInput);
+                        var json_retour_qualitePaquets = $Oda.callRest($Oda.Context.rest+"phpsql/getQualitePaquets.php", {}, tabInput);
 
                         if((json_retour_dropRate["strErreur"] === "")&&(json_retour_qualitePaquets["strErreur"] === "")){
                             var nbPaquets = parseInt(json_retour_qualitePaquets["data"]["nbpaquets"]["nb"]);
@@ -272,16 +272,16 @@
                             for (var indice in repartitionQualite){
                                 switch (repartitionQualite[indice]["qualite"]){ 
                                     case "Commune": 
-                                        dropRateCommune = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRateCommune = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                     break; 
                                     case "Rare": 
-                                        dropRateRare = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRateRare = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                     break;
                                     case "Épique": 
-                                        dropRateEpique = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRateEpique = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                     break;
                                     case "Légendaire": 
-                                        dropRateLegendaire = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRateLegendaire = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                     break;
                                 }
                             } 
@@ -336,10 +336,10 @@
                                 }
                             } 
 
-                            var burnDownCommune = $.Oda.arrondir((restCommune*100)/(dropRateCommune*percDezCommune/100)/5,0);
-                            var burnDownRare = $.Oda.arrondir((restRare*100)/(dropRateRare*percDezRare/100)/5,0);
-                            var burnDownEpique = $.Oda.arrondir((restEpique*100)/(dropRateEpique*dropRateEpique/100)/5,0);
-                            var burnDownLegendaire = $.Oda.arrondir((restLegendaire*100)/(dropRateLegendaire*dropRateLegendaire/100)/5,0);
+                            var burnDownCommune = $Oda.arrondir((restCommune*100)/(dropRateCommune*percDezCommune/100)/5,0);
+                            var burnDownRare = $Oda.arrondir((restRare*100)/(dropRateRare*percDezRare/100)/5,0);
+                            var burnDownEpique = $Oda.arrondir((restEpique*100)/(dropRateEpique*dropRateEpique/100)/5,0);
+                            var burnDownLegendaire = $Oda.arrondir((restLegendaire*100)/(dropRateLegendaire*dropRateLegendaire/100)/5,0);
 
                             strhtml += 'Vos statistiques de tirage : ';
                             strhtml += '<ul>';
@@ -372,7 +372,7 @@
                             }
                             strhtml += '<li style="color:'+color+';">Taux de tirage des l&eacute;gendaires : '+dropRateLegendaire+'% ('+percDezLegendaire+'% Dez)</li>';
 
-                            var myDropRateGold = $.Oda.arrondir(parseFloat(json_retour_dropRate["data"]["resultat"]["dropRate_gold"]),2);
+                            var myDropRateGold = $Oda.arrondir(parseFloat(json_retour_dropRate["data"]["resultat"]["dropRate_gold"]),2);
                             if(myDropRateGold >= dropRate_gold){
                                 var color = messageSent.parameter.color.SUCCESS;
                             }else{
@@ -399,9 +399,9 @@
                             strhtml += '<li>Pour les l&eacute;gendaires => '+burnDownLegendaire+' paquets &agrave; ouvrir</li>';
                             strhtml += '</ul>';
 
-                            this.postMessage(new $.Oda.message('resultat',{"html" : strhtml}));
+                            this.postMessage(new $Oda.message('resultat',{"html" : strhtml}));
                         } else{
-                            $.Oda.log("Erreur : "+json_retour_dropRate["strErreur"]+", "+json_retour_qualitePaquets["strErreur"]);
+                            $Oda.log("Erreur : "+json_retour_dropRate["strErreur"]+", "+json_retour_qualitePaquets["strErreur"]);
                         }
                         
                         break;

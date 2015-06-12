@@ -10,10 +10,10 @@
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-8" id="div_metrics_collection">
-                        <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                        <oda-loading></oda-loading>
                     </div>
                     <div class="col-md-4" id="div_metrics_collection_neutre">
-                        <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                        <oda-loading></oda-loading>
                     </div>
                 </div>
             </div>
@@ -28,10 +28,10 @@
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-6" id="div_metrics_paquets">
-                        <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                        <oda-loading></oda-loading>
                     </div>
                     <div class="col-md-6" id="div_metrics_dropRate">
-                        <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                        <oda-loading></oda-loading>
                     </div>
                 </div>
             </div>
@@ -48,21 +48,21 @@
                     <div class="col-md-12">
                         <div class="row">
                             <div class="col-md-3" id="div_drop_classique">
-                                <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                                <oda-loading></oda-loading>
                             </div>
                             <div class="col-md-3" id="div_drop_rare">
-                                <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                                <oda-loading></oda-loading>
                             </div>
                             <div class="col-md-3" id="div_drop_epique">
-                                <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                                <oda-loading></oda-loading>
                             </div>
                             <div class="col-md-3" id="div_drop_legendaire">
-                                <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                                <oda-loading></oda-loading>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-12" id="div_best_paquets">
-                        <img SRC="API/img/loading.gif" ALT="Chargement" TITLE="Chargement">
+                        <oda-loading></oda-loading>
                     </div>
                 </div>
             </div>
@@ -94,9 +94,7 @@
         try {
             $.Oda.Storage.set('ODA-HOW_currentSet', idSet);
             buildNavBarSets();
-            //TODO gerer le loading
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $("#div_metrics_dropRate").html(strhtml);
+            $.Oda.Display.loading({elt : $('#div_metrics_dropRate')});
             monWorker.postMessage(new $.Oda.Worker.message('start', { "color" : $.Oda.Color, set : $.Oda.App.tab_sets[$.Oda.Storage.get('ODA-HOW_currentSet')] }));
             chargerMetricsCollection();
             chargerMetricsCollectionNeutre();
@@ -124,7 +122,7 @@
 
                         //COMMUN
                         var tabInput = { set : messageSent.parameter.set };
-                        var json_retour_qualitePaquets = $.Oda.callRest($.Oda.Context.rest+"phpsql/getQualitePaquets.php", {}, tabInput);
+                        var json_retour_qualitePaquets = $Oda.callRest($Oda.Context.rest+"phpsql/getQualitePaquets.php", {}, tabInput);
 
                         if((json_retour_qualitePaquets["strErreur"] === "")&&(json_retour_qualitePaquets["strErreur"] === "")){
                             var nbPaquets = parseInt(json_retour_qualitePaquets["data"]["nbpaquets"]["nb"]);
@@ -144,24 +142,24 @@
                             for (var indice in repartitionQualite){
                                 switch (repartitionQualite[indice]["qualite"]){
                                     case "Commune":
-                                        dropRate_comm = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRate_comm = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                         break;
                                     case "Rare":
-                                        dropRate_rare = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRate_rare = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                         break;
                                     case "Épique":
-                                        dropRate_epic = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRate_epic = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                         break;
                                     case "Légendaire":
-                                        dropRate_legend = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRate_legend = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                         break;
                                 }
                             }
 
-                            dropRate_gold = $.Oda.arrondir(parseInt(json_retour_qualitePaquets["data"]["repartitionGold"]["nb"]) / total * 100,2);
+                            dropRate_gold = $Oda.arrondir(parseInt(json_retour_qualitePaquets["data"]["repartitionGold"]["nb"]) / total * 100,2);
 
                         }else{
-                            $.Oda.log("Erreur : "+json_retour_qualitePaquets["strErreur"]);
+                            $Oda.log("Erreur : "+json_retour_qualitePaquets["strErreur"]);
                         }
 
                         strhtml += 'Chance au tirage g&eacute;n&eacute;ral : ';
@@ -175,10 +173,10 @@
                         strhtml += '</ul>';
 
                         //PERSO
-                        var tabInput = { code_user : $.Oda.Session.code_user, set : messageSent.parameter.set };
-                        var json_retour_dropRate = $.Oda.callRest($.Oda.Context.rest+"phpsql/getMetricsDropRate.php", {}, tabInput);
+                        var tabInput = { code_user : $Oda.Session.code_user, set : messageSent.parameter.set };
+                        var json_retour_dropRate = $Oda.callRest($Oda.Context.rest+"phpsql/getMetricsDropRate.php", {}, tabInput);
 
-                        var json_retour_qualitePaquets = $.Oda.callRest($.Oda.Context.rest+"phpsql/getQualitePaquets.php", {}, tabInput);
+                        var json_retour_qualitePaquets = $Oda.callRest($Oda.Context.rest+"phpsql/getQualitePaquets.php", {}, tabInput);
 
                         if((json_retour_dropRate["strErreur"] === "")&&(json_retour_qualitePaquets["strErreur"] === "")){
                             var nbPaquets = parseInt(json_retour_qualitePaquets["data"]["nbpaquets"]["nb"]);
@@ -199,16 +197,16 @@
                             for (var indice in repartitionQualite){
                                 switch (repartitionQualite[indice]["qualite"]){
                                     case "Commune":
-                                        dropRateCommune = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRateCommune = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                         break;
                                     case "Rare":
-                                        dropRateRare = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRateRare = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                         break;
                                     case "Épique":
-                                        dropRateEpique = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRateEpique = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                         break;
                                     case "Légendaire":
-                                        dropRateLegendaire = $.Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
+                                        dropRateLegendaire = $Oda.arrondir(parseInt(repartitionQualite[indice]["nb"]) / total * 100,2);
                                         break;
                                 }
                             }
@@ -263,10 +261,10 @@
                                 }
                             }
 
-                            var burnDownCommune = $.Oda.arrondir((restCommune*100)/(dropRateCommune*percDezCommune/100)/5,0);
-                            var burnDownRare = $.Oda.arrondir((restRare*100)/(dropRateRare*percDezRare/100)/5,0);
-                            var burnDownEpique = $.Oda.arrondir((restEpique*100)/(dropRateEpique*dropRateEpique/100)/5,0);
-                            var burnDownLegendaire = $.Oda.arrondir((restLegendaire*100)/(dropRateLegendaire*dropRateLegendaire/100)/5,0);
+                            var burnDownCommune = $Oda.arrondir((restCommune*100)/(dropRateCommune*percDezCommune/100)/5,0);
+                            var burnDownRare = $Oda.arrondir((restRare*100)/(dropRateRare*percDezRare/100)/5,0);
+                            var burnDownEpique = $Oda.arrondir((restEpique*100)/(dropRateEpique*dropRateEpique/100)/5,0);
+                            var burnDownLegendaire = $Oda.arrondir((restLegendaire*100)/(dropRateLegendaire*dropRateLegendaire/100)/5,0);
 
                             strhtml += 'Vos statistiques de tirage : ';
                             strhtml += '<ul>';
@@ -299,7 +297,7 @@
                             }
                             strhtml += '<li style="color:'+color+';">Taux de tirage des l&eacute;gendaires : '+dropRateLegendaire+'% ('+percDezLegendaire+'% Dez)</li>';
 
-                            var myDropRateGold = $.Oda.arrondir(parseFloat(json_retour_dropRate["data"]["resultat"]["dropRate_gold"]),2);
+                            var myDropRateGold = $Oda.arrondir(parseFloat(json_retour_dropRate["data"]["resultat"]["dropRate_gold"]),2);
                             if(myDropRateGold >= dropRate_gold){
                                 var color = messageSent.parameter.color.SUCCESS;
                             }else{
@@ -326,9 +324,9 @@
                             strhtml += '<li>Pour les l&eacute;gendaires => '+burnDownLegendaire+' paquets &agrave; ouvrir</li>';
                             strhtml += '</ul>';
 
-                            this.postMessage(new $.Oda.message('resultat',{"html" : strhtml}));
+                            this.postMessage(new $Oda.message('resultat',{"html" : strhtml}));
                         } else{
-                            $.Oda.log("Erreur : "+json_retour_dropRate["strErreur"]+", "+json_retour_qualitePaquets["strErreur"]);
+                            $Oda.log("Erreur : "+json_retour_dropRate["strErreur"]+", "+json_retour_qualitePaquets["strErreur"]);
                         }
 
                         break;
@@ -351,8 +349,7 @@
      */
     function chargerMetricsCollection(){
         try {
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $('#div_metrics_collection').html(strhtml);
+            $.Oda.Display.loading({elt : $('#div_metrics_collection')});
             var tabSetting = { functionRetour : function(datas){
                 if(datas["strErreur"] == ""){
 
@@ -484,8 +481,7 @@
      */
     function chargerMetricsCollectionNeutre(){
         try {
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $('#div_metrics_collection_neutre').html(strhtml);
+            $.Oda.Display.loading({elt : $('#div_metrics_collection_neutre')});
             var tabSetting = { functionRetour : function(datas){
                 if(datas["strErreur"] == ""){
 
@@ -596,8 +592,7 @@
      */
     function chargerMetricsPaquets(){
         try {
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $('#div_metrics_paquets').html(strhtml);
+            $.Oda.Display.loading({elt : $('#div_metrics_paquets')});
             var tabSetting = { functionRetour : function(datas){
                 if(datas["strErreur"] == ""){
 
@@ -685,8 +680,7 @@
                 default:
                     dbQualite = 'Commune';
             }
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $('#div_drop_'+p_qualite).html(strhtml);
+            $.Oda.Display.loading({elt : $('#div_drop_'+p_qualite)});
             var tabInput = { code_user : $.Oda.Session.code_user, qualite : dbQualite, set : $.Oda.App.tab_sets[$.Oda.Storage.get('ODA-HOW_currentSet')] };
             $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getClassementDrop.php", { functionRetour : function(retour){
                 if(retour["strErreur"] == ""){
@@ -706,15 +700,12 @@
         }
     }
 
-
-
     /**
      * @name chargerBestPaquets
      */
     function chargerBestPaquets(){
         try {
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
-            $("#div_best_paquets").html(strhtml);
+            $.Oda.Display.loading({elt : $("#div_best_paquets")});
             var tabInput = { code_user : $.Oda.Session.code_user, set : $.Oda.App.tab_sets[$.Oda.Storage.get('ODA-HOW_currentSet')] };
             $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/bestPaquetes.php", {functionRetour : function(datas){
                 if(datas["strErreur"] == ""){
@@ -753,7 +744,7 @@
      */
     function openMissedCards(p_params){
         try {
-            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
+            var strhtml = "<oda-loading></oda-loading>";
             $.Oda.Display.Popup.open({label:'Cartes manquantes', details : strhtml});
 
             var tabSetting = { functionRetour : function(datas){
