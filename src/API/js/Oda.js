@@ -339,16 +339,15 @@
                 ]},
                 {"name" : "include" , ordered : true, "list" : [
                     { "elt" : $.Oda.Context.rootPath+"include/config.js", "type" : "script" }
-                ]}
-            ];
-
-            var listDependsFull = [
+                ]},
                 {"name" : "style" , ordered : false, "list" : [
                     { "elt" : $.Oda.Context.rootPath+"API/css/css.css", "type" : "css" },
                     { "elt" : $.Oda.Context.rootPath+"css/css.css", "type" : "css" }
+                ]},
+                {"name": "app", ordered: true, "list": [
+                    {"elt": $.Oda.Context.rootPath+"js/OdaApp.js", "type": "script"}
                 ]}
             ];
-            listDepends = listDepends.concat(listDependsFull);
 
             if($.Oda.Tooling.isInArray("mokup",$.Oda.Context.modeInterface)){
                 var listDependsMokup = [
@@ -360,32 +359,10 @@
                 listDepends = listDepends.concat(listDependsMokup);
             }
 
-            $.Oda.loadDepends(listDepends,_loaded);
+            $.Oda.loadDepends(listDepends,_appStarted);
         } catch (er) {
            $.Oda.Log.error("_init : " + er.message);
         }
-    }
-
-    /**
-     * @name _loaded
-     */
-    function _loaded() {
-        try {
-            // init from config
-            if ($.Oda.Context.host !== ""){
-                $.Oda.Storage.storageKey = "ODA__"+$.Oda.Context.host+"__";
-            }
-
-            $.Oda.loadDepends([
-                {
-                    "name": "app", ordered: true, "list": [
-                        {"elt": $.Oda.Context.rootPath+"js/OdaApp.js", "type": "script"}
-                    ]
-                }
-            ], _appStarted);
-        } catch (er) {
-           $.Oda.Log.error("_loaded : " + er.message);
-        }  
     }
     
     /**
@@ -393,6 +370,11 @@
      */
     function _appStarted() {
         try {
+            // init from config
+            if ($.Oda.Context.host !== ""){
+                $.Oda.Storage.storageKey = "ODA__"+$.Oda.Context.host+"__";
+            }
+
             $.Oda.Event.send({name:"oda-fully-loaded", data : { truc : "coucou" }});
             $.Oda.Log.info("Oda fully loaded.");
         } catch (er) {

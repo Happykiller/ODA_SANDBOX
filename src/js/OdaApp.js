@@ -22,47 +22,9 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
      * @desc Initialize
      */
     function _init() {
-        $.Oda.Context.projectLabel = "ODA HOW";
-        
-        $.Oda.Router.addDependencies("wowhead", function(){
-            $.getScript("http://wowjs.zamimg.com/widgets/power.js?1389797934",function(){
-                $.Oda.Router.dependencieLoaded("wowhead");
-            }); 
-        });
-        
-        $.Oda.Router.addRoute("home", {
-            "path" : "partials/home.html",
-            "title" : "oda-main.home-title",
-            "urls" : ["","home"],
-            "dependencies" : ["dataTables","wowhead"],
-            "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
-        });
-        
-        $.Oda.Router.addRoute("saisir_paquet", {
-            "path" : "partials/paquet-add.html",
-            "title" : "paquet-add.title",
-            "urls" : ["saisir_paquet"],
-            "dependencies" : ["dataTables","wowhead"],
-            "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
-        });
-
-        $.Oda.Router.addRoute("rapports_cartes", {
-            "path" : "partials/rapports_cartes.html",
-            "title" : "rapports-cartes.title",
-            "urls" : ["rapports_cartes"],
-            "dependencies" : ["dataTables","hightcharts","wowhead"],
-            "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
-        });
-
-        $.Oda.Router.addRoute("gerer_collection", {
-            "path" : "partials/gerer_collection.html",
-            "title" : "gerer-coll.title",
-            "urls" : ["gerer_collection"],
-            "dependencies" : ["dataTables","wowhead"],
-            "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
-        });
-        
-        $.Oda.Router.startRooter();
+        $.Oda.Event.addListener({name : "oda-fully-loaded", callback : function(e){
+            $.Oda.App.startApp();
+        }});
     }
 
     ////////////////////////// PUBLIC METHODS /////////////////////////
@@ -111,7 +73,62 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                 $.Oda.log.error("$.Oda.App.example):" + er.message);
                 return false;
             }
-        }
+        },
+        /**
+         * @param {Object} p_params
+         * @param p_params.attr
+         * @returns {$.Oda.App}
+         */
+        startApp: function (p_params) {
+            try {
+                $.Oda.Context.projectLabel = "ODA HOW";
+
+                $.Oda.Router.addDependencies("wowhead", function(){
+                    $.getScript("http://wowjs.zamimg.com/widgets/power.js?1389797934",function(){
+                        $.Oda.Router.dependencieLoaded("wowhead");
+                    });
+                });
+
+                $.Oda.Router.addRoute("home", {
+                    "path" : "partials/home.html",
+                    "title" : "oda-main.home-title",
+                    "urls" : ["","home"],
+                    "dependencies" : ["dataTables","wowhead"],
+                    "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+                });
+
+                $.Oda.Router.addRoute("saisir_paquet", {
+                    "path" : "partials/paquet-add.html",
+                    "title" : "paquet-add.title",
+                    "urls" : ["saisir_paquet"],
+                    "dependencies" : ["dataTables","wowhead"],
+                    "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+                });
+
+                $.Oda.Router.addRoute("rapports_cartes", {
+                    "path" : "partials/rapports_cartes.html",
+                    "title" : "rapports-cartes.title",
+                    "urls" : ["rapports_cartes"],
+                    "dependencies" : ["dataTables","hightcharts","wowhead"],
+                    "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+                });
+
+                $.Oda.Router.addRoute("gerer_collection", {
+                    "path" : "partials/gerer_collection.html",
+                    "title" : "gerer-coll.title",
+                    "urls" : ["gerer_collection"],
+                    "dependencies" : ["dataTables","wowhead"],
+                    "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+                });
+
+                $.Oda.Router.startRooter();
+
+                return this;
+            } catch (er) {
+                $.Oda.Log.error("$.Oda.App.startApp : " + er.message);
+                return null;
+            }
+        },
     };
 
     // Initialize
