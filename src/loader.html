@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" src="API/libs/jquery/dist/jquery.js"></script>
+    <script src="API/js/Oda.js"></script>
+</head>
+<body>
+
+<script>
+    var listDepends = [
+        {"name" : "datas" , ordered : false, "list" : [
+            { "elt" : $.Oda.Context.rootPath+"API/i8n/i8n.json", "type" : "json", "target" : function(p_json){_i8n = _i8n.concat(p_json);}},
+            { "elt" : $.Oda.Context.rootPath+"i8n/i8n.json", "type" : "json", "target" : function(p_json){_i8n = _i8n.concat(p_json);}}
+        ]},
+        {"name" : "include" , ordered : true, "list" : [
+            { "elt" : $.Oda.Context.rootPath+"include/config.js", "type" : "script" }
+        ]},
+        {"name" : "style" , ordered : false, "list" : [
+            { "elt" : $.Oda.Context.rootPath+"API/css/css.css", "type" : "css" },
+            { "elt" : $.Oda.Context.rootPath+"css/css.css", "type" : "css" }
+        ]},
+        {"name": "app", ordered: true, "list": [
+            {"elt": $.Oda.Context.rootPath+"js/OdaApp.js", "type": "script"}
+        ]}
+    ];
+
+    $.Oda.Loader.load({ depends : listDepends, functionFeedback : function(data){console.log("FINISHHHH!!"+data.msg)}, functionFeedbackParams : {msg : "hello"}});
+</script>
+
+</body>
+</html>

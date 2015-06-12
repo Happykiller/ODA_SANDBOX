@@ -21,10 +21,10 @@
         _mokup = [],
         
         _dependecies = null,
+
+        _dependeciesFeedback = null,
         
         _connectionRest = false,
-        
-        _dependeciesFeedback = null,
         
         _menuSlide = false,
         
@@ -749,6 +749,155 @@
             noInjection : "^(?!.*?function())"
         },
 
+        Loader : {
+            Status : {
+                init : 0,
+                loading : 1,
+                loaded : 2,
+                fail : 3
+            },
+            iterator : 0,
+            buffer : [],
+            /**
+             *
+             * @param {Object} params
+             * @param {Object} params.depends
+             * @param {Object} params.functionFeedback
+             * @param {Object} params.functionFeedbackParams
+             * @returns {Boolean}
+             */
+            load : function(params){
+                try {
+                    var eltLoader = params;
+                    eltLoader.id = $.Oda.Loader.iterator;
+
+                    for(var indiceGrp in eltLoader.depends){
+                        var grp = eltLoader.depends[indiceGrp];
+                        grp.state = $.Oda.Loader.Status.init;
+                        for(var indiceElt in grp.list){
+                            var elt = grp.list[indiceElt];
+                            elt.state = $.Oda.Loader.Status.init;
+                        }
+                    }
+
+                    $.Oda.Loader.buffer.push(eltLoader);
+                    $.Oda.Loader.iterator++;
+
+                    $.Oda.Loader.loading({id : eltLoader.id});
+
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Loader.load : " + er.message);
+                }
+            },
+            /**
+             * @param {Object} p_params
+             * @param p_params.id
+             * @returns {$.Oda.Loader}
+             */
+            loading: function (p_params) {
+                try {
+                    var eltLoader = $.Oda.Loader.buffer[p_params.id];
+
+                    for (var indiceGrp in eltLoader.depends) {
+                        var grp = eltLoader.depends[indiceGrp];
+                        if((grp.state === $.Oda.Loader.Status.init)){
+                            $.Oda.Log.debug("Dependency group loading : "+grp.name);
+                            grp.state = $.Oda.Loader.Status.loading;
+                            $.Oda.Event.addListener({name : "oda-loader-"+p_params.id+"-"+grp.name, callback : function(e){
+                                    $.Oda.Log.debug("Dependency group loaded : "+ e.detail.grpName + " with code : " + e.detail.grpState);
+                                    var eltLoader = $.Oda.Loader.buffer[e.detail.idLoader];
+                                    for (var indiceGrp in eltLoader.depends) {
+                                        var grp = eltLoader.depends[indiceGrp];
+                                        if(grp.name === e.detail.grpName){
+                                            grp.state = e.detail.grpState;
+                                            $.Oda.Loader.loading({id : e.detail.idLoader});
+                                            return this;
+                                        }
+                                    }
+                                }
+                            });
+                            $.Oda.Loader.loadingGrp({idLoader : p_params.id, grpName : grp.name});
+                            return this;
+                        }
+                    }
+
+                    if(eltLoader.hasOwnProperty("functionFeedback")){
+                        if(eltLoader.hasOwnProperty("functionFeedbackParams")) {
+                            eltLoader.functionFeedback(eltLoader.functionFeedbackParams);
+                        }else{
+                            eltLoader.functionFeedback();
+                        }
+                    }
+
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Loader.loading : " + er.message);
+                    return null;
+                }
+            },
+            /**
+             * @param {Object} p_params
+             * @param p_params.idLoader
+             * @param p_params.grpName
+             * @returns {$.Oda.Loader}
+             */
+            loadingGrp: function (p_params) {
+                try {
+                    var eltLoader = $.Oda.Loader.buffer[p_params.idLoader];
+
+                    for (var indiceGrp in eltLoader.depends) {
+                        var grp = eltLoader.depends[indiceGrp];
+                        if (grp.name === p_params.grpName) {
+                            for(var indiceElt in grp.list){
+                                var elt = grp.list[indiceElt];
+                                if(elt.state === $.Oda.Loader.Status.init){
+                                    $.Oda.Log.debug("Dependency element loading : "+ elt.elt + " of grp : "+grp.name);
+                                    elt.state = $.Oda.Loader.Status.loading;
+
+                                    $.Oda.Event.addListener({name : "oda-loader-"+p_params.idLoader+"-"+p_params.grpName+"-"+elt.elt, callback : function(e){
+                                            $.Oda.Log.debug("Dependency element loaded : "+ e.detail.elt + "of grp : "+e.detail.grpName + " of  with code : " + e.detail.eltState);
+                                            var eltLoader = $.Oda.Loader.buffer[e.detail.idLoader];
+                                            for (var indiceGrp in eltLoader.depends) {
+                                                var grp = eltLoader.depends[indiceGrp];
+                                                if(grp.name === e.detail.grpName){
+                                                    for(var indiceElt in grp.list) {
+                                                        var elt = grp.list[indiceElt];
+                                                        elt.state = e.detail.eltState;
+                                                        $.Oda.Loader.loadingGrp({idLoader : e.detail.idLoader, grpName : e.detail.grpName});
+                                                        return this;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+                                    //TODO le vrai loading
+                                    $.Oda.Event.send({name : "oda-loader-"+p_params.idLoader+"-"+p_params.grpName+"-"+elt.elt, data : {
+                                        elt : elt.elt,
+                                        grpName : p_params.grpName,
+                                        idLoader : p_params.idLoader,
+                                        eltState : $.Oda.Loader.Status.loaded
+                                    }});
+                                    return this;
+                                }
+                            }
+                        }
+                    }
+
+                    $.Oda.Event.send({name : "oda-loader-"+p_params.idLoader+"-"+p_params.grpName, data : {
+                        grpName : p_params.grpName,
+                        idLoader : p_params.idLoader,
+                        grpState : $.Oda.Loader.Status.loaded
+                    }});
+
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Loader.loadingGrp : " + er.message);
+                    return null;
+                }
+            },
+        },
+
         init : function(){
             _init();
         },
@@ -814,7 +963,7 @@
             /**
              * @param {Object} p_params
              * @param p_params.name
-             * @param p_params.callback function (e) { ... }
+             * @param p_params.callback function (e) { e.detail ... }
              * @returns {$.Oda.Event}
              */
             addListener: function (p_params) {
