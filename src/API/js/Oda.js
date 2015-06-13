@@ -30,8 +30,6 @@
         
         _menu = false,
         
-        _i8n = [],
-        
         _routesAllowedDefault = ["contact","404","auth","support","home","forgot","subscrib","profile","", "stats", "admin"],
         
         _routesAllowed = [],
@@ -334,8 +332,8 @@
             //depdends
             var listDepends = [
                 {"name" : "datas" , ordered : false, "list" : [
-                    { "elt" : $.Oda.Context.rootPath+"API/i8n/i8n.json", "type" : "json", "target" : function(p_json){_i8n = _i8n.concat(p_json);}},
-                    { "elt" : $.Oda.Context.rootPath+"i8n/i8n.json", "type" : "json", "target" : function(p_json){_i8n = _i8n.concat(p_json);}}
+                    { "elt" : $.Oda.Context.rootPath+"API/i8n/i8n.json", "type" : "json", "target" : function(p_json){$.Oda.I8n.datas = $.Oda.I8n.datas.concat(p_json);}},
+                    { "elt" : $.Oda.Context.rootPath+"i8n/i8n.json", "type" : "json", "target" : function(p_json){$.Oda.I8n.datas = $.Oda.I8n.datas.concat(p_json);}}
                 ]},
                 {"name" : "include" , ordered : true, "list" : [
                     { "elt" : $.Oda.Context.rootPath+"include/config.js", "type" : "script" }
@@ -359,27 +357,18 @@
                 listDepends = listDepends.concat(listDependsMokup);
             }
 
-            $.Oda.loadDepends(listDepends,_appStarted);
+            //$.Oda.Loader.load(listDepends,_appStarted);
+            $.Oda.Loader.load({ depends : listDepends, functionFeedback : function(data){
+                // init from config
+                if ($.Oda.Context.host !== ""){
+                    $.Oda.Storage.storageKey = "ODA__"+$.Oda.Context.host+"__";
+                }
+                $.Oda.Log.info("Oda fully loaded.");
+                $.Oda.Event.send({name:"oda-fully-loaded", data : { truc : data.msg }});
+            }, functionFeedbackParams : {msg : "Welcome with Oda"}});
         } catch (er) {
            $.Oda.Log.error("_init : " + er.message);
         }
-    }
-    
-    /**
-     * @name _appStarted
-     */
-    function _appStarted() {
-        try {
-            // init from config
-            if ($.Oda.Context.host !== ""){
-                $.Oda.Storage.storageKey = "ODA__"+$.Oda.Context.host+"__";
-            }
-
-            $.Oda.Event.send({name:"oda-fully-loaded", data : { truc : "coucou" }});
-            $.Oda.Log.info("Oda fully loaded.");
-        } catch (er) {
-           $.Oda.Log.error("_appStarted : " + er.message);
-        }  
     }
     
     /**
@@ -492,168 +481,6 @@
     }
     
     /**
-     * 
-     * @param {type} p_elt
-     * @param {type} p_mode
-     * @returns {Boolean}
-     */
-    function _loadDepend(p_elt, p_mode) {
-        try {
-            var retour = true;
-
-            $.Oda.Log.debug("Loading : "+p_elt.elt);
-            
-            switch(p_elt.type) {
-                case "css":
-                    $('<link/>', {
-                        rel: 'stylesheet',
-                        type: 'text/css',
-                        href: p_elt.elt
-                    }).appendTo('head');
-                    p_elt.status = "done";
-                    $.Oda.Log.debug( "Sucess for : "+p_elt.elt );
-                    
-                    if(p_mode === "serie"){
-                        _loadListDependsOrdoned();
-                    }
-                    _allDependsLoaded();
-                    break;
-                case "script":
-                    $.ajax({
-                    url: p_elt.elt,
-                    dataType: "script",
-                    context : {"lib" : p_elt.elt},
-                    success: function( script, textStatus, jqxhr) {
-                        $.Oda.Log.debug( "Sucess for : "+$(this)[0].lib+" ("+textStatus+")" );
-                        p_elt.status = "done";
-                    
-                        if(p_mode === "serie"){
-                            _loadListDependsOrdoned();
-                        }
-                        _allDependsLoaded();
-                    },
-                    error : function( jqxhr, settings, exception ) {
-                        $.Oda.Log.debug( "Triggered ajaxError handler for : "+$(this)[0].lib+"." );
-                        p_elt.status = "fail";
-                    
-                        if(p_mode === "serie"){
-                            _loadListDependsOrdoned();
-                        }
-                        _allDependsLoaded();
-                    }
-                });
-                    break;
-                case "json":
-                    $.ajax({
-                    dataType: "json",
-                    url: p_elt.elt,
-                    context : {"lib" : p_elt.elt},
-                    success: function( json, textStatus, jqxhr) {
-                        p_elt.target(json);
-                        $.Oda.Log.debug( "Sucess for : "+$(this)[0].lib+" ("+textStatus+")" );
-                        p_elt.status = "done";
-                        
-                        if(p_mode === "serie"){
-                            _loadListDependsOrdoned();
-                        }
-                        _allDependsLoaded();
-                    },
-                    error : function( jqxhr, settings, exception ) {
-                        $.Oda.Log.debug( "Triggered ajaxError handler for : "+$(this)[0].lib+"." );
-                        p_elt.status = "fail";
-                        
-                        if(p_mode === "serie"){
-                            _loadListDependsOrdoned();
-                        }
-                        _allDependsLoaded();
-                    }
-                    });
-                    break;
-                default:
-                    $.Oda.Log.debug( "Type unknown for : "+p_elt.elt+"." );
-            }
-
-            return retour;
-        } catch (er) {
-            $.Oda.Log.error("_loadDepend : " + er.message);
-            return null;
-        }
-    }
-    
-    /**
-     * 
-     * @returns {Boolean}
-     */
-    function _loadListDependsOrdoned() {
-        try {
-            var retour = true;
-
-            for (var indice in _dependecies) {
-                if((!$.Oda.Tooling.isUndefined(_dependecies[indice].status)) && (_dependecies[indice].status === "doing")){
-                    var gardian = true;
-                    for (var indiceList in _dependecies[indice].list) {
-                        var elt = _dependecies[indice].list[indiceList];
-                        if(($.Oda.Tooling.isUndefined(elt.status)) || (elt.status === "doing")){
-                            elt.status = "doing";
-                            _loadDepend(elt,"serie");
-                            gardian = false;
-                            break;
-                        }
-                    }
-                    if(gardian){
-                        _dependecies[indice].status = "done";
-                        $.Oda.loadDepends();
-                    }
-                }
-            }
-
-            return retour;
-        } catch (er) {
-            $.Oda.Log.error("_loadListDependsOrdoned : " + er.message);
-            return null;
-        }
-    }
-    
-    /**
-     * 
-     * @returns {Boolean}
-     */
-    function _allDependsLoaded() {
-        try {
-            var retour = true;
-            
-            if(_dependecies !== null){
-                for (var indice in _dependecies) {
-                    if(($.Oda.Tooling.isUndefined(_dependecies[indice].status)) || (_dependecies[indice].status === "doing")){
-                        retour = false;
-                        break;
-                    }else{
-                        for (var indiceList in _dependecies[indice].list) {
-                            var elt = _dependecies[indice].list[indiceList];
-                            if(($.Oda.Tooling.isUndefined(elt.status)) || (elt.status === "doing")){
-                                retour = false;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if((retour) && (_dependecies !== null)){
-                _dependecies = null;
-                var methode = _dependeciesFeedback;
-                _dependeciesFeedback = null;
-                methode();
-            }
-
-            return retour;
-        } catch (er) {
-            $.Oda.Log.error("_allDependsLoaded : " + er.message);
-            return null;
-        }
-    }
-    
-    /**
     * _checkParams
     * @param {json} p_params
     * @param {json} p_def ex : {attr1 : null, attr2 : "truc"}
@@ -758,6 +585,7 @@
             },
             iterator : 0,
             buffer : [],
+            eltAlreadyLoad : {},
             /**
              *
              * @param {Object} params
@@ -805,19 +633,11 @@
                             $.Oda.Log.debug("Dependency group loading : "+grp.name);
                             grp.state = $.Oda.Loader.Status.loading;
                             $.Oda.Event.addListener({name : "oda-loader-"+p_params.id+"-"+grp.name, callback : function(e){
-                                    $.Oda.Log.debug("Dependency group loaded : "+ e.detail.grpName + " with code : " + e.detail.grpState);
-                                    var eltLoader = $.Oda.Loader.buffer[e.detail.idLoader];
-                                    for (var indiceGrp in eltLoader.depends) {
-                                        var grp = eltLoader.depends[indiceGrp];
-                                        if(grp.name === e.detail.grpName){
-                                            grp.state = e.detail.grpState;
-                                            $.Oda.Loader.loading({id : e.detail.idLoader});
-                                            return this;
-                                        }
-                                    }
+                                    $.Oda.Loader.loading({id : e.detail.idLoader});
+                                    return this;
                                 }
                             });
-                            $.Oda.Loader.loadingGrp({idLoader : p_params.id, grpName : grp.name});
+                            $.Oda.Loader.loadingGrp({idLoader : p_params.id, grp : grp});
                             return this;
                         }
                     }
@@ -839,60 +659,176 @@
             /**
              * @param {Object} p_params
              * @param p_params.idLoader
-             * @param p_params.grpName
+             * @param p_params.grp
              * @returns {$.Oda.Loader}
              */
             loadingGrp: function (p_params) {
                 try {
-                    var eltLoader = $.Oda.Loader.buffer[p_params.idLoader];
-
-                    for (var indiceGrp in eltLoader.depends) {
-                        var grp = eltLoader.depends[indiceGrp];
-                        if (grp.name === p_params.grpName) {
-                            for(var indiceElt in grp.list){
-                                var elt = grp.list[indiceElt];
-                                if(elt.state === $.Oda.Loader.Status.init){
-                                    $.Oda.Log.debug("Dependency element loading : "+ elt.elt + " of grp : "+grp.name);
-                                    elt.state = $.Oda.Loader.Status.loading;
-
-                                    $.Oda.Event.addListener({name : "oda-loader-"+p_params.idLoader+"-"+p_params.grpName+"-"+elt.elt, callback : function(e){
-                                            $.Oda.Log.debug("Dependency element loaded : "+ e.detail.elt + "of grp : "+e.detail.grpName + " of  with code : " + e.detail.eltState);
-                                            var eltLoader = $.Oda.Loader.buffer[e.detail.idLoader];
-                                            for (var indiceGrp in eltLoader.depends) {
-                                                var grp = eltLoader.depends[indiceGrp];
-                                                if(grp.name === e.detail.grpName){
-                                                    for(var indiceElt in grp.list) {
-                                                        var elt = grp.list[indiceElt];
-                                                        elt.state = e.detail.eltState;
-                                                        $.Oda.Loader.loadingGrp({idLoader : e.detail.idLoader, grpName : e.detail.grpName});
-                                                        return this;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
-                                    //TODO le vrai loading
-                                    $.Oda.Event.send({name : "oda-loader-"+p_params.idLoader+"-"+p_params.grpName+"-"+elt.elt, data : {
-                                        elt : elt.elt,
-                                        grpName : p_params.grpName,
-                                        idLoader : p_params.idLoader,
-                                        eltState : $.Oda.Loader.Status.loaded
-                                    }});
-                                    return this;
-                                }
+                    //lunch
+                    for(var indiceElt in p_params.grp.list){
+                        var elt = p_params.grp.list[indiceElt];
+                        if(elt.state === $.Oda.Loader.Status.init){
+                            $.Oda.Log.debug("Dependency element loading : "+ elt.elt + " of grp : "+p_params.grp.name);
+                            elt.state = $.Oda.Loader.Status.loading;
+                            $.Oda.Event.addListener({name : "oda-loader-"+p_params.idLoader+"-"+p_params.grp.name+"-"+elt.elt, callback : function(e){
+                                $.Oda.Loader.loadingGrp({idLoader : e.detail.idLoader, grp : e.detail.grp});
+                                return this;
+                            }
+                            });
+                            $.Oda.Loader.loadingElt({idLoader:p_params.idLoader,grp:p_params.grp,elt:elt});
+                            if(p_params.grp.ordered){
+                                return this;
                             }
                         }
                     }
-
-                    $.Oda.Event.send({name : "oda-loader-"+p_params.idLoader+"-"+p_params.grpName, data : {
-                        grpName : p_params.grpName,
-                        idLoader : p_params.idLoader,
-                        grpState : $.Oda.Loader.Status.loaded
-                    }});
+                    //case all start but not all finish
+                    if(!p_params.grp.ordered){
+                        for(var indiceElt in p_params.grp.list) {
+                            var elt = p_params.grp.list[indiceElt];
+                            if (elt.state === $.Oda.Loader.Status.loading) {
+                                return this;
+                            }
+                        }
+                    }
+                    if(p_params.grp.state !== $.Oda.Loader.Status.loaded) {
+                        p_params.grp.state = $.Oda.Loader.Status.loaded;
+                        $.Oda.Log.debug("Dependency group loaded : " + p_params.grp.name + " with code : " + p_params.grp.state);
+                        $.Oda.Event.send({
+                            name: "oda-loader-" + p_params.idLoader + "-" + p_params.grp.name, data: {
+                                grpName: p_params.grp.name,
+                                idLoader: p_params.idLoader,
+                                grpState: $.Oda.Loader.Status.loaded
+                            }
+                        });
+                    }
 
                     return this;
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Loader.loadingGrp : " + er.message);
+                    return null;
+                }
+            },
+            /**
+             * @param {object} p_params
+             * @param p_params.idLoader
+             * @param p_params.grp
+             * @param p_params.elt
+             * @returns {$.Oda.Loader}
+             */
+            loadingElt: function (p_params) {
+                try {
+                    if(p_params.elt.state !== $.Oda.Loader.Status.loaded){
+                        if(($.Oda.Loader.eltAlreadyLoad.hasOwnProperty(p_params.elt.elt)) && ($.Oda.Loader.eltAlreadyLoad[p_params.elt.elt] === $.Oda.Loader.Status.loaded) && (p_params.elt.force === false)){
+                            p_params.elt.state = $.Oda.Loader.Status.loaded;
+                            $.Oda.Log.debug("Dependency element already loaded : "+ p_params.elt.elt + " of grp : "+ p_params.grp.name + " of  with code : " + p_params.elt.state);
+                            $.Oda.Event.send({
+                                name: "oda-loader-" + p_params.idLoader + "-" + p_params.grp.name + "-" + p_params.elt.elt,
+                                data: {
+                                    grp : p_params.grp,
+                                    idLoader : p_params.idLoader
+                                }
+                            });
+                        }else{
+                            switch(p_params.elt.type) {
+                                case "css":
+                                    $('<link/>', {
+                                        rel: 'stylesheet',
+                                        type: 'text/css',
+                                        href: p_params.elt.elt
+                                    }).appendTo('head');
+
+                                    $.Oda.Loader.eltAlreadyLoad[p_params.elt.elt] = $.Oda.Loader.Status.loaded;
+                                    p_params.elt.state = $.Oda.Loader.Status.loaded;
+                                    $.Oda.Log.debug("Dependency element loaded : "+ p_params.elt.elt + " of grp : "+ p_params.grp.name + " of  with code : " + p_params.elt.state);
+                                    $.Oda.Event.send({
+                                        name: "oda-loader-" + p_params.idLoader + "-" + p_params.grp.name + "-" + p_params.elt.elt,
+                                        data: {
+                                            grp : p_params.grp,
+                                            idLoader : p_params.idLoader
+                                        }
+                                    });
+
+                                    break;
+                                case "script":
+                                    $.ajax({
+                                        url: p_params.elt.elt,
+                                        dataType: "script",
+                                        context : {"params" : p_params},
+                                        success: function( script, textStatus, jqxhr) {
+                                            var params = $(this)[0].params;
+                                            if(params.elt.hasOwnProperty("target")){
+                                                params.elt.target();
+                                            }
+                                            $.Oda.Loader.eltAlreadyLoad[params.elt.elt] = $.Oda.Loader.Status.loaded;
+                                            params.elt.state = $.Oda.Loader.Status.loaded;
+                                            $.Oda.Log.debug("Dependency element loaded : "+ params.elt.elt + " of grp : "+ params.grp.name + " of  with code : " + params.elt.state);
+                                            $.Oda.Event.send({
+                                                name: "oda-loader-" + params.idLoader + "-" + params.grp.name + "-" + params.elt.elt,
+                                                data: {
+                                                    grp : params.grp,
+                                                    idLoader : params.idLoader
+                                                }
+                                            });
+                                        },
+                                        error : function( jqxhr, settings, exception ) {
+                                            var params = $(this)[0].params;
+                                            $.Oda.Loader.eltAlreadyLoad[params.elt.elt] = $.Oda.Loader.Status.fail;
+                                            params.elt.state = $.Oda.Loader.Status.loaded;
+                                            $.Oda.Log.debug("Dependency element loaded : "+ params.elt.elt + " of grp : "+ params.grp.name + " of  with code : " + params.elt.state);
+                                            $.Oda.Event.send({
+                                                name: "oda-loader-" + params.idLoader + "-" + params.grp.name + "-" + params.elt.elt,
+                                                data: {
+                                                    grp : params.grp,
+                                                    idLoader : params.idLoader
+                                                }
+                                            });
+                                        }
+                                    });
+                                    break;
+                                case "json":
+                                    $.ajax({
+                                        url: p_params.elt.elt,
+                                        dataType: "json",
+                                        context : {"params" : p_params},
+                                        success: function( json, textStatus, jqxhr) {
+                                            var params = $(this)[0].params;
+                                            if(params.elt.hasOwnProperty("target")){
+                                                params.elt.target(json);
+                                            }
+                                            $.Oda.Loader.eltAlreadyLoad[params.elt.elt] = $.Oda.Loader.Status.loaded;
+                                            params.elt.state = $.Oda.Loader.Status.loaded;
+                                            $.Oda.Log.debug("Dependency element loaded : "+ params.elt.elt + " of grp : "+ params.grp.name + " of  with code : " + params.elt.state);
+                                            $.Oda.Event.send({
+                                                name: "oda-loader-" + params.idLoader + "-" + params.grp.name + "-" + params.elt.elt,
+                                                data: {
+                                                    grp : params.grp,
+                                                    idLoader : params.idLoader
+                                                }
+                                            });
+                                        },
+                                        error : function( jqxhr, settings, exception ) {
+                                            var params = $(this)[0].params;
+                                            $.Oda.Loader.eltAlreadyLoad[params.elt.elt] = $.Oda.Loader.Status.fail;
+                                            params.elt.state = $.Oda.Loader.Status.loaded;
+                                            $.Oda.Log.debug("Dependency element loaded : "+ params.elt.elt + " of grp : "+ params.grp.name + " of  with code : " + params.elt.state);
+                                            $.Oda.Event.send({
+                                                name: "oda-loader-" + params.idLoader + "-" + params.grp.name + "-" + params.elt.elt,
+                                                data: {
+                                                    grp : params.grp,
+                                                    idLoader : params.idLoader
+                                                }
+                                            });
+                                        }
+                                    });
+                                    break;
+                                default:
+                                    $.Oda.Log.debug( "Type unknown for : "+p_params.elt.elt+"." );
+                            }
+                        }
+                    }
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Loader.loadingElt : " + er.message);
                     return null;
                 }
             },
@@ -1782,6 +1718,7 @@
         },
 
         I8n : {
+            datas : [],
             /**
              * @name get
              * @param {string} p_group
@@ -1792,8 +1729,8 @@
                 try {
                     var returnvalue = "Not define";
 
-                    for (var grpId in _i8n) {
-                        var grp = _i8n[grpId];
+                    for (var grpId in $.Oda.I8n.datas) {
+                        var grp = $.Oda.I8n.datas[grpId];
                         if(grp.groupName === p_group){
                             var trad = grp[$.Oda.Session.userInfo.locale][p_tag];
                             if(!$.Oda.Tooling.isUndefined(trad)){
