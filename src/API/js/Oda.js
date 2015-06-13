@@ -1142,6 +1142,22 @@
         },
 
         Display : {
+            Scene : {
+                /**
+                 * @param {object} p_params
+                 * @param p_params.id
+                 * @returns {$.Oda.Display.Scene}
+                 */
+                load: function (p_params) {
+                    try {
+                        //TODO ICI on charge toute la scene
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Display.Scene.load : " + er.message);
+                        return null;
+                    }
+                },
+            },
             /**
              * @param {Object} p_params
              * @param p_params.elt
