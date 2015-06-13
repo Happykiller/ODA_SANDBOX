@@ -83,10 +83,11 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
             try {
                 $.Oda.Context.projectLabel = "ODA HOW";
 
-                $.Oda.Router.addDependencies("wowhead", function(){
-                    $.getScript("http://wowjs.zamimg.com/widgets/power.js?1389797934",function(){
-                        $.Oda.Router.dependencieLoaded("wowhead");
-                    });
+                $.Oda.Router.addDependencies("wowhead", {
+                    ordered : false,
+                    "list" : [
+                        { "elt" : "http://wowjs.zamimg.com/widgets/power.js", "type" : "script"}
+                    ]
                 });
 
                 $.Oda.Router.addRoute("home", {
