@@ -332,13 +332,13 @@
                 }
 
                 //load menus
-                if (($.Oda.Session.hasOwnProperty("code_user")) && ($.Oda.Session.code_user !== "")) {
+                if (($.Oda.Context.ModeExecution.scene) && ($.Oda.Session.code_user !== "")) {
                     $.Oda.Display.MenuSlide.show();
                     $.Oda.Display.Menu.show();
                 }
 
                 //show message
-                if ($.Oda.Session.code_user !== "") {
+                if (($.Oda.Context.ModeExecution.message) && ($.Oda.Session.code_user !== "")) {
                     $.Oda.Display.Message.show();
                 }
 
@@ -413,7 +413,9 @@
                 scene : false,
                 notification : false,
                 popup : false,
-                message : false
+                message : false,
+                rooter : false,
+                app : false
             },
             debug : true,
             rootPath : "",
@@ -678,13 +680,19 @@
                         { "elt" : $.Oda.Context.rootPath+"API/css/css.css", "type" : "css" },
                         { "elt" : $.Oda.Context.rootPath+"API/templates/Oda.html", "type": "html", target : function(data){ $( "body" ).append(data); }}
 
-                    ]},
-                    {"name": "app", ordered: false, "list": [
-                        { "elt" : $.Oda.Context.rootPath+"css/css.css", "type" : "css" },
-                        { "elt" : $.Oda.Context.rootPath+"i8n/i8n.json", "type" : "json", "target" : function(p_json){$.Oda.I8n.datas = $.Oda.I8n.datas.concat(p_json);}},
-                        { "elt" : $.Oda.Context.rootPath+"js/OdaApp.js", "type": "script"}
                     ]}
                 ];
+
+                if($.Oda.Context.ModeExecution.app){
+                    var listDependsApp = [
+                        {"name": "app", ordered: false, "list": [
+                            { "elt" : $.Oda.Context.rootPath+"css/css.css", "type" : "css" },
+                            { "elt" : $.Oda.Context.rootPath+"i8n/i8n.json", "type" : "json", "target" : function(p_json){$.Oda.I8n.datas = $.Oda.I8n.datas.concat(p_json);}},
+                            { "elt" : $.Oda.Context.rootPath+"js/OdaApp.js", "type": "script"}
+                        ]}
+                    ];
+                    listDepends = listDepends.concat(listDependsApp);
+                }
 
                 if($.Oda.Context.ModeExecution.scene){
                     var listDependsScene = [
@@ -718,10 +726,13 @@
                         $.Oda.Display.Popup.load();
                     }
                     if($.Oda.Context.ModeExecution.scene) {
-                        if($("#oda-content").exists()){
-                            $("#oda-content").remove();
+                        if($("#"+ $.Oda.Context.mainDiv).exists()){
+                            $("#"+ $.Oda.Context.mainDiv).remove();
                         }
                         $.Oda.Display.Scene.load();
+                    }
+                    if($.Oda.Context.ModeExecution.rooter){
+                        $.Oda.Router.startRooter();
                     }
                     var d = new Date();
                     var n = d.getTime();
@@ -2700,6 +2711,10 @@
                         $("#projectLabel").text($.Oda.Context.projectLabel);
                     }
 
+                    if(!$("#"+ $.Oda.Context.mainDiv).exists()){
+                        $(" body ").append('<!-- content --><div id="'+ $.Oda.Context.mainDiv + '" class="container" style="padding-top:40px;"><oda-loading></oda-loading></div>');
+                    }
+
                     var hash = $.Oda.Context.window.location.hash;
 
                     $.Oda.Router.current = {
@@ -3094,12 +3109,26 @@
     if (params.hasOwnProperty("modeExecution")){
         switch(params.modeExecution) {
             case "full":
+                $.Oda.Context.ModeExecution.rooter = true;
+                $.Oda.Context.ModeExecution.init = true;
+                $.Oda.Context.ModeExecution.notification = true;
+                $.Oda.Context.ModeExecution.popup = true;
+                $.Oda.Context.ModeExecution.message = true;
+                break;
+            case "app":
+                $.Oda.Context.ModeExecution.app = true;
                 $.Oda.Context.ModeExecution.scene = true;
+                $.Oda.Context.ModeExecution.init = true;
+                $.Oda.Context.ModeExecution.notification = true;
+                $.Oda.Context.ModeExecution.popup = true;
+                $.Oda.Context.ModeExecution.message = true;
+                break;
             case "mini":
                 $.Oda.Context.ModeExecution.init = true;
                 $.Oda.Context.ModeExecution.notification = true;
                 $.Oda.Context.ModeExecution.popup = true;
                 $.Oda.Context.ModeExecution.message = true;
+                break;
             default:
                 break;
         }
