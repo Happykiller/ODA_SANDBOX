@@ -2,33 +2,23 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>QUnit APP All</title>
+    <title>QUnit API</title>
     <!-- CSS -->
-    <link rel="stylesheet" href="../API/js/JqueryTest/qunit.css">
+    <link rel="stylesheet" href="../libs/qunit/qunit/qunit.css">
 
     <!-- JS -->
     <!-- Dépendance QUnit -->
-    <script type="text/javascript" src="../API/js/JqueryTest/qunit.js"></script>
-    <script type="text/javascript" src="../API/js/Jquery/jquery.min.js"></script>
-    
+    <script type="text/javascript" src="../libs/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../libs/qunit/qunit/qunit.js"></script>
+
     <!-- Dépendance API projet -->
-    <script type="text/javascript" src="../include/config.js"></script>
-    <script>
-        var customWindowODA = {
-        location : {
-            pathname : "/index.html",
-            href : "http://localhost/index.html"
-        }
-    };
-    </script>
-    <script type="text/javascript" src="../API/js/functionsLib.js"></script>
-  
+    <script type="text/javascript" src="../js/Oda.js"></script>
+
     <!-- Les test choisi -->
-    <script type="text/javascript" src="resources/test.js"></script>
-    <script type="text/javascript" src="resources/php.js"></script>
+    <script type="text/javascript" src="resources/tests.js"></script>
 </head>
 <body>
-  <div id="qunit"></div>
-  <div id="qunit-fixture"></div>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
 </body>
 </html>

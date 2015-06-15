@@ -6,7 +6,7 @@
  * @date 15/05/08
  *
  * If you want to define the modeExecute
- * ?modeExecution = full
+ * ?modeExecution = full, or mini
  *
  */
 (function() {
@@ -25,11 +25,13 @@
         _menuSlide = false,
         
         _menu = false,
-        
+
+        //TODO à revoir, ici admin autoriser par default ?
         _routesAllowedDefault = ["contact","404","auth","support","home","forgot","subscrib","profile","", "stats", "admin"],
         
         _routesAllowed = [],
-        
+
+        //TODO ajouter un controleur
         _routes = {
             "404" : {
                 "path" : "API/partials/404.html",
@@ -405,7 +407,9 @@
             //TODO cache
             modeInterface : ["ajax","mokup"],
             ModeExecution : {
-                init : false
+                init : false,
+                scene : false,
+                notification : false
             },
             debug : true,
             rootPath : "",
@@ -542,6 +546,7 @@
                         }
                     }
                     if(p_params.grp.state !== $.Oda.Loader.Status.loaded) {
+                        //TODO si un elt est en erreur le grp doit etre en erreur
                         p_params.grp.state = $.Oda.Loader.Status.loaded;
                         $.Oda.Log.debug("Dependency group loaded : " + p_params.grp.name + " with code : " + p_params.grp.state);
                         $.Oda.Event.send({
@@ -607,50 +612,16 @@
 
                                     break;
                                 case "script":
-                                    $.ajax({
-                                        url: p_params.elt.elt,
-                                        dataType: "script",
-                                        context : {"params" : p_params},
-                                        success: function( script, textStatus, jqxhr) {
-                                            var params = $(this)[0].params;
-                                            if(params.elt.hasOwnProperty("target")){
-                                                params.elt.target();
-                                            }
-                                            $.Oda.Loader.eltAlreadyLoad[params.elt.elt] = $.Oda.Loader.Status.loaded;
-                                            params.elt.state = $.Oda.Loader.Status.loaded;
-                                            $.Oda.Log.debug("Dependency element loaded : "+ params.elt.elt + " of grp : "+ params.grp.name + " of  with code : " + params.elt.state);
-                                            $.Oda.Event.send({
-                                                name: "oda-loader-" + params.idLoader + "-" + params.grp.name + "-" + params.elt.elt,
-                                                data: {
-                                                    grp : params.grp,
-                                                    idLoader : params.idLoader
-                                                }
-                                            });
-                                        },
-                                        error : function( jqxhr, settings, exception ) {
-                                            var params = $(this)[0].params;
-                                            $.Oda.Loader.eltAlreadyLoad[params.elt.elt] = $.Oda.Loader.Status.fail;
-                                            params.elt.state = $.Oda.Loader.Status.loaded;
-                                            $.Oda.Log.debug("Dependency element loaded : "+ params.elt.elt + " of grp : "+ params.grp.name + " of  with code : " + params.elt.state);
-                                            $.Oda.Event.send({
-                                                name: "oda-loader-" + params.idLoader + "-" + params.grp.name + "-" + params.elt.elt,
-                                                data: {
-                                                    grp : params.grp,
-                                                    idLoader : params.idLoader
-                                                }
-                                            });
-                                        }
-                                    });
-                                    break;
                                 case "json":
+                                case "html" :
                                     $.ajax({
                                         url: p_params.elt.elt,
-                                        dataType: "json",
+                                        dataType: p_params.elt.type,
                                         context : {"params" : p_params},
-                                        success: function( json, textStatus, jqxhr) {
+                                        success: function( data, textStatus, jqxhr) {
                                             var params = $(this)[0].params;
                                             if(params.elt.hasOwnProperty("target")){
-                                                params.elt.target(json);
+                                                params.elt.target(data);
                                             }
                                             $.Oda.Loader.eltAlreadyLoad[params.elt.elt] = $.Oda.Loader.Status.loaded;
                                             params.elt.state = $.Oda.Loader.Status.loaded;
@@ -697,21 +668,29 @@
 
                 //depdends
                 var listDepends = [
-                    {"name" : "datas" , ordered : false, "list" : [
+                    {"name" : "library" , ordered : false, "list" : [
                         { "elt" : $.Oda.Context.rootPath+"API/i8n/i8n.json", "type" : "json", "target" : function(p_json){$.Oda.I8n.datas = $.Oda.I8n.datas.concat(p_json);}},
-                        { "elt" : $.Oda.Context.rootPath+"i8n/i8n.json", "type" : "json", "target" : function(p_json){$.Oda.I8n.datas = $.Oda.I8n.datas.concat(p_json);}}
-                    ]},
-                    {"name" : "include" , ordered : true, "list" : [
-                        { "elt" : $.Oda.Context.rootPath+"include/config.js", "type" : "script" }
-                    ]},
-                    {"name" : "style" , ordered : false, "list" : [
+                        { "elt" : $.Oda.Context.rootPath+"API/config/config.js", "type" : "script" },
                         { "elt" : $.Oda.Context.rootPath+"API/css/css.css", "type" : "css" },
-                        { "elt" : $.Oda.Context.rootPath+"css/css.css", "type" : "css" }
+                        { "elt" : $.Oda.Context.rootPath+"API/templates/Oda.html", "type": "html", target : function(data){ $( "body" ).append(data); }}
+
                     ]},
-                    {"name": "app", ordered: true, "list": [
-                        {"elt": $.Oda.Context.rootPath+"js/OdaApp.js", "type": "script"}
+                    {"name": "app", ordered: false, "list": [
+                        { "elt" : $.Oda.Context.rootPath+"css/css.css", "type" : "css" },
+                        { "elt" : $.Oda.Context.rootPath+"i8n/i8n.json", "type" : "json", "target" : function(p_json){$.Oda.I8n.datas = $.Oda.I8n.datas.concat(p_json);}},
+                        { "elt" : $.Oda.Context.rootPath+"js/OdaApp.js", "type": "script"}
                     ]}
                 ];
+
+                if($.Oda.Context.ModeExecution.scene){
+                    var listDependsScene = [
+                        {"name" : "scene" , ordered : false, "list" : [
+                            { "elt" : $.Oda.Context.rootPath+"API/css/simple-sidebar.css", "type" : "css" },
+                            { "elt" : $.Oda.Context.rootPath+"API/templates/Scene.html", "type": "html", target : function(data){ $( "body" ).append(data); }}
+                        ]}
+                    ];
+                    listDepends = listDepends.concat(listDependsScene);
+                }
 
                 if($.Oda.Tooling.isInArray("mokup",$.Oda.Context.modeInterface)){
                     var listDependsMokup = [
@@ -727,6 +706,12 @@
                     // init from config
                     if ($.Oda.Context.host !== ""){
                         $.Oda.Storage.storageKey = "ODA__"+$.Oda.Context.host+"__";
+                    }
+                    if($.Oda.Context.ModeExecution.notification){
+                        $.Oda.Notification.load();
+                    }
+                    if($.Oda.Context.ModeExecution.scene) {
+                        $.Oda.Display.Scene.load();
                     }
                     $.Oda.Log.info("Oda fully loaded.");
                     $.Oda.Event.send({name:"oda-fully-loaded", data : { truc : data.msg }});
@@ -1045,12 +1030,38 @@
             Scene : {
                 /**
                  * @param {object} p_params
-                 * @param p_params.id
                  * @returns {$.Oda.Display.Scene}
                  */
                 load: function (p_params) {
                     try {
-                        //TODO ICI on charge toute la scene
+                        var htmlPopUp = $.Oda.Display.TemplateHtml.create({
+                            template : "oda-popup-tpl"
+                        });
+                        $( "body" ).append(htmlPopUp);
+
+                        var htmlScene = $.Oda.Display.TemplateHtml.create({
+                            template : "oda-scene-tpl"
+                        });
+                        $( "body" ).append(htmlScene);
+
+                        var htmlTudo = $.Oda.Display.TemplateHtml.create({
+                            template : "oda-tuto-tpl"
+                        });
+                        $( "body" ).append(htmlTudo);
+
+                        $("#avatar").click(function(e) {
+                            e.preventDefault();
+                            $("#wrapper").toggleClass("toggled");
+                        });
+
+                        $(document).ready(function(){
+                            $('.iconProfile').hover(function() {
+                                $(this).addClass('transition');
+
+                            }, function() {
+                                $(this).removeClass('transition');
+                            });
+                        });
                         return this;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.Display.Scene.load : " + er.message);
@@ -1264,18 +1275,20 @@
                 /**
                  * @param {Object} p_params
                  * @param p_params.template
-                 * @param p_params.scope
+                 * @param p_params.scope opt
                  * @returns {$.Oda.Display.TemplateHtml}
                  */
                 create: function (p_params) {
                     try {
-                        var listExpression = $.Oda.Tooling.findBetweenWords({str : $('#'+p_params.template).html(), first : "{{", last : "}}" });
-
                         var strHtml = $('#'+p_params.template).html();
-                        for(var indice in listExpression){
-                            var resultEval = $.Oda.Display.TemplateHtml.eval({exrp : listExpression[indice], scope : p_params.scope});
-                            strHtml = $.Oda.Tooling.replaceAll({str : strHtml, find : '{{'+listExpression[indice]+'}}', by : resultEval});
+                        if(p_params.hasOwnProperty("scope")){
+                            var listExpression = $.Oda.Tooling.findBetweenWords({str : $('#'+p_params.template).html(), first : "{{", last : "}}" });
+                            for(var indice in listExpression){
+                                var resultEval = $.Oda.Display.TemplateHtml.eval({exrp : listExpression[indice], scope : p_params.scope});
+                                strHtml = $.Oda.Tooling.replaceAll({str : strHtml, find : '{{'+listExpression[indice]+'}}', by : resultEval});
+                            }
                         }
+
                         return strHtml;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.Display.TemplateHtml.create : " + er.message);
@@ -2899,6 +2912,23 @@
                 $.Oda.Log.error(p_message);
             },
             /**
+             * @param {Object} p_params
+             * @param p_params.attr
+             * @returns {$.Oda.Notification}
+             */
+            load: function (p_params) {
+                try {
+                    var html = $.Oda.Display.TemplateHtml.create({
+                        template : "oda-notification-tpl"
+                    });
+                    $( "body" ).append(html);
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Notification.load : " + er.message);
+                    return null;
+                }
+            },
+            /**
             * notification
             * @Desc Show notification
             * @param {string} p_message
@@ -3040,6 +3070,12 @@
         switch(params.modeExecution) {
             case "full":
                 $.Oda.Context.ModeExecution.init = true;
+                $.Oda.Context.ModeExecution.scene = true;
+                $.Oda.Context.ModeExecution.notification = true;
+                break;
+            case "mini":
+                $.Oda.Context.ModeExecution.init = true;
+                $.Oda.Context.ModeExecution.notification = true;
                 break;
             default:
                 break;
