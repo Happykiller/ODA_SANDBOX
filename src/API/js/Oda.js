@@ -18,6 +18,8 @@
         /* version */
         VERSION = '0.1',
 
+        _startDate = new Date(),
+
         _mokup = [],
         
         _connectionRest = false,
@@ -409,7 +411,9 @@
             ModeExecution : {
                 init : false,
                 scene : false,
-                notification : false
+                notification : false,
+                popup : false,
+                message : false
             },
             debug : true,
             rootPath : "",
@@ -546,7 +550,7 @@
                         }
                     }
                     if(p_params.grp.state !== $.Oda.Loader.Status.loaded) {
-                        //TODO si un elt est en erreur le grp doit etre en erreur
+                        //TODO ERROR si un elt est en erreur le grp doit etre en erreur
                         p_params.grp.state = $.Oda.Loader.Status.loaded;
                         $.Oda.Log.debug("Dependency group loaded : " + p_params.grp.name + " with code : " + p_params.grp.state);
                         $.Oda.Event.send({
@@ -710,10 +714,19 @@
                     if($.Oda.Context.ModeExecution.notification){
                         $.Oda.Notification.load();
                     }
+                    if($.Oda.Context.ModeExecution.popup){
+                        $.Oda.Display.Popup.load();
+                    }
                     if($.Oda.Context.ModeExecution.scene) {
+                        if($("#oda-content").exists()){
+                            $("#oda-content").remove();
+                        }
                         $.Oda.Display.Scene.load();
                     }
-                    $.Oda.Log.info("Oda fully loaded.");
+                    var d = new Date();
+                    var n = d.getTime();
+                    var mili = (d - _startDate.getTime());
+                    $.Oda.Log.info("Oda fully loaded. (in "+mili+" miliseconds)");
                     $.Oda.Event.send({name:"oda-fully-loaded", data : { truc : data.msg }});
                 }, functionFeedbackParams : {msg : "Welcome with Oda"}});
                 return this;
@@ -1034,11 +1047,6 @@
                  */
                 load: function (p_params) {
                     try {
-                        var htmlPopUp = $.Oda.Display.TemplateHtml.create({
-                            template : "oda-popup-tpl"
-                        });
-                        $( "body" ).append(htmlPopUp);
-
                         var htmlScene = $.Oda.Display.TemplateHtml.create({
                             template : "oda-scene-tpl"
                         });
@@ -1226,6 +1234,23 @@
                 }
             },
             Popup : {
+                /**
+                 * @param {Object} p_params
+                 * @param p_params.attr
+                 * @returns {$.Oda.Display.Popup}
+                 */
+                load: function (p_params) {
+                    try {
+                        var htmlPopUp = $.Oda.Display.TemplateHtml.create({
+                            template : "oda-popup-tpl"
+                        });
+                        $( "body" ).append(htmlPopUp);
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Display.Popup.load : " + er.message);
+                        return null;
+                    }
+                },
                 /**
                  * affichePopUp
                  * @param {object} p_params
@@ -3069,14 +3094,12 @@
     if (params.hasOwnProperty("modeExecution")){
         switch(params.modeExecution) {
             case "full":
-                $.Oda.Context.ModeExecution.init = true;
                 $.Oda.Context.ModeExecution.scene = true;
-                $.Oda.Context.ModeExecution.notification = true;
-                break;
             case "mini":
                 $.Oda.Context.ModeExecution.init = true;
                 $.Oda.Context.ModeExecution.notification = true;
-                break;
+                $.Oda.Context.ModeExecution.popup = true;
+                $.Oda.Context.ModeExecution.message = true;
             default:
                 break;
         }
