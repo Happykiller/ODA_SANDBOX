@@ -33,7 +33,6 @@
         
         _routesAllowed = [],
 
-        //TODO ajouter un controleur
         _routes = {
             "404" : {
                 "path" : "API/partials/404.html",
@@ -236,7 +235,7 @@
             },
             "support" : function(){
                 $.Oda.Log.debug("MiddleWares : support");
-                var maintenance = $.Oda.getParameter("maintenance");
+                var maintenance = $.Oda.Interface.getParameter("maintenance");
                 if(typeof maintenance === "undefined"){
                     _connectionRest = false;
                     _RouterExit = true;
@@ -525,6 +524,7 @@
              */
             loadingGrp: function (p_params) {
                 try {
+                    var statutGrp = $.Oda.Loader.Status.loaded;
                     //lunch
                     for(var indiceElt in p_params.grp.list){
                         var elt = p_params.grp.list[indiceElt];
@@ -540,6 +540,10 @@
                             if(p_params.grp.ordered){
                                 return this;
                             }
+                        }else{
+                            if(elt.state === $.Oda.Loader.Status.fail){
+                                statutGrp = $.Oda.Loader.Status.fail;
+                            }
                         }
                     }
                     //case all start but not all finish
@@ -552,14 +556,13 @@
                         }
                     }
                     if(p_params.grp.state !== $.Oda.Loader.Status.loaded) {
-                        //TODO ERROR si un elt est en erreur le grp doit etre en erreur
-                        p_params.grp.state = $.Oda.Loader.Status.loaded;
+                        p_params.grp.state = statutGrp;
                         $.Oda.Log.debug("Dependency group loaded : " + p_params.grp.name + " with code : " + p_params.grp.state);
                         $.Oda.Event.send({
                             name: "oda-loader-" + p_params.idLoader + "-" + p_params.grp.name, data: {
                                 grpName: p_params.grp.name,
                                 idLoader: p_params.idLoader,
-                                grpState: $.Oda.Loader.Status.loaded
+                                grpState: statutGrp
                             }
                         });
                     }
@@ -643,8 +646,8 @@
                                         error : function( jqxhr, settings, exception ) {
                                             var params = $(this)[0].params;
                                             $.Oda.Loader.eltAlreadyLoad[params.elt.elt] = $.Oda.Loader.Status.fail;
-                                            params.elt.state = $.Oda.Loader.Status.loaded;
-                                            $.Oda.Log.debug("Dependency element loaded : "+ params.elt.elt + " of grp : "+ params.grp.name + " of  with code : " + params.elt.state);
+                                            params.elt.state = $.Oda.Loader.Status.fail;
+                                            $.Oda.Log.debug("Dependency element fail : "+ params.elt.elt + " of grp : "+ params.grp.name + " of  with code : " + params.elt.state);
                                             $.Oda.Event.send({
                                                 name: "oda-loader-" + params.idLoader + "-" + params.grp.name + "-" + params.elt.elt,
                                                 data: {
@@ -720,7 +723,7 @@
                         $.Oda.Storage.storageKey = "ODA__"+$.Oda.Context.host+"__";
                     }
                     if($.Oda.Context.ModeExecution.notification){
-                        $.Oda.Notification.load();
+                        $.Oda.Display.Notification.load();
                     }
                     if($.Oda.Context.ModeExecution.popup){
                         $.Oda.Display.Popup.load();
@@ -746,32 +749,216 @@
                 return null;
             }
         },
+        Mobile : {
+            /* return elet*/
+           funcReturnGPSPosition : null,
 
-        /**
-         * geRangs
-         * @returns {json}
-         */
-        getRangs :  function() {
-            try {
-                var valeur = $.Oda.Storage.get("ODA_rangs");
-                if(valeur === null){
+           funcReturnCaptureImg : null,
 
-                    var tabInput = { "sql" : "Select `labelle`,`indice` FROM `api_tab_rangs` ORDER BY `indice` desc" };
-                    var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/getSQL.php", {type : 'POST'}, tabInput);
+           /* var intern */
+           networkState : null,
 
-                    if(retour.strErreur === ""){
-                        valeur = retour.data.resultat.data;
-                    }else{
-                        $.Oda.Notification.error(retour.strErreur);
-                    }
+           positionGps : {
+                coords : {
+                    latitude : 0,
+                    longitude : 0,
+                    altitude : 0,
+                    accuracy : 0,
+                    altitudeAccuracy : 0,
+                    heading : 0,
+                    speed : 0
+                },
+                timestamp : 0,
+                statut : ''
+            },
 
-                    $.Oda.Storage.set("ODA_rangs",valeur,$.Oda.Storage.ttl_default);
+           pictureSource : null,
+
+           destinationType : null,
+
+           onMobile : false,
+
+           onMobileTest : false,
+
+           /**
+            * @name getGPSPosition
+            * @desc getGPSPosition
+            */
+           onSuccessGPSPosition : function(p_position) {
+               try {
+                   $.Oda.Mobile.positionGps.coords = p_position.coords;
+                   $.Oda.Mobile.positionGps.timestamp = p_position.timestamp;
+                   $.Oda.Mobile.positionGps.statut = "OK";
+                   $.Oda.Mobile.funcReturnGPSPosition($.Oda.Mobile.positionGps);
+               } catch (er) {
+                   log(0, "ERROR($.Oda.Mobile.onSuccessGPSPosition):" + er.message);
+               }
+           },
+
+            /**
+             * @name getGPSPosition
+             * @desc getGPSPosition
+             */
+            onErrorGPSPosition : function(p_error) {
+                try {
+                    $.Oda.Mobile.positionGps.statut = "KO : code=>"+ p_error.code+", message=>"+ p_error.message;
+                    $.Oda.Mobile.funcReturnGPSPosition($.Oda.Mobile.positionGps);
+                } catch (er) {
+                    $.Oda.Log.error(0, "ERROR($.Oda.Mobile.onErrorGPSPosition):" + er.message);
                 }
+            },
 
-                return valeur;
-            } catch (er) {
-                $.Oda.Log.error("$.Oda.geRangs : " + er.message);
-                return null;
+            onPhotoSuccess : function(p_imageData) {
+                try {
+                    var imgSrc = "data:image/jpeg;base64,"+p_imageData;
+
+                    $.Oda.Mobile.funcReturnCaptureImg(imgSrc);
+                } catch (er) {
+                    $.Oda.Log.error(0, "ERROR($.Oda.Mobile.onPhotoSuccess):" + er.message);
+                }
+            },
+
+            onPhotoURISuccess : function(p_imageURI) {
+                try {
+                    var imgSrc = p_imageURI;
+
+                    $.Oda.Mobile.funcReturnCaptureImg(imgSrc);
+                } catch (er) {
+                    $.Oda.Log.error(0, "ERROR($.Oda.Mobile.onPhotoURISuccess):" + er.message);
+                }
+            },
+
+            onPhotoFail : function(p_message) {
+                try {
+                    alert('Failed because: ' + p_message);
+                } catch (er) {
+                    $.Oda.Log.error(0, "ERROR($.Oda.Mobile.onPhotoFail):" + er.message);
+                }
+            },
+
+            initModuleMobile : function(){
+                try {
+                    var boolRetour = true;
+
+                    $.Oda.Mobile.networkState = navigator.connection.type;
+                    $.Oda.Mobile.pictureSource = navigator.camera.PictureSourceType;
+                    $.Oda.Mobile.destinationType = navigator.camera.DestinationType;
+
+                    return boolRetour;
+                } catch (er) {
+                    $.Oda.Log.error(0, "ERROR($.Oda.Mobile.initModuleMobile):" + er.message);
+                    return null;
+                }
+            },
+
+            ///////////////// PART NETWORK
+            /**
+             *
+             * @returns {Boolean}
+             */
+            getConnectionString : function(p_networkState){
+                try {
+                    var retour = "";
+
+                    var states = {};
+                    states[Connection.UNKNOWN]  = 'Unknown connection';
+                    states[Connection.ETHERNET] = 'Ethernet connection';
+                    states[Connection.WIFI]     = 'WiFi connection';
+                    states[Connection.CELL_2G]  = 'Cell 2G connection';
+                    states[Connection.CELL_3G]  = 'Cell 3G connection';
+                    states[Connection.CELL_4G]  = 'Cell 4G connection';
+                    states[Connection.NONE]     = 'No network connection';
+
+                    retour = 'Connection type: ' + states[p_networkState];
+
+                    return retour;
+                } catch (er) {
+                    $.Oda.Log.error(0, "ERROR($.Oda.Mobile.getConnectionString):" + er.message);
+                    return null;
+                }
+            },
+
+            /**
+             *
+             * @returns {Boolean}
+             */
+            testConnection : function(){
+                try {
+                    var boolRetour = true;
+
+                    alert(this.getConnectionString(_networkState));
+
+                    return boolRetour;
+                } catch (er) {
+                    $.Oda.Log.error(0, "ERROR($.Oda.Mobile.testConnection):" + er.message);
+                    return null;
+                }
+            },
+
+            ///////////////// PART GPS
+            getGpsPosition: function(p_onReturn){
+                try {
+                    var boolRetour = true;
+
+                    $.Oda.Mobile.funcReturnGPSPosition = p_onReturn;
+
+                    navigator.geolocation.getCurrentPosition(_onSuccessGPSPosition, _onErrorGPSPosition);
+
+                    return boolRetour;
+                } catch (er) {
+                    $.Oda.Log.error(0, "ERROR($.Oda.Mobile.getGpsPosition):" + er.message);
+                    return null;
+                }
+            },
+            getGpsPositionString: function(p_position){
+                try {
+                    var retour = "";
+
+                    retour += 'Latitude: '      + p_position.coords.latitude            + '\n' +
+                    'Longitude: '               + p_position.coords.longitude           + '\n' +
+                    'Altitude: '                + p_position.coords.altitude            + '\n' +
+                    'Accuracy: '                + p_position.coords.accuracy            + '\n' +
+                    'Altitude Accuracy: '       + p_position.coords.altitudeAccuracy    + '\n' +
+                    'Heading: '                 + p_position.coords.heading             + '\n' +
+                    'Speed: '                   + p_position.coords.speed               + '\n' +
+                    'Timestamp: '               + p_position.timestamp                  + '\n' +
+                    'statut: '                  + p_position.statut                     + '\n';
+
+                    return retour;
+                } catch (er) {
+                    $.Oda.Log.error(0, "ERROR($.Oda.Mobile.getGpsPositionString):" + er.message);
+                    return null;
+                }
+            },
+
+            ///////////////// PART CAMERA
+            getPhotoFromCamera: function(p_retourCapture){
+                try {
+                    var boolRetour = true;
+
+                    $.Oda.Mobile.funcReturnCaptureImg = p_retourCapture;
+
+                    navigator.camera.getPicture(_onPhotoSuccess, _onPhotoFail, { quality: 50, destinationType: _destinationType.DATA_URL });
+
+                    return boolRetour;
+                } catch (er) {
+                    $.Oda.Log.error(0, "ERROR($.Oda.Mobile.getPhotoFromCamera):" + er.message);
+                    return null;
+                }
+            },
+            getPhotoFromLibrary: function(p_retourCapture){
+                try {
+                    var boolRetour = true;
+
+                    $.Oda.Mobile.funcReturnCaptureImg = p_retourCapture;
+
+                    navigator.camera.getPicture(_onPhotoURISuccess, _onPhotoFail, { quality: 50, destinationType: _destinationType.FILE_URI, sourceType: _pictureSource.PHOTOLIBRARY });
+
+                    return boolRetour;
+                } catch (er) {
+                    $.Oda.Log.error(0, "ERROR($.Oda.Mobile.getPhotoFromLibrary):" + er.message);
+                    return null;
+                }
             }
         },
         MokUp : {
@@ -939,6 +1126,11 @@
         },
 
         Interface : {
+            /**
+             * @desc factorisation pour choisir le type de call à faire
+             * @param params
+             * @returns {{strErreur: string, data: {}, statut: number}}
+             */
             call : function(params){
                 var response = {"strErreur": "No call", "data": {}, "statut": 4}
                 if(params.odaInterface.length>0){
@@ -1047,10 +1239,204 @@
                 "cache": function (params) {
                     return;
                 }
+            },
+            /**
+             * getParameter
+             * #ex $.Oda.Interface.getParameter("contact_mail_administrateur");
+             * @param {string} p_param_name
+             * @returns { int|varchar }
+             */
+            getParameter : function(p_param_name) {
+                try {
+                    var strResponse;
+
+                    var tabInput = { param_name : p_param_name };
+                    var json_retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/getParam.php", {}, tabInput);
+                    if(json_retour.strErreur === ""){
+                        var type = json_retour.data.leParametre.param_type;
+                        var value = json_retour.data.leParametre.param_type;
+                        switch (type) {
+                            case "int":
+                                strResponse = parseInt(value);
+                                break;
+                            case "float":
+                                strResponse = $.Oda.Tooling.arrondir(parseFloat(value),2);
+                                break;
+                            case "varchar":
+                                strResponse =  value;
+                                break;
+                            default:
+                                strResponse =  value;
+                                break;
+                        }
+                    }
+
+                    return strResponse;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Interface.getParameter : " + er.message);
+                    return null;
+                }
+            },
+            /**
+             * geRangs
+             * @returns {json}
+             */
+            getRangs :  function() {
+                try {
+                    var valeur = $.Oda.Storage.get("ODA_rangs");
+                    if(valeur === null){
+
+                        var tabInput = { "sql" : "Select `labelle`,`indice` FROM `api_tab_rangs` ORDER BY `indice` desc" };
+                        var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/getSQL.php", {type : 'POST'}, tabInput);
+
+                        if(retour.strErreur === ""){
+                            valeur = retour.data.resultat.data;
+                        }else{
+                            $.Oda.Display.Notification.error(retour.strErreur);
+                        }
+
+                        $.Oda.Storage.set("ODA_rangs",valeur,$.Oda.Storage.ttl_default);
+                    }
+
+                    return valeur;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Interface.geRangs : " + er.message);
+                    return null;
+                }
+            },
+            /**
+             * @name addStat
+             * @test addStat('ADMI', 'page_home.html', 'checkAuth : ok');
+             * @param {String} p_user
+             * @param {String} p_page
+             * @param {String} p_action
+             */
+            addStat : function(p_user, p_page, p_action) {
+                try {
+                    var tabSetting = { functionRetour : function(){} };
+                    var tabInput = {
+                        user : p_user,
+                        page : p_page,
+                        action : p_action
+                    };
+                    var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/addStat.php", tabSetting, tabInput);
+                    return retour;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Interface.addStat : " + er.message);
+                    return null;
+                }
+            },
+
+            /**
+             * sendMail
+             * @ex $.Oda.Interface.sendMail({email_mails_dest:'fabrice.rosito@gmail.com',message_html:'HelloContent',sujet:'HelloSujet'});
+             * @param {json} p_params
+             * @returns {boolean}
+             */
+            sendMail : function(p_params) {
+                try {
+                    var params_attempt = {
+                        email_mails_dest : null,
+                        message_html : null,
+                        sujet : null
+                    };
+
+                    var params = $.Oda.Tooling.checkParams(p_params, params_attempt);
+                    if(params === null){
+                        return false;
+                    }
+
+                    var returns = $.Oda.Interface.callRest($.Oda.Context.rest+"API/scriptphp/send_mail.php", {type : 'POST'}, params);
+
+                    return returns;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Interface.sendMail) :" + er.message);
+                    return null;
+                }
             }
         },
 
         Display : {
+            Notification : {
+                id : 0,
+                success : function(p_message){
+                    this.create(p_message,"success", 2000);
+                },
+                info : function(p_message){
+                    this.create(p_message,"info", 3000);
+                },
+                warning : function(p_message){
+                    this.create(p_message,"warning", 5000);
+                },
+                danger : function(p_message){
+                    this.create(p_message,"danger");
+                },
+                error : function(p_message){
+                    this.create(p_message,"danger");
+                    $.Oda.Log.error(p_message);
+                },
+                /**
+                 * @param {Object} p_params
+                 * @param p_params.attr
+                 * @returns {$.Oda.Notification}
+                 */
+                load: function (p_params) {
+                    try {
+                        var html = $.Oda.Display.TemplateHtml.create({
+                            template : "oda-notification-tpl"
+                        });
+                        $( "body" ).append(html);
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Display.Notification.load : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * notification
+                 * @Desc Show notification
+                 * @param {string} p_message
+                 * @param {string} p_type
+                 * @returns {boolean}
+                 */
+                create : function(p_message, p_type, time) {
+                    try {
+                        $.Oda.Display.Notification.id++;
+                        var strHtml = "";
+                        strHtml += '';
+                        strHtml += '<div class="alert alert-'+p_type+' alert-dismissible" style="text-align:center;" id="oda-notification-'+$.Oda.Display.Notification.id+'">';
+                        strHtml += '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
+                        strHtml += p_message;
+                        strHtml += '</div>';
+                        $( "#oda-notification" ).append( strHtml );
+
+                        if(!$.Oda.Tooling.isUndefined(time)){
+                            $.Oda.Tooling.timeout($.Oda.Display.Notification.remove,time,{id:$.Oda.Display.Notification.id});
+                        }
+
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Display.Notification.create :" + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 *
+                 * @param {object} params
+                 * @returns {$.Oda.Notification}
+                 */
+                remove : function(params){
+                    try {
+                        $('#oda-notification-'+params.id).fadeOut( 500, function(){
+                            $( this ).remove();
+                        });
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Display.Notification.remove :" + er.message);
+                        return null;
+                    }
+                }
+            },
             Scene : {
                 /**
                  * @param {object} p_params
@@ -1214,7 +1600,7 @@
                                 }
 
                             } else{
-                                $.Oda.Notification.error(datas.strErreur);
+                                $.Oda.Display.Notification.error(datas.strErreur);
                             }
                         }}, tabInput);
                         return this;
@@ -1234,7 +1620,7 @@
                             if(retour.strErreur === ""){
                                 $('#oda-message-'+p_params.id).remove();
                             } else{
-                                $.Oda.Notification.error(datas.strErreur);
+                                $.Oda.Display.Notification.error(datas.strErreur);
                             }
                         }}, tabInput);
                         return this;
@@ -1813,14 +2199,14 @@
                             $.Oda.Security.loadRight();
                         }else{
                             $.Oda.Storage.remove("ODA-SESSION");
-                            $.Oda.Notification.error(returns.strErreur);
+                            $.Oda.Display.Notification.error(returns.strErreur);
                         }
                         _RouterExit = false;
                         if(p_params.reload){
                             $.Oda.Router.navigateTo();
                         }
                     }else {
-                       $.Oda.Notification.error(returns.strErreur);
+                       $.Oda.Display.Notification.error(returns.strErreur);
                     }
                 } catch (er) {
                     $.Oda.Log.Log.error("$.Oda.Security.auth : " + er.message);
@@ -1889,61 +2275,67 @@
             }
         },
         
-        Business : {
-            /**
-             * saisirContact
-             * 
-             * @param {type} p_reponse
-             * @param {type} p_message
-             */
-            contact : function(p_reponse, p_message) {
-                try {
-                    var contact_mail_administrateur = $.Oda.getParameter("contact_mail_administrateur");
-                    if(contact_mail_administrateur !== ""){
-                        var tabInput = { "reponse" : p_reponse, "message" : p_message, "code_user" : $.Oda.Session.code_user };
-                        var result = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/insertContact.php", {}, tabInput);
-                        if(result.strErreur === ""){
-                            var message_html = "";
-                            var sujet = "";
-
-                            message_html = "";
-                            message_html += "<html><head></head><body>";
-                            message_html += "De : <pre>"+$.Oda.Session.code_user+"</pre>";
-                            message_html += "</br></br>";
-                            message_html += "Contact : <pre>"+p_reponse+"</pre>";
-                            message_html += "</br></br>";
-                            message_html += "Message : <pre>"+p_message+"</pre>";
-                            message_html += "</body></html>";
-
-                            sujet = "[ODA-"+$.Oda.getParameter("nom_site")+"]Nouveau contact.";
-
-                            var paramsMail = {
-                                email_mail_ori : contact_mail_administrateur,
-                                email_labelle_ori : "Service Mail ODA",
-                                email_mail_reply : contact_mail_administrateur,
-                                email_labelle_reply : "Service Mail ODA",
-                                email_mails_dest : contact_mail_administrateur,
-                                message_html : message_html,
-                                sujet : sujet
+        Controler : {
+            Contact : {
+                /**
+                 * saisirContact
+                 *
+                 * @param {type} p_reponse
+                 * @param {type} p_message
+                 */
+                contact: function (p_reponse, p_message) {
+                    try {
+                        var contact_mail_administrateur = $.Oda.Interface.getParameter("contact_mail_administrateur");
+                        if (contact_mail_administrateur !== "") {
+                            var tabInput = {
+                                "reponse": p_reponse,
+                                "message": p_message,
+                                "code_user": $.Oda.Session.code_user
                             };
+                            var result = $.Oda.Interface.callRest($.Oda.Context.rest + "API/phpsql/insertContact.php", {}, tabInput);
+                            if (result.strErreur === "") {
+                                var message_html = "";
+                                var sujet = "";
 
-                            var retour = $.Oda.sendMail(paramsMail);
+                                message_html = "";
+                                message_html += "<html><head></head><body>";
+                                message_html += "De : <pre>" + $.Oda.Session.code_user + "</pre>";
+                                message_html += "</br></br>";
+                                message_html += "Contact : <pre>" + p_reponse + "</pre>";
+                                message_html += "</br></br>";
+                                message_html += "Message : <pre>" + p_message + "</pre>";
+                                message_html += "</body></html>";
 
-                            $("#mail").val("");
-                            $("#name").val("");
-                            $("#msg").val("");
+                                sujet = "[ODA-" + $.Oda.Interface.getParameter("nom_site") + "]Nouveau contact.";
 
-                            if(retour){
-                                $.Oda.Notification.success("Demande bien soummise sous l'identifiant n&ordm;"+result.data.resultat+".");
+                                var paramsMail = {
+                                    email_mail_ori: contact_mail_administrateur,
+                                    email_labelle_ori: "Service Mail ODA",
+                                    email_mail_reply: contact_mail_administrateur,
+                                    email_labelle_reply: "Service Mail ODA",
+                                    email_mails_dest: contact_mail_administrateur,
+                                    message_html: message_html,
+                                    sujet: sujet
+                                };
+
+                                var retour = $.Oda.Interface.sendMail(paramsMail);
+
+                                $("#mail").val("");
+                                $("#name").val("");
+                                $("#msg").val("");
+
+                                if (retour) {
+                                    $.Oda.Display.Notification.success("Demande bien soummise sous l'identifiant n&ordm;" + result.data.resultat + ".");
+                                }
+                            } else {
+                                $.Oda.Display.Notification.error(result.strErreur);
                             }
-                        }else{
-                            $.Oda.Notification.error(result.strErreur);
+                        } else {
+                            $.Oda.Display.Notification.error("Mail du service non définie.");
                         }
-                    }else{
-                        $.Oda.Notification.error("Mail du service non définie.");
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.contact() : " + er.message);
                     }
-                } catch (er) {
-                    $.Oda.Log.error("$.Oda.contact() : " + er.message);
                 }
             }
         },
@@ -2624,7 +3016,7 @@
                                 $.Oda.Router.current = p_request;
 
                                 if($.Oda.Session.code_user != ""){
-                                    $.Oda.addStat($.Oda.Session.code_user, $.Oda.Router.current.route, "request");
+                                    $.Oda.Interface.addStat($.Oda.Session.code_user, $.Oda.Router.current.route, "request");
                                 }
                                 
                                 _routes[name].go(p_request);
@@ -2931,176 +3323,6 @@
                     return null;
                 }
             }
-        },
-        
-        Notification : {
-            id : 0,
-            success : function(p_message){
-                this.create(p_message,"success", 2000);
-            },
-            info : function(p_message){
-                this.create(p_message,"info", 3000);
-            },
-            warning : function(p_message){
-                this.create(p_message,"warning", 5000);
-            },
-            danger : function(p_message){
-                this.create(p_message,"danger");
-            },
-            error : function(p_message){
-                this.create(p_message,"danger");
-                $.Oda.Log.error(p_message);
-            },
-            /**
-             * @param {Object} p_params
-             * @param p_params.attr
-             * @returns {$.Oda.Notification}
-             */
-            load: function (p_params) {
-                try {
-                    var html = $.Oda.Display.TemplateHtml.create({
-                        template : "oda-notification-tpl"
-                    });
-                    $( "body" ).append(html);
-                    return this;
-                } catch (er) {
-                    $.Oda.Log.error("$.Oda.Notification.load : " + er.message);
-                    return null;
-                }
-            },
-            /**
-            * notification
-            * @Desc Show notification
-            * @param {string} p_message
-            * @param {string} p_type
-            * @returns {boolean}
-            */
-            create : function(p_message, p_type, time) {
-                try {
-                    $.Oda.Notification.id++;
-                    var strHtml = "";
-                    strHtml += '';
-                    strHtml += '<div class="alert alert-'+p_type+' alert-dismissible" style="text-align:center;" id="oda-notification-'+$.Oda.Notification.id+'">';
-                    strHtml += '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
-                    strHtml += p_message;
-                    strHtml += '</div>';
-                    $( "#oda-notification" ).append( strHtml );
-                    
-                    if(!$.Oda.Tooling.isUndefined(time)){
-                        $.Oda.Tooling.timeout($.Oda.Notification.remove,time,{id:$.Oda.Notification.id});
-                    }
-                    
-                    return this;
-                } catch (er) {
-                    $.Oda.Log.error("$.Oda.Notification.notification :" + er.message);
-                    return null;
-                }
-            },
-            /**
-             * 
-             * @param {object} params
-             * @returns {$.Oda.Notification}
-             */
-            remove : function(params){
-                try {
-                    $('#oda-notification-'+params.id).fadeOut( 500, function(){
-                        $( this ).remove();
-                    });
-                    return this;
-                } catch (er) {
-                    $.Oda.Log.error("$.Oda.Notification.remove :" + er.message);
-                    return null;
-                }
-            }
-        },
-        
-        /**
-        * getParameter
-        * #ex $.Oda.getParameter("contact_mail_administrateur");
-        * @param {string} p_param_name
-        * @returns { int|varchar }
-        */
-        getParameter : function(p_param_name) {
-            try {
-                var strResponse;
-
-                var tabInput = { param_name : p_param_name };
-                var json_retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/getParam.php", {}, tabInput);
-                if(json_retour.strErreur === ""){
-                    var type = json_retour.data.leParametre.param_type;
-                    var value = json_retour.data.leParametre.param_type;
-                    switch (type) {
-                        case "int":
-                            strResponse = parseInt(value);
-                            break;
-                        case "float":
-                            strResponse = $.Oda.Tooling.arrondir(parseFloat(value),2);
-                            break;
-                        case "varchar":
-                            strResponse =  value;
-                            break;
-                        default:
-                            strResponse =  value;
-                            break;
-                    }
-                } 
-
-               return strResponse;
-            } catch (er) {
-               $.Oda.Log.error("$.Oda.getParameter : " + er.message);
-               return null;
-            }
-        },
-        
-        /**
-         * @name addStat
-         * @test addStat('ADMI', 'page_home.html', 'checkAuth : ok');
-         * @param {String} p_user
-         * @param {String} p_page
-         * @param {String} p_action
-         */
-        addStat : function(p_user, p_page, p_action) {
-           try {
-                var tabSetting = { functionRetour : function(){} };
-                var tabInput = { 
-                    user : p_user,
-                    page : p_page,
-                    action : p_action
-                };
-                var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/addStat.php", tabSetting, tabInput);
-                return retour;
-           } catch (er) {
-               $.Oda.Log.error("$.Oda.addStat : " + er.message);
-               return null;
-           }
-        },
-        
-        /**
-        * sendMail
-        * @ex $.Oda.sendMail({email_mails_dest:'fabrice.rosito@gmail.com',message_html:'HelloContent',sujet:'HelloSujet'});
-        * @param {json} p_params
-        * @returns {boolean}
-        */
-        sendMail : function(p_params) {
-           try {
-                var params_attempt = {
-                    email_mails_dest : null,
-                    message_html : null,
-                    sujet : null
-                 };
-
-                var params = $.Oda.Tooling.checkParams(p_params, params_attempt);
-                if(params === null){
-                    return false;
-                }
-
-                var returns = $.Oda.Interface.callRest($.Oda.Context.rest+"API/scriptphp/send_mail.php", {type : 'POST'}, params);
-
-                return returns;
-           } catch (er) {
-               $.Oda.Log.error("$.Oda.sendMail) :" + er.message);
-               return null;
-           }
         }
     };
 

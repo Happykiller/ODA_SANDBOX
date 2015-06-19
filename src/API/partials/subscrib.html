@@ -70,7 +70,7 @@
             if(results["strErreur"] == ""){
                 var infoUser = results["data"]["infosUser"];
 
-                var contact_mail_administrateur = $.Oda.getParameter("contact_mail_administrateur");
+                var contact_mail_administrateur = $.Oda.Interface.getParameter("contact_mail_administrateur");
 
                 var message_html = "";
                 message_html = "<html><head></head><body>";
@@ -98,7 +98,7 @@
                     , sujet : "[ODA]Création de compte réussi."
                 };
 
-                $.Oda.sendMail(paramsMail);
+                $.Oda.Interface.sendMail(paramsMail);
 
                 var strHtml = "F&eacute;licitation votre compte a bien &eacute;t&eacute; cr&eacute;&eacute; (N&deg;"+infoUser["id"]+", identifiant : "+infoUser["code_user"]+").";
                 $.Oda.Notification.success(strHtml);

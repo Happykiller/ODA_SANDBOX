@@ -43,7 +43,7 @@
                 for(var indice in results["data"]["resultat"]["data"]){
                     var compte = results["data"]["resultat"]["data"][indice];
                     
-                    var contact_mail_administrateur = $.Oda.getParameter("contact_mail_administrateur");
+                    var contact_mail_administrateur = $.Oda.Interface.getParameter("contact_mail_administrateur");
 
                     var message_html = "";
                     message_html = "<html><head></head><body>";
@@ -71,7 +71,7 @@
                         , sujet : "[ODA]Récupération de votre compte."
                     };
 
-                    $.Oda.sendMail(paramsMail);
+                    $.Oda.Interface.sendMail(paramsMail);
                     
                     var strHtml = "F&eacute;licitation un mail vous a &eacute;t&eacute; envoy&eacute; &agrave; l'adresse : "+compte["mail"];
                     $.Oda.Notification.success(strHtml);
