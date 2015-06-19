@@ -1202,6 +1202,12 @@
                                         data = {"strErreur": data, "data": {}, "statut": 4};
                                     }
                                 }
+
+                                if(data.strErreur !== ""){
+                                    $.Oda.Log.error("$.Oda.Interface.Methode.ajax : " + data.strErreur);
+                                    $.Oda.Display.Notification.error(data.strErreur);
+                                }
+
                                 if (params.async) {
                                     params.functionRetour(data);
                                 } else {
@@ -1211,6 +1217,8 @@
                             .fail(function (jqXHR, textStatus, errorThrown) {
                                 var msg = textStatus + " - " + errorThrown.message + " on " + params.url;
                                 $.Oda.Log.error("$.Oda.Interface.Methode.ajax : " + msg);
+                                $.Oda.Display.Notification.error(msg);
+
                                 var data = {"strErreur": msg, "data": {}, "statut": 404};
 
                                 //textStatus = error for 404, next interface

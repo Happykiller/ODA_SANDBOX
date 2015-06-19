@@ -55,4 +55,15 @@
             , "collection" : "Your collection"
         }
     }
+    ,{
+        "groupName" : "gerer-deck"
+          , "fr" : {
+              "title" : "Gérer ses decks",
+              "listDeck" : "Liste des decks"
+        }
+        , "en" : {
+            "title" : "Manage yours decks",
+            "listDeck" : "List decks"
+        }
+    }
 ]

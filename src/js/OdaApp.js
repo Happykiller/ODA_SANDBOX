@@ -59,21 +59,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
         chosenClass : "",
 
         tab_sets : ['Tous', 'Expert' , 'La Malédiction de Naxxramas', 'Gobelins et Gnomes', 'Mont Rochenoire'],
-        
-        /**
-         * @name exemple
-         * @desc Hello
-         * @p_param{string} param
-         * @returns {boolean}
-         */
-        example: function(p_param) {
-            try {
-                return true;
-            } catch (er) {
-                $.Oda.log.error("$.Oda.App.example):" + er.message);
-                return false;
-            }
-        },
+
         /**
          * @param {Object} p_params
          * @param p_params.attr
@@ -122,6 +108,14 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                     "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
                 });
 
+                $.Oda.Router.addRoute("gerer_deck", {
+                    "path" : "partials/gerer_deck.html",
+                    "title" : "gerer-deck.title",
+                    "urls" : ["gerer_deck"],
+                    "dependencies" : ["dataTables","wowhead"],
+                    "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+                });
+
                 $.Oda.Router.startRooter();
 
                 return this;
@@ -130,6 +124,123 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                 return null;
             }
         },
+
+        Controler : {
+            GererDeck : {
+                /**
+                 * @param {Object} p_params
+                 * @param p_params.attr
+                 * @returns {$.Oda.App.Controler.GererDeck}
+                 */
+                start: function (p_params) {
+                    try {
+                        $.Oda.App.Controler.GererDeck.loadListDeck();
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.GererDeck.start : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @param {Object} p_params
+                 * @param p_params.attr
+                 * @returns {$.Oda.App.Controler.GererDeck}
+                 */
+                loadListDeck: function (p_params) {
+                    try {
+                        $.Oda.Display.loading({elt : $("#listDeckContent")});
+
+                        var tabSetting = { functionRetour : function(p_retour){
+                            var strhtml = '<table cellpadding="0" cellspacing="0" border="0" class="display hover" id="table_listDeck" style="width: 100%"></table>';
+                            $("#listDeckContent").html(strhtml);
+
+                            var objDataTable = $.Oda.Tooling.objDataTableFromJsonArray(p_retour["data"]["listDeck"]["data"]);
+                            var oTable = $('#table_listDeck').dataTable( {
+                                "sPaginationType": "full_numbers",
+                                "iDisplayLength": 20,
+                                "aaData": objDataTable.data,
+                                "aaSorting": [[5,'desc'],[2,'desc']],
+                                "aoColumns": [
+                                    { sTitle: "Nom"},
+                                    { sTitle: "Classe"},
+                                    { sTitle: "Quote"},
+                                    { sTitle: "Type"},
+                                    { sTitle: "Date", sClass: "dataTableColCenter", "sWidth": "175px"},
+                                    { sTitle: "Actif", sClass: "dataTableColCenter"},
+                                    { sTitle: "Action", sClass: "dataTableColCenter"}
+                                ],
+                                aoColumnDefs: [
+                                    {//Nom
+                                        mRender: function ( data, type, row ) {
+                                            var strHtml = '<a href="javascript:$.Oda.App.Controler.ManageDeck.seeDeck({id:\''+row[0]+'\'});">'+row[1]+'</a>';
+                                            return strHtml;
+                                        },
+                                        aTargets: [ 0 ]
+                                    },
+                                    {//Classe
+                                        mRender: function ( data, type, row ) {
+                                            var strHtml = row[2];
+                                            return strHtml;
+                                        },
+                                        aTargets: [ 1 ]
+                                    },
+                                    {//Quote
+                                        mRender: function ( data, type, row ) {
+                                            var quote = parseInt(row[objDataTable.entete["quote"]]);
+                                            if ( type == 'display' ) {
+                                                return quote+"%";
+                                            }
+                                            return quote;
+                                        },
+                                        aTargets: [ 2 ]
+                                    },
+                                    {//Type
+                                        mRender: function ( data, type, row ) {
+                                            var strHtml = row[3];
+                                            return strHtml;
+                                        },
+                                        aTargets: [ 3 ]
+                                    },
+                                    {//Date
+                                        mRender: function ( data, type, row ) {
+                                            var strHtml = row[4];
+                                            return strHtml;
+                                        },
+                                        aTargets: [ 4 ]
+                                    },
+                                    {//Actif
+                                        mRender: function ( data, type, row ) {
+                                            var strHtml = row[5];
+                                            return strHtml;
+                                        },
+                                        aTargets: [ 5 ]
+                                    },
+                                    {//Action
+                                        mRender: function ( data, type, row ) {
+                                            var strHtml = '<button class="btn btn-default btn-xs" onclick="$.Oda.App.Controler.ManageDeck.editDeck({id:\''+row[0]+'\'});" href="#">Ouvrir le deck</button>';
+                                            return strHtml;
+                                        },
+                                        aTargets: [ 6 ]
+                                    }
+                                ],
+                                "fnDrawCallback": function( oSettings ) {
+                                    $('#table_listDeck')
+                                        .removeClass( 'display' )
+                                        .addClass('table table-striped table-bordered');
+                                }
+                            });
+                        }};
+                        var tabInput = { code_user : $.Oda.Session.code_user, option_actif : "", type : "" };
+                        $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getListDeck.php", tabSetting, tabInput);
+
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.GererDeck.loadListDeck : " + er.message);
+                        return null;
+                    }
+                },
+            }
+        }
     };
 
     // Initialize
