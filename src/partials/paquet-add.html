@@ -106,7 +106,7 @@
                     } 
                 });
             } else{
-                $.Oda.Notification.error(json_retour["strErreur"]);
+                $.Oda.Display.Notification.error(json_retour["strErreur"]);
             }
         } catch (er) {
             $.Oda.Log.error("retourCards : " + er.message);
@@ -178,7 +178,7 @@
 
                 $('#div_paquet').html(strHtml);
             } else{
-                $.Oda.Notification.error(json_retour["strErreur"]);
+                $.Oda.Display.Notification.error(json_retour["strErreur"]);
             }
         } catch (er) {
             $.Oda.Log.error("retourPaquet : " + er.message);
@@ -197,16 +197,16 @@
             var tabInput = { code_user : $.Oda.Session.code_user, id_card : p_id_card, gold : p_gold };
             var json_retour = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/addPaquet.php", {}, tabInput);
             if(json_retour["strErreur"] == ""){
-                $.Oda.Notification.success("Selection r&eacute;ussi."); 
+                $.Oda.Display.Notification.success("Selection r&eacute;ussi.");
                 if(json_retour["data"]["retour"]["full"]=="true"){
                      $('#div_inventaire').html($.Oda.I8n.get("paquet-add","noMore"));
                 }
                 chargerPaquet();
             }else{
-                $.Oda.Notification.error("Aie erreur!");
+                $.Oda.Display.Notification.error("Aie erreur!");
             }            
         } catch (er) {
-            $.Oda.Log.error("(choisir : " + er.message);
+            $.Oda.Log.error("choisir : " + er.message);
         }
     }
     
@@ -221,13 +221,13 @@
             var tabInput = { id: p_id, code_user : $.Oda.Session.code_user };
             var json_retour = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/removePaquet.php", {}, tabInput);
             if(json_retour["strErreur"] == ""){
-                $.Oda.Notification.success("Bravo");
+                $.Oda.Display.Notification.success("Bravo");
                 if($('#div_inventaire').html()==$.Oda.I8n.get("paquet-add","noMore")){
                      chargerCars();
                 }
                 chargerPaquet();
             }else{
-                $.Oda.Notification.error("Aie erreur!");
+                $.Oda.Display.Notification.error("Aie erreur!");
             }             
         } catch (er) {
             $.Oda.Log.error("(retirer : " + er.message);
@@ -244,11 +244,11 @@
             var tabInput = { code_user : $.Oda.Session.code_user };
             var json_retour = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/validerPaquet.php", {}, tabInput);
             if(json_retour["strErreur"] == ""){
-                $.Oda.Notification.success("Paquet bien int&eacute;gr&eacute;. ("+json_retour["data"]["nbDez"]+" carte(s) desanchant&eacute;e(s))"); 
+                $.Oda.Display.Notification.success("Paquet bien int&eacute;gr&eacute;. ("+json_retour["data"]["nbDez"]+" carte(s) desanchant&eacute;e(s))");
                 chargerPaquet();
                 chargerCars();
             }else{
-                $.Oda.Notification.error("Aie erreur!");
+                $.Oda.Display.Notification.error("Aie erreur!");
             }            
         } catch (er) {
             $.Oda.Log.error("(valider : " + er.message);

@@ -101,7 +101,7 @@
                 $.Oda.Interface.sendMail(paramsMail);
 
                 var strHtml = "F&eacute;licitation votre compte a bien &eacute;t&eacute; cr&eacute;&eacute; (N&deg;"+infoUser["id"]+", identifiant : "+infoUser["code_user"]+").";
-                $.Oda.Notification.success(strHtml);
+                $.Oda.Display.Notification.success(strHtml);
                 
                 $.Oda.Router.navigateTo();
             }else{

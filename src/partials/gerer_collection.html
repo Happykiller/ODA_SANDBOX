@@ -115,10 +115,10 @@
             $.Oda.Display.loading({elt : $('#div_collection')});
             var tabSetting = { functionRetour : function(datas) {
                 if(datas["strErreur"] == ""){
-                    $.Oda.Notification.success("Import r&eacute;ussi.");
+                    $.Oda.Display.Notification.success("Import r&eacute;ussi.");
                     filtreQualite();
                 }else{
-                    $.Oda.Notification.error(datas["strErreur"]);
+                    $.Oda.Display.Notification.error(datas["strErreur"]);
                 }
             }};
             var tabInput = { code_user : $.Oda.Session.code_user, set : p_setName};
@@ -136,7 +136,7 @@
             var tabInput = { code_user : $.Oda.Session.code_user, id_card : p_id_card, gold : p_gold };
             $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/addCollection.php", { functionRetour : function(datas) {
                 if(datas["strErreur"] == ""){
-                    $.Oda.Notification.success("Bravo");
+                    $.Oda.Display.Notification.success("Bravo");
                     filtreQualite();
                     if(parseInt(datas["data"]["resultat"]["nb_non_gold"]) >= 2){
                         $('#bt_card_'+datas["data"]["resultat"]["id"]+'_1').addClass('disabled');
@@ -145,7 +145,7 @@
                         $('#bt_card_'+datas["data"]["resultat"]["id"]+'_2').addClass('disabled');
                     }
                 }else{
-                    $.Oda.Notification.error(datas["strErreur"]);
+                    $.Oda.Display.Notification.error(datas["strErreur"]);
                 }
             }}, tabInput);
         } catch (er) {
@@ -161,13 +161,13 @@
             var tabInput = { id_coll : p_id_coll, code_user : $.Oda.Session.code_user };
             $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/removeCollection.php", { functionRetour : function(datas) {
                 if(datas["strErreur"] == ""){
-                    $.Oda.Notification.success("Bravo");
+                    $.Oda.Display.Notification.success("Bravo");
                     filtreQualite();
                     if(p_nb_avant == 2){
                         chargerCars();
                     }
                 }else{
-                    $.Oda.Notification.error(datas["strErreur"]);
+                    $.Oda.Display.Notification.error(datas["strErreur"]);
                 }
             }}, tabInput);
         } catch (er) {
@@ -229,7 +229,7 @@
                     }
                 });
             } else{
-                $.Oda.Notification.error(json_retour["strErreur"]);
+                $.Oda.Display.Notification.error(json_retour["strErreur"]);
             }
         } catch (er) {
             $.Oda.Log.error("retourCards : " + er.message);
@@ -306,7 +306,7 @@
                     }
                 });
             } else{
-                $.Oda.Notification.error(json_retour["strErreur"]);
+                $.Oda.Display.Notification.error(json_retour["strErreur"]);
             }
         } catch (er) {
             $.Oda.Log.error("retourCollection : " + er.message);

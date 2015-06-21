@@ -466,7 +466,7 @@
                         series: series
                     });
                 } else{
-                    $.Oda.Notification.error(datas["strErreur"]);
+                    $.Oda.Display.Notification.error(datas["strErreur"]);
                 }
             }};
             var tabInput = { code_user : $.Oda.Session.code_user, set : $.Oda.App.tab_sets[$.Oda.Storage.get('ODA-HOW_currentSet')] };
@@ -577,7 +577,7 @@
                         series : vSeries
                     });
                 } else{
-                    $.Oda.Notification.error(datas["strErreur"]);
+                    $.Oda.Display.Notification.error(datas["strErreur"]);
                 }
             }};
             var tabInput = { code_user : $.Oda.Session.code_user, set : $.Oda.App.tab_sets[$.Oda.Storage.get('ODA-HOW_currentSet')] };
@@ -647,7 +647,7 @@
                     });
 
                 } else{
-                    $.Oda.Notification.error(datas["strErreur"]);
+                    $.Oda.Display.Notification.error(datas["strErreur"]);
                 }
             }};
             var tabInput = { code_user : $.Oda.Session.code_user, set : $.Oda.App.tab_sets[$.Oda.Storage.get('ODA-HOW_currentSet')] };
@@ -692,7 +692,7 @@
                     }
                     $('#div_drop_'+p_qualite).html(strHtml);
                 } else{
-                    $.Oda.Notification.error(retour["strErreur"]);
+                    $.Oda.Display.Notification.error(retour["strErreur"]);
                 }
             }}, tabInput);
         } catch (er) {
@@ -731,7 +731,7 @@
                     }
                     $('#div_best_paquets').html(strHtml);
                 }else{
-                    $.Oda.Notification.error(datas["strErreur"]);
+                    $.Oda.Display.Notification.error(datas["strErreur"]);
                 }
             }}, tabInput);
         } catch (er) {
@@ -791,7 +791,7 @@
                         }
                     });
                 } else{
-                    $.Oda.Notification.error(datas["strErreur"]);
+                    $.Oda.Display.Notification.error(datas["strErreur"]);
                 }
             }};
             var tabInput = { "code_user" : $.Oda.Session.code_user, "set" : $.Oda.App.tab_sets[$.Oda.Storage.get('ODA-HOW_currentSet')], "classe" : p_params.classe, "qualite" : p_params.qualite };

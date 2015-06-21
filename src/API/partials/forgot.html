@@ -74,7 +74,7 @@
                     $.Oda.Interface.sendMail(paramsMail);
                     
                     var strHtml = "F&eacute;licitation un mail vous a &eacute;t&eacute; envoy&eacute; &agrave; l'adresse : "+compte["mail"];
-                    $.Oda.Notification.success(strHtml);
+                    $.Oda.Display.Notification.success(strHtml);
                 }
             }else{
                 var strHtml = "Erreur de cr&eacute;ation de votre compte, merci de contacter l'administrateur.";

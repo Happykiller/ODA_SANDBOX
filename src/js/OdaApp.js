@@ -61,6 +61,20 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
         tab_sets : ['Tous', 'Expert' , 'La Malédiction de Naxxramas', 'Gobelins et Gnomes', 'Mont Rochenoire'],
 
         /**
+         * @param {object} p_params
+         * @param p_params.id
+         * @returns {$.Oda.App}
+         */
+        example: function (p_params) {
+            try {
+                return true;
+            } catch (er) {
+                $.Oda.Log.error("$.Oda.App.example : " + er.message);
+                return null;
+            }
+        },
+
+        /**
          * @param {Object} p_params
          * @param p_params.attr
          * @returns {$.Oda.App}

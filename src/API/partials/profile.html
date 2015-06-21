@@ -190,12 +190,12 @@
                     $.Oda.Session.userInfo = userInfo;
                     $.Oda.Storage.set("ODA-SESSION",$.Oda.Session,43200);
                 }else{
-                    $.Oda.Notification.error(retour["strErreur"]);
+                    $.Oda.Display.Notification.error(retour["strErreur"]);
                 }
                 
-                $.Oda.Notification.success("Mise &agrave; jour r&eacute;ussi");
+                $.Oda.Display.Notification.success("Mise &agrave; jour r&eacute;ussi");
             }else{
-                $.Oda.Notification.error(retour["strErreur"]);
+                $.Oda.Display.Notification.error(retour["strErreur"]);
             }
         } catch (er) {
             $.Oda.Log.error("soumettreChange : " + er.message);

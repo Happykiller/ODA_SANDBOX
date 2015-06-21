@@ -11,3 +11,6 @@ test( "$.Oda.Tooling.clone", function() {
     var obj2 = $.Oda.Tooling.clone(obj);
     deepEqual(obj2, {attr1 : "value1", attr2 : "value2"}, "Test OK : Passed!" );
 });
+test( "$.Oda.Tooling.deepEqual", function() {
+    ok($.Oda.Tooling.deepEqual({attr1 : "value1", attr2 : "value2"},{attr1 : "value1", attr2 : "value2"}), "Test OK : Passed!" );
+});

@@ -1,0 +1,10 @@
+[
+    {
+        "key" : "phpsql/getActivitePaquetsMatchs.php",
+        "ttl" : 360
+    },
+    {
+        "key" : "phpsql/getCards.php",
+        "ttl" : 86400
+    }
+]

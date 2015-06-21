@@ -145,6 +145,7 @@
                 }
             }
         },
+
         _routeMiddleWares = {
             "auth" : function(){
                 $.Oda.Log.debug("MiddleWares : auth");
@@ -249,6 +250,7 @@
                 }
             }
         },
+
         //TODO prefix avec le root pas possible, faire un context ?
         _routeDependencies = {
             "dataTables" : {
@@ -405,8 +407,7 @@
              Order is important
              mokup always in last because no chain action if fail
              */
-            //TODO cache
-            modeInterface : ["ajax","mokup"],
+            modeInterface : ["cache","ajax","mokup"],
             ModeExecution : {
                 init : false,
                 scene : false,
@@ -434,6 +435,163 @@
             fristName : "^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{3,}$",
             lastName : "^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{3,}$",
             noInjection : "^(?!.*?function())"
+        },
+
+        Cache : {
+            config : [],
+            cache : [],
+            /**
+             * @param {object} p_params
+             * @param p_params.key
+             * @param p_params.attrs
+             * @param p_params.datas
+             * @returns {$.Oda.Cache}
+             */
+            save: function (p_params) {
+                try {
+                    if($.Oda.Session.code_user !== "") {
+                        var founded = false;
+                        for (var indice in $.Oda.Cache.config) {
+                            var elt = $.Oda.Cache.config[indice];
+                            if (p_params.key.includes(elt.key)) {
+                                founded = true;
+                                break;
+                            }
+                        }
+
+                        if (founded) {
+                            $.Oda.Cache.cache = $.Oda.Storage.get("ODA-CACHE-" + $.Oda.Session.code_user, $.Oda.Cache.cache);
+
+                            var ttl = 0;
+                            for (var indice in $.Oda.Cache.config) {
+                                var elt = $.Oda.Cache.config[indice];
+                                if (p_params.key.includes(elt.key)) {
+                                    ttl = elt.ttl;
+                                    break;
+                                }
+                            }
+
+                            var d = new Date();
+                            var date = d.getTime();
+
+                            p_params.recordDate = date;
+                            p_params.ttl = ttl;
+
+                            for (var indice in $.Oda.Cache.cache) {
+                                var elt = $.Oda.Cache.cache[indice];
+                                if ((elt.key === p_params.key) && ($.Oda.Tooling.deepEqual(elt.attrs, p_params.attrs))) {
+                                    elt = p_params;
+                                    $.Oda.Storage.set("ODA-CACHE-" + $.Oda.Session.code_user, $.Oda.Cache.cache);
+                                    return this;
+                                }
+                            }
+                            $.Oda.Cache.cache.push(p_params);
+                            $.Oda.Storage.set("ODA-CACHE-" + $.Oda.Session.code_user, $.Oda.Cache.cache);
+                            return this;
+                        }else{
+                            return this;
+                        }
+                    }else{
+                        return this;
+                    }
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Cache.save : " + er.message);
+                    return null;
+                }
+            },
+            /**
+             * @param {object} p_params
+             * @param p_params.key
+             * @param p_params.attrs
+             * @returns {$.Oda.Cache}
+             */
+            load: function (p_params) {
+                try {
+                    if($.Oda.Session.code_user !== "") {
+
+                        var founded = false;
+                        for (var indice in $.Oda.Cache.config) {
+                            var elt = $.Oda.Cache.config[indice];
+                            if (p_params.key.includes(elt.key)) {
+                                founded = true;
+                                break;
+                            }
+                        }
+
+                        if (founded) {
+                            $.Oda.Cache.cache = $.Oda.Storage.get("ODA-CACHE-" + $.Oda.Session.code_user, $.Oda.Cache.cache);
+                            for (var indice in $.Oda.Cache.cache) {
+                                var elt = $.Oda.Cache.cache[indice];
+                                if ((elt.key === p_params.key) && ($.Oda.Tooling.deepEqual(elt.attrs, p_params.attrs))) {
+                                    //TODO the offline mode
+                                    var offline = false;
+                                    if (elt.ttl !== 0) {
+                                        var d = new Date();
+                                        var date = d.getTime();
+
+                                        var dateTimeOut = elt.recordDate + (elt.ttl * 1000);
+
+                                        if (date > dateTimeOut) {
+                                            $.Oda.Cache.remove(p_params);
+                                            return false;
+                                        } else {
+                                            return elt;
+                                        }
+                                    } else {
+                                        return elt;
+                                    }
+                                }
+                            }
+                        }
+                        return false;
+                    }else{
+                        return false;
+                    }
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Cache.load : " + er.message);
+                    return null;
+                }
+            },
+            /**
+             * @param {object} p_params
+             * @param p_params.key
+             * @param p_params.attrs
+             * @returns {$.Oda.Cache}
+             */
+            remove: function (p_params) {
+                try {
+                    $.Oda.Cache.cache = $.Oda.Storage.get("ODA-CACHE-"+$.Oda.Session.code_user, $.Oda.Cache.cache);
+
+                    for(var indice in $.Oda.Cache.cache){
+                        var elt = $.Oda.Cache.cache[indice];
+                        if ((elt.key === p_params.key) && ($.Oda.Tooling.deepEqual(elt.attrs,p_params.attrs))){
+                            $.Oda.Cache.cache.splice(indice,1);
+                            break;
+                        }
+                    }
+                    $.Oda.Storage.set("ODA-CACHE-"+$.Oda.Session.code_user,$.Oda.Cache.cache);
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Cache.remove : " + er.message);
+                    return null;
+                }
+            },
+            /**
+             * @param {object} p_params
+             * @param p_params.id
+             * @returns {$.Oda.Cache}
+             */
+            clean: function (p_params) {
+                try {
+                    if($.Oda.Session.code_user !== "") {
+                        $.Oda.Storage.remove("ODA-CACHE-"+$.Oda.Session.code_user);
+                    }
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Cache.clean : " + er.message);
+                    return null;
+                }
+            }
         },
 
         Loader : {
@@ -679,7 +837,6 @@
                 var listDepends = [
                     {"name" : "library" , ordered : false, "list" : [
                         { "elt" : $.Oda.Context.rootPath+"API/i8n/i8n.json", "type" : "json", "target" : function(p_json){$.Oda.I8n.datas = $.Oda.I8n.datas.concat(p_json);}},
-                        { "elt" : $.Oda.Context.rootPath+"API/config/config.js", "type" : "script" },
                         { "elt" : $.Oda.Context.rootPath+"API/css/css.css", "type" : "css" },
                         { "elt" : $.Oda.Context.rootPath+"API/templates/Oda.html", "type": "html", target : function(data){ $( "body" ).append(data); }}
 
@@ -689,6 +846,7 @@
                 if($.Oda.Context.ModeExecution.app){
                     var listDependsApp = [
                         {"name": "app", ordered: false, "list": [
+                            { "elt" : $.Oda.Context.rootPath+"config/config.js", "type" : "script" },
                             { "elt" : $.Oda.Context.rootPath+"css/css.css", "type" : "css" },
                             { "elt" : $.Oda.Context.rootPath+"i8n/i8n.json", "type" : "json", "target" : function(p_json){$.Oda.I8n.datas = $.Oda.I8n.datas.concat(p_json);}},
                             { "elt" : $.Oda.Context.rootPath+"js/OdaApp.js", "type": "script"}
@@ -715,6 +873,16 @@
                         ]}
                     ];
                     listDepends = listDepends.concat(listDependsMokup);
+                }
+
+                if($.Oda.Tooling.isInArray("cache",$.Oda.Context.modeInterface)){
+                    var listDependsCache = [
+                        {"name" : "cache" , ordered : false, "list" : [
+                            { "elt" : $.Oda.Context.rootPath+"API/cache/cache.json", "type" : "json", "target" : function(p_json){$.Oda.Cache.config = $.Oda.Cache.config.concat(p_json);}},
+                            { "elt" : $.Oda.Context.rootPath+"cache/cache.json", "type" : "json", "target" : function(p_json){$.Oda.Cache.config = $.Oda.Cache.config.concat(p_json);}}
+                        ]}
+                    ];
+                    listDepends = listDepends.concat(listDependsCache);
                 }
 
                 $.Oda.Loader.load({ depends : listDepends, functionFeedback : function(data){
@@ -1190,11 +1358,16 @@
             },
             Methode : {
                 "ajax": function (params) {
+                    $.Oda.Log.debug("Try with ajax for : "+params.url);
                     var retour;
+                    params.context = {
+                        odaKey : params.url,
+                        odaAttrs : params.data
+                    }
                     var jqXHRMaster = $.ajax(params)
                             .done(function (data, textStatus, jqXHR) {
                                 if (typeof data === 'object') {
-                                    if ((data.hasOwnProperty("strErreur"))&&((data.strErreur == "key auth expiree.") || (data.strErreur == "key auth invalid."))) {
+                                    if ((data.hasOwnProperty("strErreur")) && ((data.strErreur == "key auth expiree.") || (data.strErreur == "key auth invalid."))) {
                                         $.Oda.Security.logout();
                                     }
                                 } else {
@@ -1203,32 +1376,47 @@
                                     }
                                 }
 
-                                if(data.strErreur !== ""){
+                                if (data.strErreur !== "") {
                                     $.Oda.Log.error("$.Oda.Interface.Methode.ajax : " + data.strErreur);
                                     $.Oda.Display.Notification.error(data.strErreur);
+                                } else if ($.Oda.Tooling.isInArray("cache", $.Oda.Context.modeInterface)){
+                                    var attrs = $.Oda.Tooling.clone(this.odaAttrs);
+                                    if (attrs.hasOwnProperty("ctrl")) {
+                                        delete attrs.ctrl;
+                                    }
+                                    if (attrs.hasOwnProperty("milis")) {
+                                        delete attrs.milis;
+                                    }
+                                    if (attrs.hasOwnProperty("keyAuthODA")) {
+                                        delete attrs.keyAuthODA;
+                                    }
+                                    $.Oda.Cache.save({
+                                        key: this.odaKey,
+                                        attrs: attrs,
+                                        datas: data
+                                    });
                                 }
 
-                                if (params.async) {
-                                    params.functionRetour(data);
-                                } else {
+                                if ($.Oda.Tooling.isUndefined(params.functionRetour)) {
                                     retour = data;
+                                } else {
+                                    params.functionRetour(data);
                                 }
                             })
                             .fail(function (jqXHR, textStatus, errorThrown) {
                                 var msg = textStatus + " - " + errorThrown.message + " on " + params.url;
                                 $.Oda.Log.error("$.Oda.Interface.Methode.ajax : " + msg);
-                                $.Oda.Display.Notification.error(msg);
 
                                 var data = {"strErreur": msg, "data": {}, "statut": 404};
 
-                                //textStatus = error for 404, next interface
                                 if((params.odaInterface.length>0)&&(textStatus === "error")){
                                     retour = $.Oda.Interface.call(params);
                                 }else{
-                                    if (params.async) {
-                                        params.functionRetour(data);
-                                    } else {
+                                    $.Oda.Display.Notification.error(msg);
+                                    if ($.Oda.Tooling.isUndefined(params.functionRetour)) {
                                         retour = data;
+                                    } else {
+                                        params.functionRetour(data);
                                     }
                                 }
                             })
@@ -1236,6 +1424,7 @@
                     return retour;
                 },
                 "mokup": function (params) {
+                    $.Oda.Log.debug("Try with mokup for : "+params.url);
                     var retour = $.Oda.MokUp.get({url: params.url, tabInput: params.data});
                     if ($.Oda.Tooling.isUndefined(params.functionRetour)) {
                         return retour;
@@ -1245,7 +1434,42 @@
                     }
                 },
                 "cache": function (params) {
-                    return;
+                    $.Oda.Log.debug("Try with cache for : "+params.url);
+                    var attrs = $.Oda.Tooling.clone(params.data);
+                    if(attrs.hasOwnProperty("ctrl")){
+                        delete attrs.ctrl;
+                    }
+                    if(attrs.hasOwnProperty("milis")){
+                        delete attrs.milis;
+                    }
+                    if(attrs.hasOwnProperty("keyAuthODA")){
+                        delete attrs.keyAuthODA;
+                    }
+                    var retour = $.Oda.Cache.load({key: params.url, attrs: attrs});
+
+                    if(retour){
+                        var datas = retour.datas;
+                        if ($.Oda.Tooling.isUndefined(params.functionRetour)) {
+                            return datas;
+                        } else {
+                            params.functionRetour(datas);
+                            return;
+                        }
+                    }else{
+                        if(params.odaInterface.length>0){
+                            return $.Oda.Interface.call(params);
+                        }else{
+                            var msg = "No found in cache : "+params.url+", and cache is the last interface.";
+                            var data = {"strErreur": msg, "data": {}, "statut": 404};
+                            $.Oda.Log.error(msg);
+                            if ($.Oda.Tooling.isUndefined(params.functionRetour)) {
+                                return data;
+                            } else {
+                                params.functionRetour(data);
+                                return;
+                            }
+                        }
+                    }
                 }
             },
             /**
@@ -1262,7 +1486,7 @@
                     var json_retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/getParam.php", {}, tabInput);
                     if(json_retour.strErreur === ""){
                         var type = json_retour.data.leParametre.param_type;
-                        var value = json_retour.data.leParametre.param_type;
+                        var value = json_retour.data.leParametre.param_value;
                         switch (type) {
                             case "int":
                                 strResponse = parseInt(value);
@@ -1845,6 +2069,38 @@
                     return copy;
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Tooling.clone : " + er.message);
+                    return null;
+                }
+            },
+            /**
+             * @param {object} elt1
+             * @param {object} elt2
+             * @returns {$.Oda.Tooling}
+             */
+            deepEqual: function (elt1, elt2) {
+                try {
+                    if ((typeof elt1 == "object" && elt1 != null) && (typeof elt2 == "object" && elt2 != null)) {
+                        if (Object.keys(elt1).length != Object.keys(elt2).length)
+                            return false;
+
+                        for (var prop in elt1) {
+                            if (elt2.hasOwnProperty(prop))
+                            {
+                                if (! $.Oda.Tooling.deepEqual(elt1[prop], elt2[prop]))
+                                    return false;
+                            }
+                            else
+                                return false;
+                        }
+
+                        return true;
+                    }
+                    else if (elt1 !== elt2)
+                        return false;
+                    else
+                        return true;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Tooling.deepEqual : " + er.message);
                     return null;
                 }
             },
@@ -2588,12 +2844,12 @@
                                 $.Oda.Tuto.listElt[theTuto.id] = {"id" : theTuto.id, "enable" : true, "props" : theTuto};
                             }
                             
-                            var sessionTuto = $.Oda.Storage.get("ODA-SESSION-TUTO-"+$.Oda.Session.code_user, {});
+                            var sessionTuto = $.Oda.Storage.get("ODA-TUTO-"+$.Oda.Session.code_user, {});
                             if(sessionTuto.hasOwnProperty(theTuto.id)){
                                 $.Oda.Tuto.listElt[theTuto.id].enable = sessionTuto[theTuto.id];
                             }else{
                                 sessionTuto[theTuto.id] = true;
-                                $.Oda.Storage.set("ODA-SESSION-TUTO-"+$.Oda.Session.code_user, sessionTuto);
+                                $.Oda.Storage.set("ODA-TUTO-"+$.Oda.Session.code_user, sessionTuto);
                             }
                             
                             if(($.Oda.Tuto.listElt[theTuto.id].enable)&&($.Oda.Tuto.currentElt === "")){
@@ -2610,9 +2866,9 @@
                 try {
                     $.Oda.Tuto.listElt[id].enable = false;
                     
-                    var sessionTuto = $.Oda.Storage.get("ODA-SESSION-TUTO-"+$.Oda.Session.code_user);
+                    var sessionTuto = $.Oda.Storage.get("ODA-TUTO-"+$.Oda.Session.code_user);
                     sessionTuto[id] = false;
-                    $.Oda.Storage.set("ODA-SESSION-TUTO-"+$.Oda.Session.code_user, sessionTuto);
+                    $.Oda.Storage.set("ODA-TUTO-"+$.Oda.Session.code_user, sessionTuto);
                     
                     $("[oda-tuto^='id:"+id+"']").tooltip('destroy');
                     for(var elt in $.Oda.Tuto.listElt){
@@ -3192,6 +3448,7 @@
 
                     switch($.Oda.Google.gapiStatut) {
                         case $.Oda.Google.gapiStatuts.zero :
+                            //TODO avec les events pas une boucle !!!
                             $.Oda.Log.debug("$.Oda.Google.startSessionAuth waiting");
                             $.Oda.Google.init();
                             setTimeout($.Oda.Google.startSessionAuth,100);
