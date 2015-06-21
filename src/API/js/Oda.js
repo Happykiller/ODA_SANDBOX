@@ -577,11 +577,9 @@
                 }
             },
             /**
-             * @param {object} p_params
-             * @param p_params.id
              * @returns {$.Oda.Cache}
              */
-            clean: function (p_params) {
+            clean: function () {
                 try {
                     if($.Oda.Session.code_user !== "") {
                         $.Oda.Storage.remove("ODA-CACHE-"+$.Oda.Session.code_user);
@@ -589,6 +587,18 @@
                     return this;
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Cache.clean : " + er.message);
+                    return null;
+                }
+            },
+            /**
+             * @returns {$.Oda.Cache}
+             */
+            cleanAll: function () {
+                try {
+                    //TODO cleanAll cache && supervision
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Cache.cleanAll : " + er.message);
                     return null;
                 }
             }
