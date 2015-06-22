@@ -3107,9 +3107,9 @@
                     };
 
                     if(boolRetour){
-                        var json_text = JSON.stringify(storage);
-
-                        localStorage.setItem(this.storageKey+p_key, json_text);
+                        var data = JSON.stringify(storage);
+                        var compressed = LZString.compress(data);
+                        localStorage.setItem(this.storageKey+p_key, compressed);
                     }
 
                     return boolRetour;
@@ -3121,9 +3121,13 @@
 
             get: function(p_key, p_default) {
                 try {
-                    var myStorage = JSON.parse(localStorage.getItem($.Oda.Storage.storageKey+p_key));
                     var myValue = null;
-                    if(myStorage !== null){
+
+                    var compressed = localStorage.getItem($.Oda.Storage.storageKey+p_key);
+                    if(compressed !== null){
+                        var data = LZString.decompress(compressed);
+                        var myStorage = JSON.parse(data);
+
                         myValue = myStorage.value;
 
                         if((myStorage.value !== null)&&(myStorage.ttl !== 0)){

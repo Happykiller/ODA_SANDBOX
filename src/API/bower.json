@@ -15,6 +15,8 @@
 		"bootstrap" : "latest",
         "datatables" : "latest",
         "highcharts-release" : "latest",
-        "qunit" : "latest"
+        "ckeditor" : "latest",
+        "qunit" : "latest",
+        "lz-string" : "latest"
 	}
 }
