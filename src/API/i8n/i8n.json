@@ -116,7 +116,10 @@
     , {
         "groupName" : "oda-admin"
         , "fr" : {
-            "title" : "Administration"
+            "title" : "Administration",
+            "messages" : "Messages",
+            "users" : "Utilisateurs",
+            "list" : "Liste de diffusion"
             , "edit_mail" : "Email : "
             , "edit_desc" : "Description : "
             , "edit_actif" : "Actif : "
@@ -124,7 +127,10 @@
             , "bt-create-new-message" : "Cr&eacute;er un message"
         }
         , "en" : {
-            "title" : "Administration"
+            "title" : "Administration",
+            "messages" : "Users",
+            "users" : "Utilisateurs",
+            "list" : "List of mail"
             , "edit_mail" : "Email : "
             , "edit_desc" : "Description : "
             , "edit_actif" : "Active : "

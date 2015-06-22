@@ -595,7 +595,11 @@
              */
             cleanAll: function () {
                 try {
-                    //TODO cleanAll cache && supervision
+                    var listCache = $.Oda.Storage.getIndex("ODA-CACHE");
+                    for(var indice in listCache){
+                        var key = $.Oda.Tooling.replaceAll({str : listCache[indice], find : $.Oda.Storage.storageKey, by : ''});
+                        $.Oda.Storage.remove(key);
+                    }
                     return this;
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Cache.cleanAll : " + er.message);
@@ -3233,7 +3237,7 @@
                 try {
                     var myReturn = [];
 
-                    var patt = new RegExp("ODA_"+p_filtre);
+                    var patt = new RegExp($.Oda.Storage.storageKey+p_filtre, 'gi');
 
                     for (var indice in localStorage) {
                         var res = patt.test(indice);
