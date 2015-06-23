@@ -6,7 +6,11 @@
  * @date 15/05/08
  *
  * If you want to define the modeExecute
- * ?modeExecution = full, or mini
+ * ?modeExecution = full, app, or mini
+ *
+ * events :
+ * oda-fully-loaded : Oda is ready
+ * oda-notification-flash : the system want notify
  *
  */
 (function() {
@@ -19,10 +23,6 @@
         VERSION = '0.1',
 
         _startDate = new Date(),
-
-        _mokup = [],
-        
-        _connectionRest = false,
         
         _menuSlide = false,
         
@@ -238,11 +238,9 @@
                 $.Oda.Log.debug("MiddleWares : support");
                 var maintenance = $.Oda.Interface.getParameter("maintenance");
                 if(typeof maintenance === "undefined"){
-                    _connectionRest = false;
                     _RouterExit = true;
                     _routes.support.go();
                 }else{
-                    _connectionRest = true;
                     if(maintenance){
                         _RouterExit = true;
                         _routes.support.go();
@@ -403,11 +401,11 @@
 
         Context : {
             /*
-             ["cache","ajax","mokup"]
+             ["cache","ajax","mokup","offline"]
              Order is important
              mokup always in last because no chain action if fail
              */
-            modeInterface : ["cache","ajax","mokup"],
+            modeInterface : ["cache","ajax","mokup","offline"],
             ModeExecution : {
                 init : false,
                 scene : false,
@@ -462,20 +460,10 @@
                         if (founded) {
                             $.Oda.Cache.cache = $.Oda.Storage.get("ODA-CACHE-" + $.Oda.Session.code_user, $.Oda.Cache.cache);
 
-                            var ttl = 0;
-                            for (var indice in $.Oda.Cache.config) {
-                                var elt = $.Oda.Cache.config[indice];
-                                if (p_params.key.includes(elt.key)) {
-                                    ttl = elt.ttl;
-                                    break;
-                                }
-                            }
-
                             var d = new Date();
                             var date = d.getTime();
 
                             p_params.recordDate = date;
-                            p_params.ttl = ttl;
 
                             for (var indice in $.Oda.Cache.cache) {
                                 var elt = $.Oda.Cache.cache[indice];
@@ -510,9 +498,10 @@
                     if($.Oda.Session.code_user !== "") {
 
                         var founded = false;
+                        var eltConfig;
                         for (var indice in $.Oda.Cache.config) {
-                            var elt = $.Oda.Cache.config[indice];
-                            if (p_params.key.includes(elt.key)) {
+                            eltConfig = $.Oda.Cache.config[indice];
+                            if (p_params.key.includes(eltConfig.key)) {
                                 founded = true;
                                 break;
                             }
@@ -523,16 +512,13 @@
                             for (var indice in $.Oda.Cache.cache) {
                                 var elt = $.Oda.Cache.cache[indice];
                                 if ((elt.key === p_params.key) && ($.Oda.Tooling.deepEqual(elt.attrs, p_params.attrs))) {
-                                    //TODO the offline mode
-                                    var offline = false;
-                                    if (elt.ttl !== 0) {
+                                    if (eltConfig.ttl !== 0) {
                                         var d = new Date();
                                         var date = d.getTime();
 
-                                        var dateTimeOut = elt.recordDate + (elt.ttl * 1000);
+                                        var dateTimeOut = elt.recordDate + (eltConfig.ttl * 1000);
 
                                         if (date > dateTimeOut) {
-                                            $.Oda.Cache.remove(p_params);
                                             return false;
                                         } else {
                                             return elt;
@@ -549,6 +535,43 @@
                     }
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Cache.load : " + er.message);
+                    return null;
+                }
+            },
+            /**
+             * @param {object} p_params
+             * @param p_params.key
+             * @param p_params.attrs
+             * @returns {$.Oda.Cache}
+             */
+            loadWithOutTtl: function (p_params) {
+                try {
+                    if($.Oda.Session.code_user !== "") {
+
+                        var founded = false;
+                        for (var indice in $.Oda.Cache.config) {
+                            var elt = $.Oda.Cache.config[indice];
+                            if (p_params.key.includes(elt.key)) {
+                                founded = true;
+                                break;
+                            }
+                        }
+
+                        if (founded) {
+                            $.Oda.Cache.cache = $.Oda.Storage.get("ODA-CACHE-" + $.Oda.Session.code_user, $.Oda.Cache.cache);
+                            for (var indice in $.Oda.Cache.cache) {
+                                var elt = $.Oda.Cache.cache[indice];
+                                if ((elt.key === p_params.key) && ($.Oda.Tooling.deepEqual(elt.attrs, p_params.attrs))) {
+                                    return elt;
+                                }
+                            }
+                        }
+                        return false;
+                    }else{
+                        return false;
+                    }
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Cache.loadWithOutTtl : " + er.message);
                     return null;
                 }
             },
@@ -863,7 +886,7 @@
                             { "elt" : $.Oda.Context.rootPath+"config/config.js", "type" : "script" },
                             { "elt" : $.Oda.Context.rootPath+"css/css.css", "type" : "css" },
                             { "elt" : $.Oda.Context.rootPath+"i8n/i8n.json", "type" : "json", "target" : function(p_json){$.Oda.I8n.datas = $.Oda.I8n.datas.concat(p_json);}},
-                            { "elt" : $.Oda.Context.rootPath+"js/OdaApp.js", "type": "script"}
+                            { "elt" : $.Oda.Context.rootPath+"js/OdaApp.min.js", "type": "script"}
                         ]}
                     ];
                     listDepends = listDepends.concat(listDependsApp);
@@ -882,8 +905,8 @@
                 if($.Oda.Tooling.isInArray("mokup",$.Oda.Context.modeInterface)){
                     var listDependsMokup = [
                         {"name" : "mokup" , ordered : false, "list" : [
-                            { "elt" : $.Oda.Context.rootPath+"API/mokup/mokup.json", "type" : "json", "target" : function(p_json){_mokup = _mokup.concat(p_json);}},
-                            { "elt" : $.Oda.Context.rootPath+"mokup/mokup.json", "type" : "json", "target" : function(p_json){_mokup = _mokup.concat(p_json);}}
+                            { "elt" : $.Oda.Context.rootPath+"API/mokup/mokup.json", "type" : "json", "target" : function(p_json){$.Oda.MokUp.mokup = $.Oda.MokUp.mokup.concat(p_json);}},
+                            { "elt" : $.Oda.Context.rootPath+"mokup/mokup.json", "type" : "json", "target" : function(p_json){$.Oda.MokUp.mokup = $.Oda.MokUp.mokup.concat(p_json);}}
                         ]}
                     ];
                     listDepends = listDepends.concat(listDependsMokup);
@@ -1144,6 +1167,7 @@
             }
         },
         MokUp : {
+            mokup : [],
             /**
              * @param params
              * @param params.url
@@ -1155,18 +1179,41 @@
                     var strInterface = params.url.replace($.Oda.Context.rest,"");
 
                     var elt;
-                    for(var indice in _mokup){
-                        if(_mokup[indice].interface === strInterface){
-                            elt = _mokup[indice];
+                    for(var indice in $.Oda.MokUp.mokup){
+                        if($.Oda.MokUp.mokup[indice].interface === strInterface){
+                            elt = $.Oda.MokUp.mokup[indice];
                             break;
                         }
                     }
 
+                    var defaultValue = null;
+                    var value = null;
                     if($.Oda.Tooling.isUndefined(elt)){
                         return {"strErreur":"No mokup found for "+strInterface,"data":{},"statut":4};
-                    }
+                    }else{
+                        var attrs = $.Oda.Tooling.clone(params.tabInput);
+                        if (attrs.hasOwnProperty("ctrl")) {
+                            delete attrs.ctrl;
+                        }
+                        if (attrs.hasOwnProperty("milis")) {
+                            delete attrs.milis;
+                        }
+                        if (attrs.hasOwnProperty("keyAuthODA")) {
+                            delete attrs.keyAuthODA;
+                        }
 
-                    return elt.value[0].return;
+
+                        for(var indice in elt.value){
+                            if(elt.value[indice].args === "default"){
+                                defaultValue = elt.value[indice].return;
+                            }
+                            if($.Oda.Tooling.deepEqual(elt.value[indice].args,attrs)){
+                                value = elt.value[indice].return;
+                                break;
+                            }
+                        }
+                    }
+                    return (value === null) ? defaultValue : value;
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.MokUp.get : " + er.message);
                     return null;
@@ -1372,7 +1419,6 @@
             },
             Methode : {
                 "ajax": function (params) {
-                    $.Oda.Log.debug("Try with ajax for : "+params.url);
                     var retour;
                     params.context = {
                         odaKey : params.url,
@@ -1391,8 +1437,7 @@
                                 }
 
                                 if (data.strErreur !== "") {
-                                    $.Oda.Log.error("$.Oda.Interface.Methode.ajax : " + data.strErreur);
-                                    $.Oda.Display.Notification.error(data.strErreur);
+                                    $.Oda.Event.send({name : "oda-notification-flash", data : {type : "error", msg : "$.Oda.Interface.Methode.ajax : " + data.strErreur} });
                                 } else if ($.Oda.Tooling.isInArray("cache", $.Oda.Context.modeInterface)){
                                     var attrs = $.Oda.Tooling.clone(this.odaAttrs);
                                     if (attrs.hasOwnProperty("ctrl")) {
@@ -1411,6 +1456,7 @@
                                     });
                                 }
 
+                                $.Oda.Log.debug("Call ajax success for : "+params.url);
                                 if ($.Oda.Tooling.isUndefined(params.functionRetour)) {
                                     retour = data;
                                 } else {
@@ -1438,17 +1484,20 @@
                     return retour;
                 },
                 "mokup": function (params) {
-                    $.Oda.Log.debug("Try with mokup for : "+params.url);
                     var retour = $.Oda.MokUp.get({url: params.url, tabInput: params.data});
-                    if ($.Oda.Tooling.isUndefined(params.functionRetour)) {
-                        return retour;
-                    } else {
-                        params.functionRetour(retour);
-                        return;
+                    if((retour.strErreur.startsWith("No mokup found for")) && (params.odaInterface.length>0)){
+                        return $.Oda.Interface.call(params);
+                    }else{
+                        $.Oda.Log.debug("Call mokup success for : "+params.url);
+                        if ($.Oda.Tooling.isUndefined(params.functionRetour)) {
+                            return retour;
+                        } else {
+                            params.functionRetour(retour);
+                            return;
+                        }
                     }
                 },
                 "cache": function (params) {
-                    $.Oda.Log.debug("Try with cache for : "+params.url);
                     var attrs = $.Oda.Tooling.clone(params.data);
                     if(attrs.hasOwnProperty("ctrl")){
                         delete attrs.ctrl;
@@ -1463,6 +1512,7 @@
 
                     if(retour){
                         var datas = retour.datas;
+                        $.Oda.Log.debug("Call cache success for : "+params.url);
                         if ($.Oda.Tooling.isUndefined(params.functionRetour)) {
                             return datas;
                         } else {
@@ -1484,7 +1534,55 @@
                             }
                         }
                     }
-                }
+                },
+                /**
+                 * @param {Object} p_params
+                 * @param p_params.attr
+                 * @returns {$.Oda.Interface}
+                 */
+                offline: function (params) {
+                    try {
+                        var attrs = $.Oda.Tooling.clone(params.data);
+                        if(attrs.hasOwnProperty("ctrl")){
+                            delete attrs.ctrl;
+                        }
+                        if(attrs.hasOwnProperty("milis")){
+                            delete attrs.milis;
+                        }
+                        if(attrs.hasOwnProperty("keyAuthODA")){
+                            delete attrs.keyAuthODA;
+                        }
+                        var retour = $.Oda.Cache.loadWithOutTtl({key: params.url, attrs: attrs});
+
+                        if(retour){
+                            var datas = retour.datas;
+                            $.Oda.Log.debug("Call offline success for : "+params.url);
+                            if ($.Oda.Tooling.isUndefined(params.functionRetour)) {
+                                return datas;
+                            } else {
+                                params.functionRetour(datas);
+                                return;
+                            }
+                        }else{
+                            if(params.odaInterface.length>0){
+                                return $.Oda.Interface.call(params);
+                            }else{
+                                var msg = "No found in offline : "+params.url+", and offline is the last interface.";
+                                var data = {"strErreur": msg, "data": {}, "statut": 404};
+                                $.Oda.Log.error(msg);
+                                if ($.Oda.Tooling.isUndefined(params.functionRetour)) {
+                                    return data;
+                                } else {
+                                    params.functionRetour(data);
+                                    return;
+                                }
+                            }
+                        }
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.Interface.offline : " + er.message);
+                        return null;
+                    }
+                },
             },
             /**
              * getParameter
@@ -1632,6 +1730,10 @@
                             template : "oda-notification-tpl"
                         });
                         $( "body" ).append(html);
+                        $.Oda.Event.addListener({name : "oda-notification-flash", callback : function(e){
+                            $.Oda.Display.Notification[e.detail.type](e.detail.msg);
+                            return this;
+                        }});
                         return this;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.Display.Notification.load : " + er.message);

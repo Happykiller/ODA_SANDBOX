@@ -14,11 +14,7 @@
     "interface" : "API/phpsql/addStat.php",
     "value"  : [
       {
-        "args" : {
-          "user" : "",
-          "page" : "home",
-          "action" : "request"
-        },
+        "args" : "default",
         "return" : {"strErreur":"","data":{"resultatInsert":"42"},"statut":5}
       }
     ]
@@ -27,10 +23,17 @@
     "interface" : "API/phpsql/getMessagesToDisplay.php",
     "value"  : [
       {
-        "args" : {
-          "code_user:" : ""
-        },
+        "args" : "default",
         "return" : {"strErreur":"","data":{"messages":{"data":[],"nombre":0}},"statut":5}
+      }
+    ]
+  },
+  {
+    "interface" : "API/phpsql/checkSession.php",
+    "value" : [
+      {
+        "args" : "default",
+        "return" : {"strErreur":"","data":1,"statut":5}
       }
     ]
   }
