@@ -20,360 +20,9 @@
 
     var
         /* version */
-        VERSION = '0.1',
-
-        _startDate = new Date(),
-        
-        _menuSlide = false,
-        
-        _menu = false,
-
-        //TODO à revoir, ici admin autoriser par default ?
-        _routesAllowedDefault = ["contact","404","auth","support","home","forgot","subscrib","profile","", "stats", "admin"],
-        
-        _routesAllowed = [],
-
-        _routes = {
-            "404" : {
-                "path" : "API/partials/404.html",
-                "title" : "oda-main.404-title",
-                "urls" : ["404"],
-                "middleWares" : [],
-                "dependencies" : [],
-                "go" : function(p_request){
-                    _routerGo({"routeDef" : this, "request" : p_request, "system" : true});
-                }
-            },
-            "auth" : {
-                "path" : "API/partials/auth.html",
-                "title" : "oda-main.authentification",
-                "urls" : ["auth"],
-                "middleWares" : ["support"],
-                "dependencies" : [],
-                "go" : function(p_request){
-                  _routerGo({"routeDef" : this, "request" : p_request, "system" : true});
-                }
-            },
-            "support" : {
-                "path" : "API/partials/support.html",
-                "title" : "oda-main.support-title",
-                "urls" : ["support"],
-                "middleWares" : [],
-                "dependencies" : [],
-                "go" : function(p_request){
-                    _routerGo({"routeDef" : this, "request" : p_request, "system" : true});
-                }
-            },
-            "contact" : {
-                "path" : "API/partials/contact.html",
-                "title" : "oda-main.contact",
-                "urls" : ["contact"],
-                "middleWares" : ["support"],
-                "dependencies" : [],
-                "go" : function(p_request){
-                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
-                }
-            },
-            "forgot" : {
-                "path" : "API/partials/forgot.html",
-                "title" : "oda-main.forgot-title",
-                "urls" : ["forgot"],
-                "middleWares" : ["support"],
-                "dependencies" : [],
-                "go" : function(p_request){
-                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
-                }
-            },
-            "subscrib" : {
-                "path" : "API/partials/subscrib.html",
-                "title" : "oda-main.subscrib-title",
-                "urls" : ["subscrib"],
-                "middleWares" : ["support"],
-                "dependencies" : [],
-                "go" : function(p_request){
-                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
-                }
-            },
-            "home" : {
-                "path" : "API/partials/home.html",
-                "title" : "oda-main.home-title",
-                "urls" : ["","home"],
-                "middleWares" : ["support", "auth"],
-                "dependencies" : [],
-                "go" : function(p_request){
-                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
-                }
-            },
-            "profile" : {
-                "path" : "API/partials/profile.html",
-                "title" : "oda-main.profile-title",
-                "urls" : ["profile"],
-                "middleWares" : ["support", "auth"],
-                "dependencies" : [],
-                "go" : function(p_request){
-                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
-                }
-            },
-            "stats" : {
-                "path" : "API/partials/stats.html",
-                "title" : "oda-stats.title",
-                "urls" : ["stats"],
-                "middleWares" : ["support", "auth"],
-                "dependencies" : ["hightcharts"],
-                "go" : function(p_request){
-                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
-                }
-            },
-            "admin" : {
-                "path" : "API/partials/admin.html",
-                "title" : "oda-admin.title",
-                "urls" : ["admin"],
-                "middleWares" : ["support", "auth"],
-                "dependencies" : ["dataTables", "ckeditor"],
-                "go" : function(p_request){
-                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
-                }
-            },
-            "supervision" : {
-                "path" : "API/partials/supervision.html",
-                "title" : "oda-supervision.title",
-                "urls" : ["supervision"],
-                "middleWares" : ["support", "auth"],
-                "dependencies" : ["dataTables"],
-                "go" : function(p_request){
-                    _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
-                }
-            }
-        },
-
-        _routeMiddleWares = {
-            "auth" : function(){
-                $.Oda.Log.debug("MiddleWares : auth");
-                
-                if(($.Oda.Session.hasOwnProperty("code_user"))&&($.Oda.Session.code_user !== "")){
-                    if($.Oda.Tooling.isInArray($.Oda.Router.current.route, _routesAllowed)){
-                        var tabSetting = { };
-                        var tabInput = { 
-                            "code_user" : $.Oda.Session.code_user,
-                            "key" : $.Oda.Session.key
-                        };
-                        var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/checkSession.php", tabSetting, tabInput);
-                        if(retour.data){
-                            return true;
-                        }else{
-                            //session ko
-                            _RouterExit = true;
-                            $.Oda.Security.logout();
-                            return false;
-                        }
-                    }else{
-                        //session ko
-                        _RouterExit = true;
-                        $.Oda.Security.logout();
-                        return false;
-                    }
-                }else{
-                    var session = $.Oda.Storage.get("ODA-SESSION");
-                    
-                    if(session !== null){
-                        $.Oda.Session = session;
-                        
-                        var tabSetting = { };
-                        var tabInput = { 
-                            "code_user" : session.code_user,
-                            "key" : session.key
-                        };
-                        var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/checkSession.php", tabSetting, tabInput);
-                        if(retour.data){
-                            $.Oda.Security.loadRight();
-                            if($.Oda.Tooling.isInArray($.Oda.Router.current.route, _routesAllowed)){
-                                return true;
-                            }else{
-                                //session ko
-                                _RouterExit = true;
-                                $.Oda.Security.logout();
-                                return false;
-                            }
-                        }else{
-                            //session ko
-                            _RouterExit = true;
-                            $.Oda.Security.logout();
-                            return false;
-                        }
-                    }else{
-                        //check if log by url
-                        var params = $.Oda.Router.current.args;
-                        if((params.hasOwnProperty("getUser"))&&(params.hasOwnProperty("getPass"))){
-                            var auth = $.Oda.Security.auth({"login" : params.getUser, "mdp" : params.getPass, "reload" : false});
-                            if(auth){
-                                if($.Oda.Tooling.isInArray($.Oda.Router.current.route, _routesAllowed)){
-                                    return true;
-                                }else{
-                                    //session ko
-                                    _RouterExit = true;
-                                    $.Oda.Security.logout();
-                                    return false;
-                                }
-                            }else{
-                                //session ko
-                                _RouterExit = true;
-                                $.Oda.Security.logout();
-                                return false;
-                            }
-                        }else{
-                            //session ko
-                            _RouterExit = true;
-                            $.Oda.Security.logout();
-                            return false;
-                        }
-                    }
-                }
-                        
-                //session ko
-                _RouterExit = true;
-                $.Oda.Security.logout();
-                return false;
-            },
-            "support" : function(){
-                $.Oda.Log.debug("MiddleWares : support");
-                var maintenance = $.Oda.Interface.getParameter("maintenance");
-                if(typeof maintenance === "undefined"){
-                    _RouterExit = true;
-                    _routes.support.go();
-                }else{
-                    if(maintenance){
-                        _RouterExit = true;
-                        _routes.support.go();
-                    }
-                }
-            }
-        },
-
-        //TODO prefix avec le root pas possible, faire un context ?
-        _routeDependencies = {
-            "dataTables" : {
-                "name" : "dataTables",
-                ordered : false,
-                "list" : [
-                    { "elt" : "API/css/dataTables.bootstrap.css", "type" : "css"},
-                    { "elt" : "API/libs/datatables/media/js/jquery.dataTables.min.js", "type" : "script"},
-                    { "elt" : "API/js/dataTables/dataTables.bootstrap.js", "type" : "script"}
-                ]
-            },
-            "hightcharts" : {
-                "name" : "hightcharts",
-                ordered : false,
-                "list" : [
-                    { "elt" : "API/libs/highcharts-release/highcharts.js", "type" : "script"}
-                ]
-            },
-            "ckeditor" : {
-                "name" : "ckeditor",
-                ordered : false,
-                "list" : [
-                    { "elt" : "//cdn.ckeditor.com/4.4.7/standard/ckeditor.js", "type" : "script"}
-                ]
-            }
-        },
-        _RouterExit = false
+        VERSION = '0.150625'
     ;
-
-
-    ////////////////////////// PRIVATE METHODS ////////////////////////
-    /**
-     * go
-     * @param {object} p_params description
-     * @returns {$.Oda.Router}
-     */
-    function _routerGo(p_params) {
-        try {
-            $.Oda.Log.debug("RouterGo : " + p_params.routeDef.path);
-
-            $.Oda.Display.loading({elt:$('#' + $.Oda.Context.mainDiv)});
-
-            //HASH
-            if (!p_params.system) {
-                var urlRoute = $.Oda.Router.current.route;
-                var urlArg = "";
-                for (var key in $.Oda.Router.current.args) {
-                    if (($.Oda.Router.current.args[key] !== "getUser") && ($.Oda.Router.current.args[key] !== "getPass")) {
-                        if (urlArg === "") {
-                            urlArg += "?";
-                        } else {
-                            urlArg += "&";
-                        }
-                        urlArg += key + "=" + $.Oda.Router.current.args[key];
-                    }
-                }
-                $.Oda.Context.window.location.hash = urlRoute + urlArg;
-
-                var decoded = $.Oda.Tooling.decodeHtml($.Oda.I8n.getByString(p_params.routeDef.title));
-
-                $.Oda.Context.window.document.title = $.Oda.Context.projectLabel + " - " + decoded;
-            }
-
-            // DEPENDENCIES
-            var listDepends = [];
-            for (var indice in p_params.routeDef.dependencies) {
-                listDepends = listDepends.concat(_routeDependencies[p_params.routeDef.dependencies[indice]]);
-            }
-
-            $.Oda.Loader.load({ depends : listDepends, functionFeedback : function(data){
-                //exec middleware
-                if (data.params.routeDef.middleWares.length > 0) {
-                    for (var indice in data.params.routeDef.middleWares) {
-                        _routeMiddleWares[data.params.routeDef.middleWares[indice]]();
-                    }
-                }
-
-                if ((_RouterExit) && (!data.params.system)) {
-                    return true;
-                }
-
-                //load menus
-                if (($.Oda.Context.ModeExecution.scene) && ($.Oda.Session.code_user !== "")) {
-                    $.Oda.Display.MenuSlide.show();
-                    $.Oda.Display.Menu.show();
-                }
-
-                //show message
-                if (($.Oda.Context.ModeExecution.message) && ($.Oda.Session.code_user !== "")) {
-                    $.Oda.Display.Message.show();
-                }
-
-                //call content
-                _loadPartial({"routeDef" : data.params.routeDef});
-            }, functionFeedbackParams : {params : p_params}});
-
-            return true;
-        } catch (er) {
-            $.Oda.Log.error("_RouterGo : " + er.message);
-            return null;
-        }
-    }
-        
-    /**
-     * 
-     * @param {type} p_params
-     * @returns {Boolean}
-     */
-    function _loadPartial(p_params) {
-        try {
-            $.get(p_params.routeDef.path, function(data) {
-                $('#'+$.Oda.Context.mainDiv).html(data);
-                $.Oda.Scope.init({id:$.Oda.Context.mainDiv});
-                if($.Oda.Session.code_user !== ""){
-                    $.Oda.Tuto.start();
-                }
-            });
-            return true;
-        } catch (er) {
-            $.Oda.Log.error("_loadPartial : " + er.message);
-            return null;
-        }
-    }
-
-    ////////////////////////// PUBLIC METHODS /////////////////////////
+    
     $.Oda = {
         /* Version number */
         version: VERSION,
@@ -423,7 +72,8 @@
             rest : "",
             resources : "",
             window : window,
-            console : console
+            console : console,
+            startDate : false
         },
 
         Regexs : {
@@ -868,7 +518,7 @@
 
         init : function(){
             try {
-                _routesAllowed = _routesAllowedDefault.slice(0);
+                $.Oda.Router.routesAllowed = $.Oda.Router.routesAllowedDefault.slice(0);
 
                 //depdends
                 var listDepends = [
@@ -893,6 +543,109 @@
                 }
 
                 if($.Oda.Context.ModeExecution.scene){
+
+                    $.Oda.Router.addDependencies("dataTables", {
+                        ordered : false,
+                        "list" : [
+                            { "elt" : $.Oda.Context.rootPath+"API/css/dataTables.bootstrap.css", "type" : "css"},
+                            { "elt" : $.Oda.Context.rootPath+"API/libs/datatables/media/js/jquery.dataTables.min.js", "type" : "script"},
+                            { "elt" : $.Oda.Context.rootPath+"API/js/dataTables/dataTables.bootstrap.js", "type" : "script"}
+                        ]
+                    });
+
+                    $.Oda.Router.addDependencies("ckeditor", {
+                        ordered : false,
+                        "list" : [
+                            { "elt" : "//cdn.ckeditor.com/4.4.7/standard/ckeditor.js", "type" : "script"}
+                        ]
+                    });
+
+                    $.Oda.Router.addRoute("auth", {
+                        "path" : "API/partials/auth.html",
+                        "title" : "oda-main.authentification",
+                        "urls" : ["auth"],
+                        "middleWares" : ["support"]
+                    });
+
+                    $.Oda.Router.addRoute("support", {
+                        "path" : "API/partials/support.html",
+                        "title" : "oda-main.support-title",
+                        "urls" : ["support"]
+                    });
+
+                    $.Oda.Router.addRoute("forgot", {
+                        "path" : "API/partials/contact.html",
+                        "title" : "oda-main.contact",
+                        "urls" : ["contact"],
+                        "middleWares" : ["support"]
+                    });
+
+                    $.Oda.Router.addRoute("forgot", {
+                        "path" : "API/partials/contact.html",
+                        "title" : "oda-main.contact",
+                        "urls" : ["contact"],
+                        "middleWares" : ["support"]
+                    });
+
+                    $.Oda.Router.addRoute("forgot", {
+                        "path" : "API/partials/forgot.html",
+                        "title" : "oda-main.forgot-title",
+                        "urls" : ["forgot"],
+                        "middleWares" : ["support"]
+                    });
+
+                    $.Oda.Router.addRoute("subscrib", {
+                        "path" : "API/partials/subscrib.html",
+                        "title" : "oda-main.subscrib-title",
+                        "urls" : ["subscrib"],
+                        "middleWares" : ["support"]
+                    });
+
+                    $.Oda.Router.addRoute("home", {
+                        "path" : "API/partials/home.html",
+                        "title" : "oda-main.home-title",
+                        "urls" : ["","home"],
+                        "middleWares" : ["support", "auth"]
+                    });
+
+                    $.Oda.Router.addRoute("profile", {
+                        "path" : "API/partials/profile.html",
+                        "title" : "oda-main.profile-title",
+                        "urls" : ["profile"],
+                        "middleWares" : ["support", "auth"]
+                    });
+
+                    $.Oda.Router.addRoute("stats", {
+                        "path" : "API/partials/stats.html",
+                        "title" : "oda-stats.title",
+                        "urls" : ["stats"],
+                        "middleWares" : ["support", "auth"],
+                        "dependencies" : ["hightcharts"]
+                    });
+
+                    $.Oda.Router.addRoute("admin", {
+                        "path" : "API/partials/admin.html",
+                        "title" : "oda-admin.title",
+                        "urls" : ["admin"],
+                        "middleWares" : ["support", "auth"],
+                        "dependencies" : ["dataTables", "ckeditor"]
+                    });
+
+                    $.Oda.Router.addRoute("404", {
+                        "path" : "API/partials/404.html",
+                        "title" : "oda-main.404-title",
+                        "urls" : ["404"]
+                    });
+
+                    $.Oda.Router.addRoute("supervision", {
+                        "path" : "API/partials/supervision.html",
+                        "title" : "oda-supervision.title",
+                        "urls" : ["supervision"],
+                        "middleWares" : ["support", "auth"],
+                        "dependencies" : ["dataTables"]
+                    });
+
+
                     var listDependsScene = [
                         {"name" : "scene" , ordered : false, "list" : [
                             { "elt" : $.Oda.Context.rootPath+"API/css/simple-sidebar.css", "type" : "css" },
@@ -944,7 +697,7 @@
                     }
                     var d = new Date();
                     var n = d.getTime();
-                    var mili = (d - _startDate.getTime());
+                    var mili = (d - $.Oda.Context.startDate.getTime());
                     $.Oda.Log.info("Oda fully loaded. (in "+mili+" miliseconds)");
                     $.Oda.Event.send({name:"oda-fully-loaded", data : { truc : data.msg }});
                 }, functionFeedbackParams : {msg : "Welcome with Oda"}});
@@ -1837,19 +1590,20 @@
                 }
             },
             MenuSlide : {
+                display : false,
                 /**
                  * @name : show
                  */
                 show : function(){
                     try {
-                        if(!_menuSlide){
+                        if(!this.display){
                             var strHtml = "";
                             strHtml += '<li class="sidebar-brand"><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'profile\',\'args\':[]});">'+$.Oda.Session.userInfo.firstName + " " + $.Oda.Session.userInfo.lastName+'</a></li>';
                             strHtml += '<li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'profile\',\'args\':[]});" oda-label="oda-main.profile">Your profile</a></li>';
                             strHtml += '<li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'contact\',\'args\':[]});" oda-label="oda-main.contact">Contact</a></li>';
                             strHtml += '<li><a href="javascript:$.Oda.Security.logout();" oda-label="oda-main.logout">Logout</a></li>';
                             $('#menuSlide').html(strHtml);
-                            _menuSlide = true;
+                            this.display = true;
                         }
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.Display.MenuSlide.show : " + er.message);
@@ -1863,19 +1617,20 @@
                     try {
                         $("#wrapper").removeClass("toggled");
                         $('#menuSlide').html('<li class="sidebar-brand" id="profileDisplay"><span oda-label="oda-project.userLabel">Profile Name</span></li><li class="divider"></li><li><a href="javascript:$.Oda.Router.navigateTo({\'route\':\'contact\',\'args\':[]});" oda-label="oda-main.contact">Contact</a></li>');
-                        _menuSlide = false;
+                        this.display = false;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.Display.MenuSlide.remove : " + er.message);
                     }
                 }
             },
             Menu : {
+                display : false,
                 /**
                  * @name : show
                  */
                 show : function(){
                     try {
-                        if(!_menu){
+                        if(!this.display){
                             var tabInput = { rang : $.Oda.Session.userInfo.profile, id_page : 0 };
                             var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/getMenu.php", {"functionRetour" : function(retour){
                                 var strHTML = "";
@@ -1905,7 +1660,7 @@
                                 }
                             }
                             }, tabInput);
-                            _menu = true;
+                            this.display = true;
                         }
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.Display.Menu.show : " + er.message);
@@ -1918,7 +1673,7 @@
                 remove : function(){
                     try {
                         $('#menu').html('');
-                        _menu = false;
+                        this.display = false;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.Display.Menu.remove : " + er.message);
                     }
@@ -2581,7 +2336,7 @@
                             $.Oda.Storage.remove("ODA-SESSION");
                             $.Oda.Display.Notification.error(returns.strErreur);
                         }
-                        _RouterExit = false;
+                        $.Oda.Router.routerExit = false;
                         if(p_params.reload){
                             $.Oda.Router.navigateTo();
                         }
@@ -2599,7 +2354,7 @@
              */
             loadRight : function() {
                 try {
-                    _routesAllowed = _routesAllowedDefault.slice(0);
+                    $.Oda.Router.routesAllowed = $.Oda.Router.routesAllowedDefault.slice(0);
                     var tabInput = { "rang" : $.Oda.Session.userInfo.profile, "id_page" : 0 };
                     var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/getMenu.php", {}, tabInput);
                     if(retour.strErreur === ""){
@@ -2611,7 +2366,7 @@
                                 route = route.replace("api_page_","");
                                 route = route.replace("page_","");
                                 route = route.replace(".html","");
-                                _routesAllowed.push(route);
+                                $.Oda.Router.routesAllowed.push(route);
                             }
                         }
                     }
@@ -2648,7 +2403,7 @@
                     };
                     $.Oda.Display.MenuSlide.remove();
                     $.Oda.Display.Menu.remove();
-                    _routes.auth.go();
+                    $.Oda.Router.routes.auth.go();
                } catch (er) {
                    $.Oda.Log.error("$.Oda.Security.logout : " + er.message);
                }
@@ -3365,15 +3120,122 @@
                 route : "",
                 args : []
             },
+            
+            routes : {},
 
-            routeMiddleWares : {
+            routerExit : false,
+
+            routesAllowed : [],
+
+            routeDependencies : [],
+
+            //TODO à revoir, ici admin autoriser par default ?
+            routesAllowedDefault : ["contact","404","auth","support","home","forgot","subscrib","profile","", "stats", "admin"],
+
+            MiddleWares : {
                 "auth" : function(){
-                   return "auth";
+                    $.Oda.Log.debug("MiddleWares : auth");
+
+                    if(($.Oda.Session.hasOwnProperty("code_user"))&&($.Oda.Session.code_user !== "")){
+                        if($.Oda.Tooling.isInArray($.Oda.Router.current.route, $.Oda.Router.routesAllowed)){
+                            var tabSetting = { };
+                            var tabInput = {
+                                "code_user" : $.Oda.Session.code_user,
+                                "key" : $.Oda.Session.key
+                            };
+                            var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/checkSession.php", tabSetting, tabInput);
+                            if(retour.data){
+                                return true;
+                            }else{
+                                //session ko
+                                $.Oda.Router.routerExit = true;
+                                $.Oda.Security.logout();
+                                return false;
+                            }
+                        }else{
+                            //session ko
+                            $.Oda.Router.routerExit = true;
+                            $.Oda.Security.logout();
+                            return false;
+                        }
+                    }else{
+                        var session = $.Oda.Storage.get("ODA-SESSION");
+
+                        if(session !== null){
+                            $.Oda.Session = session;
+
+                            var tabSetting = { };
+                            var tabInput = {
+                                "code_user" : session.code_user,
+                                "key" : session.key
+                            };
+                            var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/checkSession.php", tabSetting, tabInput);
+                            if(retour.data){
+                                $.Oda.Security.loadRight();
+                                if($.Oda.Tooling.isInArray($.Oda.Router.current.route, $.Oda.Router.routesAllowed)){
+                                    return true;
+                                }else{
+                                    //session ko
+                                    $.Oda.Router.routerExit = true;
+                                    $.Oda.Security.logout();
+                                    return false;
+                                }
+                            }else{
+                                //session ko
+                                $.Oda.Router.routerExit = true;
+                                $.Oda.Security.logout();
+                                return false;
+                            }
+                        }else{
+                            //check if log by url
+                            var params = $.Oda.Router.current.args;
+                            if((params.hasOwnProperty("getUser"))&&(params.hasOwnProperty("getPass"))){
+                                var auth = $.Oda.Security.auth({"login" : params.getUser, "mdp" : params.getPass, "reload" : false});
+                                if(auth){
+                                    if($.Oda.Tooling.isInArray($.Oda.Router.current.route, $.Oda.Router.routesAllowed)){
+                                        return true;
+                                    }else{
+                                        //session ko
+                                        $.Oda.Router.routerExit = true;
+                                        $.Oda.Security.logout();
+                                        return false;
+                                    }
+                                }else{
+                                    //session ko
+                                    $.Oda.Router.routerExit = true;
+                                    $.Oda.Security.logout();
+                                    return false;
+                                }
+                            }else{
+                                //session ko
+                                $.Oda.Router.routerExit = true;
+                                $.Oda.Security.logout();
+                                return false;
+                            }
+                        }
+                    }
+
+                    //session ko
+                    $.Oda.Router.routerExit = true;
+                    $.Oda.Security.logout();
+                    return false;
                 },
-                "support" : function(){
-                   return "support";
+                "support" : function() {
+                    $.Oda.Log.debug("MiddleWares : support");
+                    var maintenance = $.Oda.Interface.getParameter("maintenance");
+                    if (typeof maintenance === "undefined") {
+                        $.Oda.Router.routerExit = true;
+                        $.Oda.Router.routes.support.go();
+                    } else {
+                        if (maintenance) {
+                            $.Oda.Router.routerExit = true;
+                            $.Oda.Router.routes.support.go();
+                        }
+
+                    }
                 }
             },
+
             /**
              * navigateTo
              * @param {object} p_request
@@ -3386,16 +3248,16 @@
                         $('#oda-popup').modal("hide");
                     }
                     
-                    _RouterExit = false;
+                    $.Oda.Router.routerExit = false;
                     
                     if($.Oda.Tooling.isUndefined(p_request)){
                         p_request = $.Oda.Router.current;
                     }
                     
                     var founded = false;
-                    for(var name in _routes){
-                        for(var indice in _routes[name].urls){
-                            var url = _routes[name].urls[indice];
+                    for(var name in $.Oda.Router.routes){
+                        for(var indice in $.Oda.Router.routes[name].urls){
+                            var url = $.Oda.Router.routes[name].urls[indice];
                             if(url === p_request.route){
                                 $.Oda.Router.current = p_request;
 
@@ -3403,7 +3265,7 @@
                                     $.Oda.Interface.addStat($.Oda.Session.code_user, $.Oda.Router.current.route, "request");
                                 }
                                 
-                                _routes[name].go(p_request);
+                                $.Oda.Router.routes[name].go(p_request);
 
                                 if ($('#wrapper').exists()) {
                                     $("#wrapper").removeClass("toggled");
@@ -3414,7 +3276,7 @@
                     }
 
                     $.Oda.Log.error(p_request.route + " not found.");
-                    _routes["404"].go(p_request);
+                    $.Oda.Router.routes["404"].go(p_request);
                     return this;
                 } catch (er) {
                     $.Oda.Log.error("$.ODa.Router.navigateTo : " + er.message);
@@ -3430,7 +3292,7 @@
             addRoute : function(p_name, p_routeDef) {
                 try {
                     p_routeDef.go = function(p_request){
-                        _routerGo({"routeDef" : this, "request" : p_request, "system" : false});
+                        $.Oda.Router.routerGo({"routeDef" : this, "request" : p_request, "system" : false});
                     };
                     if(!p_routeDef.hasOwnProperty("middleWares")){
                         p_routeDef.middleWares = [];
@@ -3438,7 +3300,7 @@
                     if(!p_routeDef.hasOwnProperty("dependencies")){
                         p_routeDef.dependencies = [];
                     }
-                    _routes[p_name] = p_routeDef;
+                    $.Oda.Router.routes[p_name] = p_routeDef;
                     return this;
                 } catch (er) {
                     $.Oda.Log.error("$.ODa.Router.addRoute : " + er.message);
@@ -3453,8 +3315,8 @@
              */
             addMiddleWare : function(p_name, p_midlleWareDef) {
                 try {
-                    _routeMiddleWares[p_name] = p_midlleWareDef;
-                    _routeMiddleWares[p_name].name = p_name;
+                    $.Oda.Router.MiddleWares[p_name] = p_midlleWareDef;
+                    $.Oda.Router.MiddleWares[p_name].name = p_name;
                     return this;
                 } catch (er) {
                     $.Oda.Log.error("$.ODa.Router.addMiddleWare : " + er.message);
@@ -3470,13 +3332,35 @@
             addDependencies : function(p_name, p_dependenciesLoad) {
                 try {
                     p_dependenciesLoad.name = p_name;
-                    _routeDependencies[p_name] = p_dependenciesLoad;
+                    $.Oda.Router.routeDependencies[p_name] = p_dependenciesLoad;
                     return this;
                 } catch (er) {
-                    $.Oda.Log.error("$.ODa.Router.addDependencies : " + er.message);
+                    $.Oda.Log.error("$.Oda.Router.addDependencies : " + er.message);
                     return null;
                 }
             },
+
+            /**
+             *
+             * @param {Object} p_params
+             * @returns {$.Oda.Router}
+             */
+            loadPartial : function(p_params) {
+                try {
+                    $.get(p_params.routeDef.path, function(data) {
+                        $('#'+$.Oda.Context.mainDiv).html(data);
+                        $.Oda.Scope.init({id:$.Oda.Context.mainDiv});
+                        if($.Oda.Session.code_user !== ""){
+                            $.Oda.Tuto.start();
+                        }
+                    });
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Router.loadPartial : " + er.message);
+                    return null;
+                }
+            },
+
             /**
              * 
              * @returns {$.Oda.Router}
@@ -3501,7 +3385,79 @@
                     this.navigateTo($.Oda.Router.current);
                     return this;
                 } catch (er) {
-                    $.Oda.Log.error("$.ODa.Router.startRooter : " + er.message);
+                    $.Oda.Log.error("$.Oda.Router.startRooter : " + er.message);
+                    return null;
+                }
+            },
+
+            /**
+             * go
+             * @param {object} p_params description
+             * @returns {$.Oda.Router}
+             */
+             routerGo : function(p_params) {
+                try {
+                    $.Oda.Log.debug("RouterGo : " + p_params.routeDef.path);
+        
+                    $.Oda.Display.loading({elt:$('#' + $.Oda.Context.mainDiv)});
+        
+                    //HASH
+                    if (!p_params.system) {
+                        var urlRoute = $.Oda.Router.current.route;
+                        var urlArg = "";
+                        for (var key in $.Oda.Router.current.args) {
+                            if (($.Oda.Router.current.args[key] !== "getUser") && ($.Oda.Router.current.args[key] !== "getPass")) {
+                                if (urlArg === "") {
+                                    urlArg += "?";
+                                } else {
+                                    urlArg += "&";
+                                }
+                                urlArg += key + "=" + $.Oda.Router.current.args[key];
+                            }
+                        }
+                        $.Oda.Context.window.location.hash = urlRoute + urlArg;
+        
+                        var decoded = $.Oda.Tooling.decodeHtml($.Oda.I8n.getByString(p_params.routeDef.title));
+        
+                        $.Oda.Context.window.document.title = $.Oda.Context.projectLabel + " - " + decoded;
+                    }
+        
+                    // DEPENDENCIES
+                    var listDepends = [];
+                    for (var indice in p_params.routeDef.dependencies) {
+                        listDepends = listDepends.concat($.Oda.Router.routeDependencies[p_params.routeDef.dependencies[indice]]);
+                    }
+        
+                    $.Oda.Loader.load({ depends : listDepends, functionFeedback : function(data){
+                        //exec middleware
+                        if (data.params.routeDef.middleWares.length > 0) {
+                            for (var indice in data.params.routeDef.middleWares) {
+                                $.Oda.Router.MiddleWares[data.params.routeDef.middleWares[indice]]();
+                            }
+                        }
+        
+                        if (($.Oda.Router.routerExit) && (!data.params.system)) {
+                            return true;
+                        }
+        
+                        //load menus
+                        if (($.Oda.Context.ModeExecution.scene) && ($.Oda.Session.code_user !== "")) {
+                            $.Oda.Display.MenuSlide.show();
+                            $.Oda.Display.Menu.show();
+                        }
+        
+                        //show message
+                        if (($.Oda.Context.ModeExecution.message) && ($.Oda.Session.code_user !== "")) {
+                            $.Oda.Display.Message.show();
+                        }
+        
+                        //call content
+                        $.Oda.Router.loadPartial({"routeDef" : data.params.routeDef});
+                    }, functionFeedbackParams : {params : p_params}});
+        
+                    return true;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Router.routerGo : " + er.message);
                     return null;
                 }
             }
@@ -3710,6 +3666,8 @@
             }
         }
     };
+
+    $.Oda.Context.startDate = new Date();
 
     //Apply the mode execution
     var params = $.Oda.Tooling.getParamsLibrary({library : "Oda"});

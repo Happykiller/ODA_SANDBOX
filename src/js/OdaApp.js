@@ -95,7 +95,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                     "title" : "oda-main.home-title",
                     "urls" : ["","home"],
                     "dependencies" : ["dataTables","wowhead"],
-                    "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+                    "middleWares":["support","auth"]
                 });
 
                 $.Oda.Router.addRoute("saisir_paquet", {
@@ -103,7 +103,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                     "title" : "paquet-add.title",
                     "urls" : ["saisir_paquet"],
                     "dependencies" : ["dataTables","wowhead"],
-                    "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+                    "middleWares":["support","auth"]
                 });
 
                 $.Oda.Router.addRoute("rapports_cartes", {
@@ -111,7 +111,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                     "title" : "rapports-cartes.title",
                     "urls" : ["rapports_cartes"],
                     "dependencies" : ["dataTables","hightcharts","wowhead"],
-                    "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+                    "middleWares":["support","auth"]
                 });
 
                 $.Oda.Router.addRoute("gerer_collection", {
@@ -119,7 +119,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                     "title" : "gerer-coll.title",
                     "urls" : ["gerer_collection"],
                     "dependencies" : ["dataTables","wowhead"],
-                    "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+                    "middleWares":["support","auth"]
                 });
 
                 $.Oda.Router.addRoute("gerer_deck", {
@@ -127,7 +127,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                     "title" : "gerer-deck.title",
                     "urls" : ["gerer_deck"],
                     "dependencies" : ["dataTables","wowhead"],
-                    "middleWares":[$.Oda.Router.routeMiddleWares.support(),$.Oda.Router.routeMiddleWares.auth()]
+                    "middleWares":["support","auth"]
                 });
 
                 $.Oda.Router.startRooter();
