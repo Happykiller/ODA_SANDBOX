@@ -546,6 +546,13 @@
                     $.Oda.Router.routesAllowedDefault = ["","home","contact","forgot","subscrib","profile"],
                     $.Oda.Router.routesAllowed = $.Oda.Router.routesAllowedDefault.slice(0);
 
+                    $.Oda.Router.addDependencies("hightcharts", {
+                        ordered : false,
+                        "list" : [
+                            { "elt" : $.Oda.Context.rootPath+"API/libs/highcharts-release/highcharts.js", "type" : "script"}
+                        ]
+                    });
+
                     $.Oda.Router.addDependencies("dataTables", {
                         ordered : false,
                         "list" : [
