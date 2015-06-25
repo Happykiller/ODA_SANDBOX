@@ -11,6 +11,7 @@
  * events :
  * oda-fully-loaded : Oda is ready
  * oda-notification-flash : the system want notify
+ * oda-gapi-loaded : When Gapi is ready
  *
  */
 (function() {
@@ -518,8 +519,6 @@
 
         init : function(){
             try {
-                $.Oda.Router.routesAllowed = $.Oda.Router.routesAllowedDefault.slice(0);
-
                 //depdends
                 var listDepends = [
                     {"name" : "library" , ordered : false, "list" : [
@@ -544,6 +543,9 @@
 
                 if($.Oda.Context.ModeExecution.scene){
 
+                    $.Oda.Router.routesAllowedDefault = ["","home","contact","forgot","subscrib","profile"],
+                    $.Oda.Router.routesAllowed = $.Oda.Router.routesAllowedDefault.slice(0);
+
                     $.Oda.Router.addDependencies("dataTables", {
                         ordered : false,
                         "list" : [
@@ -564,23 +566,25 @@
                         "path" : "API/partials/auth.html",
                         "title" : "oda-main.authentification",
                         "urls" : ["auth"],
-                        "middleWares" : ["support"]
+                        "middleWares" : ["support"],
+                        "system" : true
                     });
 
                     $.Oda.Router.addRoute("support", {
                         "path" : "API/partials/support.html",
                         "title" : "oda-main.support-title",
-                        "urls" : ["support"]
+                        "urls" : ["support"],
+                        "system" : true
                     });
 
-                    $.Oda.Router.addRoute("forgot", {
-                        "path" : "API/partials/contact.html",
-                        "title" : "oda-main.contact",
-                        "urls" : ["contact"],
-                        "middleWares" : ["support"]
+                    $.Oda.Router.addRoute("404", {
+                        "path" : "API/partials/404.html",
+                        "title" : "oda-main.404-title",
+                        "urls" : ["404"],
+                        "system" : true
                     });
 
-                    $.Oda.Router.addRoute("forgot", {
+                    $.Oda.Router.addRoute("contact", {
                         "path" : "API/partials/contact.html",
                         "title" : "oda-main.contact",
                         "urls" : ["contact"],
@@ -629,12 +633,6 @@
                         "urls" : ["admin"],
                         "middleWares" : ["support", "auth"],
                         "dependencies" : ["dataTables", "ckeditor"]
-                    });
-
-                    $.Oda.Router.addRoute("404", {
-                        "path" : "API/partials/404.html",
-                        "title" : "oda-main.404-title",
-                        "urls" : ["404"]
                     });
 
                     $.Oda.Router.addRoute("supervision", {
@@ -998,6 +996,9 @@
              */
             send: function (p_params) {
                 try {
+                    if(!p_params.hasOwnProperty("data")){
+                        p_params.data = {};
+                    }
                     var event = new CustomEvent(p_params.name, { detail : p_params.data });
                     $.Oda.Context.window.dispatchEvent(event);
                     return this;
@@ -3129,8 +3130,7 @@
 
             routeDependencies : [],
 
-            //TODO à revoir, ici admin autoriser par default ?
-            routesAllowedDefault : ["contact","404","auth","support","home","forgot","subscrib","profile","", "stats", "admin"],
+            routesAllowedDefault : [],
 
             MiddleWares : {
                 "auth" : function(){
@@ -3291,8 +3291,11 @@
              */
             addRoute : function(p_name, p_routeDef) {
                 try {
+                    if(!p_routeDef.hasOwnProperty("system")){
+                        p_routeDef.system = false;
+                    }
                     p_routeDef.go = function(p_request){
-                        $.Oda.Router.routerGo({"routeDef" : this, "request" : p_request, "system" : false});
+                        $.Oda.Router.routerGo({"routeDef" : this, "request" : p_request});
                     };
                     if(!p_routeDef.hasOwnProperty("middleWares")){
                         p_routeDef.middleWares = [];
@@ -3402,7 +3405,7 @@
                     $.Oda.Display.loading({elt:$('#' + $.Oda.Context.mainDiv)});
         
                     //HASH
-                    if (!p_params.system) {
+                    if (!p_params.routeDef.system) {
                         var urlRoute = $.Oda.Router.current.route;
                         var urlArg = "";
                         for (var key in $.Oda.Router.current.args) {
@@ -3436,7 +3439,7 @@
                             }
                         }
         
-                        if (($.Oda.Router.routerExit) && (!data.params.system)) {
+                        if (($.Oda.Router.routerExit) && (!data.params.routeDef.system)) {
                             return true;
                         }
         
@@ -3487,10 +3490,12 @@
                     switch($.Oda.Google.gapiStatut) {
                         case $.Oda.Google.gapiStatuts.zero :
                             $.Oda.Google.gapiStatut = $.Oda.Google.gapiStatuts.init;
-                            $.getScript("https://apis.google.com/js/client.js?onload=handleClientLoad",$.Oda.Google.handleClientLoad);
+                            $.getScript("https://apis.google.com/js/client.js?onload=handleClientLoad",function(){
+                                $.Oda.Google.handleClientLoad();
+                            });
                             break;
                         case $.Oda.Google.gapiStatuts.loaded :
-                            $.Oda.Log.debug("gapi.src already load.");
+                            $.Oda.Log.debug("$.Oda.Google.init : already load.");
                             break;
                         default:
                             $.Oda.Log.error("$.Oda.Google.init : client load fail.");
@@ -3504,10 +3509,11 @@
                     if(gapi.hasOwnProperty("client")) {
                         $.Oda.Google.gapi = gapi;
                         $.Oda.Google.gapiStatut = $.Oda.Google.gapiStatuts.loaded;
-                        $.Oda.Log.debug("$.Oda.Google.handleClientLoad finish.");
+                        $.Oda.Event.send({name : "oda-gapi-loaded"});
+                        $.Oda.Log.debug("$.Oda.Google.handleClientLoad : finish.");
                     }else{
-                        $.Oda.Log.debug("$.Oda.Google.handleClientLoad waiting");
-                        setTimeout($.Oda.Google.handleClientLoad,100);
+                        $.Oda.Log.debug("$.Oda.Google.handleClientLoad : waiting (gapi.client not loaded)");
+                        $.Oda.Tooling.timeout($.Oda.Google.handleClientLoad,100);
                     }
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Google.handleClientLoad :" + er.message);
@@ -3524,27 +3530,28 @@
 
                     switch($.Oda.Google.gapiStatut) {
                         case $.Oda.Google.gapiStatuts.zero :
-                            //TODO avec les events pas une boucle !!!
-                            $.Oda.Log.debug("$.Oda.Google.startSessionAuth waiting");
+                            $.Oda.Log.debug("$.Oda.Google.startSessionAuth : waiting (gapi not start)");
                             $.Oda.Google.init();
-                            setTimeout($.Oda.Google.startSessionAuth,100);
+                            $.Oda.Event.addListener({name : "oda-gapi-loaded", callback : function(e){
+                                $.Oda.Google.startSessionAuth();
+                            }});
                             break;
                         case $.Oda.Google.gapiStatuts.loaded :
                             $.Oda.Google.loadGapis([{
                                 "api": "oauth2",
                                 "version": "v2"
                             }], $.Oda.Google.callbackAuthSession);
-                            $.Oda.Log.debug("$.Oda.Google.startSessionAuth finish.");
+                            $.Oda.Log.debug("$.Oda.Google.startSessionAuth : finish.");
                             break;
                         case $.Oda.Google.gapiStatuts.init :
-                            $.Oda.Log.debug("$.Oda.Google.startSessionAuth waiting");
-                            setTimeout($.Oda.Google.startSessionAuth,100);
+                            $.Oda.Log.debug("$.Oda.Google.startSessionAuth : waiting (gapi not loaded)");
+                            $.Oda.Tooling.timeout($.Oda.Google.startSessionAuth,100);
                             break;
                         default:
                             $.Oda.Log.error("$.Oda.Google.startSessionAuth : $.Oda.Google.gapi problem.");
                     }
                 } catch (er) {
-                    $.Oda.Log.error("$.Oda.Google.startSessionAuth :" + er.message);
+                    $.Oda.Log.error("$.Oda.Google.startSessionAuth : " + er.message);
                 }
             },
             loadGapis : function(tabApi, callbackFunction) {
@@ -3552,7 +3559,7 @@
                     if (tabApi.length > 0) {
                         for (var indice in $.Oda.Google.gaips) {
                             if (($.Oda.Google.gaips[indice].api === tabApi[0].api) && ($.Oda.Google.gaips[indice].version === tabApi[0].version)) {
-                                $.Oda.Log.debug('Already ok pour : ' + tabApi[0].api + " en " + tabApi[0].version);
+                                $.Oda.Log.debug('$.Oda.Google.loadGapis : Already ok pour ' + tabApi[0].api + " en " + tabApi[0].version);
                                 tabApi.splice(0, 1);
                                 $.Oda.Google.loadGapis(tabApi, callbackFunction);
                                 return true;
@@ -3562,15 +3569,15 @@
                         $.Oda.Google.gapi.client.load(tabApi[0].api, tabApi[0].version, function (resp) {
                             if (typeof resp === "undefined") {
                                 $.Oda.Google.gaips.push({"api": tabApi[0].api, "version": tabApi[0].version});
-                                $.Oda.Log.debug('Chargement ok pour : ' + tabApi[0].api + " en " + tabApi[0].version);
+                                $.Oda.Log.debug('$.Oda.Google.loadGapis : Chargement ok pour ' + tabApi[0].api + " en " + tabApi[0].version);
                                 tabApi.splice(0, 1);
                                 $.Oda.Google.loadGapis(tabApi, callbackFunction);
                             } else {
-                                $.Oda.Log.debug('Chargement ko pour : ' + tabApi[0].api + " en " + tabApi[0].version + "(" + resp.error.message + ")");
+                                $.Oda.Log.debug('$.Oda.Google.loadGapis : Chargement ko pour ' + tabApi[0].api + " en " + tabApi[0].version + "(" + resp.error.message + ")");
                             }
                         });
                     } else {
-                        $.Oda.Log.debug("$.Oda.Google.loadGapis finish.");
+                        $.Oda.Log.debug("$.Oda.Google.loadGapis : finish.");
                         callbackFunction();
                     }
                 } catch (er) {
