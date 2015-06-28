@@ -119,9 +119,7 @@
                             for (var indice in $.Oda.Cache.cache) {
                                 var elt = $.Oda.Cache.cache[indice];
                                 if ((elt.key === p_params.key) && ($.Oda.Tooling.deepEqual(elt.attrs, p_params.attrs))) {
-                                    elt = p_params;
-                                    $.Oda.Storage.set("ODA-CACHE-" + $.Oda.Session.code_user, $.Oda.Cache.cache);
-                                    return this;
+                                    $.Oda.Cache.cache.splice(indice, 1);
                                 }
                             }
                             $.Oda.Cache.cache.push(p_params);
@@ -545,6 +543,92 @@
 
                     $.Oda.Router.routesAllowedDefault = ["","home","contact","forgot","subscrib","profile"],
                     $.Oda.Router.routesAllowed = $.Oda.Router.routesAllowedDefault.slice(0);
+
+                    $.Oda.Router.addMiddleWare("support",function() {
+                        $.Oda.Log.debug("MiddleWares : support");
+                        var tabInput = { param_name : "maintenance" };
+                        var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/getParam.php", {functionRetour : function(data){
+                            try{
+                                var maintenance = data.data.leParametre.param_value;
+
+                                if (maintenance === "1") {
+                                    $.Oda.Router.routerExit = true;
+                                    $.Oda.Router.routes.support.go();
+                                }
+                            }catch (e){
+                                $.Oda.Router.routerExit = true;
+                                $.Oda.Router.routes.support.go();
+                            }
+                        }}, tabInput);
+                    });
+
+
+                    $.Oda.Router.addMiddleWare("auth", function() {
+                        $.Oda.Log.debug("MiddleWares : auth");
+
+                        if (($.Oda.Session.hasOwnProperty("code_user")) && ($.Oda.Session.code_user !== "")) {
+                            if ($.Oda.Tooling.isInArray($.Oda.Router.current.route, $.Oda.Router.routesAllowed)) {
+                                var tabInput = {
+                                    "code_user": $.Oda.Session.code_user,
+                                    "key": $.Oda.Session.key
+                                };
+                                var retour = $.Oda.Interface.callRest($.Oda.Context.rest + "API/phpsql/checkSession.php", {functionRetour : function(data){
+                                    if (data.data) {
+                                    } else {
+                                        $.Oda.Router.routerExit = true;
+                                        $.Oda.Security.logout();
+                                    }
+                                }}, tabInput);
+                            } else {
+                                $.Oda.Router.routerExit = true;
+                                $.Oda.Security.logout();
+                            }
+                        } else {
+                            var session = $.Oda.Storage.get("ODA-SESSION");
+
+                            if (session !== null) {
+                                $.Oda.Session = session;
+
+                                var tabInput = {
+                                    "code_user": session.code_user,
+                                    "key": session.key
+                                };
+                                var retour = $.Oda.Interface.callRest($.Oda.Context.rest + "API/phpsql/checkSession.php", {functionRetour : function(data){
+                                    if (data.data) {
+                                        $.Oda.Security.loadRight();
+                                        if (!$.Oda.Tooling.isInArray($.Oda.Router.current.route, $.Oda.Router.routesAllowed)) {
+                                            $.Oda.Router.routerExit = true;
+                                            $.Oda.Security.logout();
+                                        }
+                                    } else {
+                                        $.Oda.Router.routerExit = true;
+                                        $.Oda.Security.logout();
+                                    }
+                                }}, tabInput);
+                            } else {
+                                var params = $.Oda.Router.current.args;
+                                if ((params.hasOwnProperty("getUser")) && (params.hasOwnProperty("getPass"))) {
+                                    var auth = $.Oda.Security.auth({
+                                        "login": params.getUser,
+                                        "mdp": params.getPass,
+                                        "reload": false
+                                    });
+                                    if (auth) {
+                                        if (!$.Oda.Tooling.isInArray($.Oda.Router.current.route, $.Oda.Router.routesAllowed)) {
+                                            $.Oda.Router.routerExit = true;
+                                            $.Oda.Security.logout();
+                                        }
+                                    } else {
+                                        $.Oda.Router.routerExit = true;
+                                        $.Oda.Security.logout();
+                                    }
+                                } else {
+                                    $.Oda.Router.routerExit = true;
+                                    $.Oda.Security.logout();
+                                }
+                            }
+                        }
+                    });
 
                     $.Oda.Router.addDependencies("hightcharts", {
                         ordered : false,
@@ -2357,16 +2441,14 @@
                 }
             },
             /**
-             * 
-             * @returns {undefined}
+             * @name : loadRight
              */
             loadRight : function() {
                 try {
                     $.Oda.Router.routesAllowed = $.Oda.Router.routesAllowedDefault.slice(0);
                     var tabInput = { "rang" : $.Oda.Session.userInfo.profile, "id_page" : 0 };
-                    var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/getMenu.php", {}, tabInput);
-                    if(retour.strErreur === ""){
-                        var datas = retour.data.resultat.data;
+                    var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/getMenu.php", {functionRetour : function(data){
+                        var datas = data.data.resultat.data;
 
                         for (var indice in datas) {
                             if((datas[indice].id_categorie !== "98") && ((datas[indice].id_categorie !== "1"))){
@@ -2377,7 +2459,7 @@
                                 $.Oda.Router.routesAllowed.push(route);
                             }
                         }
-                    }
+                    }}, tabInput);
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Security.loadRight() : " + er.message);
                 }
@@ -3139,109 +3221,7 @@
 
             routesAllowedDefault : [],
 
-            MiddleWares : {
-                "auth" : function(){
-                    $.Oda.Log.debug("MiddleWares : auth");
-
-                    if(($.Oda.Session.hasOwnProperty("code_user"))&&($.Oda.Session.code_user !== "")){
-                        if($.Oda.Tooling.isInArray($.Oda.Router.current.route, $.Oda.Router.routesAllowed)){
-                            var tabSetting = { };
-                            var tabInput = {
-                                "code_user" : $.Oda.Session.code_user,
-                                "key" : $.Oda.Session.key
-                            };
-                            var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/checkSession.php", tabSetting, tabInput);
-                            if(retour.data){
-                                return true;
-                            }else{
-                                //session ko
-                                $.Oda.Router.routerExit = true;
-                                $.Oda.Security.logout();
-                                return false;
-                            }
-                        }else{
-                            //session ko
-                            $.Oda.Router.routerExit = true;
-                            $.Oda.Security.logout();
-                            return false;
-                        }
-                    }else{
-                        var session = $.Oda.Storage.get("ODA-SESSION");
-
-                        if(session !== null){
-                            $.Oda.Session = session;
-
-                            var tabSetting = { };
-                            var tabInput = {
-                                "code_user" : session.code_user,
-                                "key" : session.key
-                            };
-                            var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"API/phpsql/checkSession.php", tabSetting, tabInput);
-                            if(retour.data){
-                                $.Oda.Security.loadRight();
-                                if($.Oda.Tooling.isInArray($.Oda.Router.current.route, $.Oda.Router.routesAllowed)){
-                                    return true;
-                                }else{
-                                    //session ko
-                                    $.Oda.Router.routerExit = true;
-                                    $.Oda.Security.logout();
-                                    return false;
-                                }
-                            }else{
-                                //session ko
-                                $.Oda.Router.routerExit = true;
-                                $.Oda.Security.logout();
-                                return false;
-                            }
-                        }else{
-                            //check if log by url
-                            var params = $.Oda.Router.current.args;
-                            if((params.hasOwnProperty("getUser"))&&(params.hasOwnProperty("getPass"))){
-                                var auth = $.Oda.Security.auth({"login" : params.getUser, "mdp" : params.getPass, "reload" : false});
-                                if(auth){
-                                    if($.Oda.Tooling.isInArray($.Oda.Router.current.route, $.Oda.Router.routesAllowed)){
-                                        return true;
-                                    }else{
-                                        //session ko
-                                        $.Oda.Router.routerExit = true;
-                                        $.Oda.Security.logout();
-                                        return false;
-                                    }
-                                }else{
-                                    //session ko
-                                    $.Oda.Router.routerExit = true;
-                                    $.Oda.Security.logout();
-                                    return false;
-                                }
-                            }else{
-                                //session ko
-                                $.Oda.Router.routerExit = true;
-                                $.Oda.Security.logout();
-                                return false;
-                            }
-                        }
-                    }
-
-                    //session ko
-                    $.Oda.Router.routerExit = true;
-                    $.Oda.Security.logout();
-                    return false;
-                },
-                "support" : function() {
-                    $.Oda.Log.debug("MiddleWares : support");
-                    var maintenance = $.Oda.Interface.getParameter("maintenance");
-                    if (typeof maintenance === "undefined") {
-                        $.Oda.Router.routerExit = true;
-                        $.Oda.Router.routes.support.go();
-                    } else {
-                        if (maintenance) {
-                            $.Oda.Router.routerExit = true;
-                            $.Oda.Router.routes.support.go();
-                        }
-
-                    }
-                }
-            },
+            MiddleWares : {},
 
             /**
              * navigateTo
