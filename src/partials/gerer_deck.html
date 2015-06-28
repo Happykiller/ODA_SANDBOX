@@ -13,39 +13,34 @@
 </script>
 
 <style>
-    .chart-wrapper {
-        position: relative;
-        width:100%;
-    }
+
 </style>
 
 <script id="deck-details" type="text/template">
     <form>
         <div class="row">
             <div class="col-md-6">
-                <div class="checkbox">
-                    <label>
-                        <input id="deckActif" type="checkbox" {{(deckActif==='1')?'checked':''}}> <span oda-label="gerer-deck.deckActif"></span>
-                    </label>
+                <div>
+                    <span oda-label="gerer-deck.deckActif" style="font-weight: bold;"></span><br>
+                    <input id="deckActif" type="checkbox" {{(deckActif==='1')?'checked':''}}>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="deckName" oda-label="gerer-deck.deckName">name</label>*
                     <input type="text" class="form-control" oda-input-text="deckName" oda-input-text-tips="gerer-deck.deckName-tips"
-                           oda-input-text-placeholder="gerer-deck.deckName-placeholder" oda-input-text-check="^[a-zA-Z0-9]{3,}$" value="{{deckName}}">
+                           oda-input-text-placeholder="gerer-deck.deckName-placeholder" oda-input-text-check="Oda.Regexs:noInjection" value="{{deckName}}">
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label for="deckType" oda-label="gerer-deck.deckType">deckType</label>*
-                    <input type="text" class="form-control" oda-input-text="deckType"
-                           oda-input-text-tips="gerer-deck.deckType-tips"
-                           oda-input-text-placeholder="gerer-deck.deckType-placeholder"
-                           oda-input-text-check="^[a-z]{4,}$"
-                           value="{{deckType}}">
+                    <label for="deckType" oda-label="gerer-deck.deckType">deckType</label>
+                    <select class="form-control" name="deckType" id="deckType">
+                        <option value="arene" {{(deckType==='arene')?'selected':''}}>Arène</option>
+                        <option value="regular" {{(deckType==='regular')?'selected':''}}>Construit</option>
+                    </select>
                 </div>
             </div>
             <div class="col-md-6">
@@ -68,4 +63,35 @@
             </div>
         </div>
     </form>
+</script>
+
+<script id="deck-list" type="text/template">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="panel panel-default">
+                <div class="panel-heading"><span oda-label="paquet-add.labrary"></span></div>
+                <div id="div_inventaire" class="panel-body">
+                    <oda-loading></oda-loading>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="panel panel-default">
+                <div class="panel-heading"><span oda-label="paquet-add.packet"></span></div>
+                <div id="div_paquet" class="panel-body">
+                    <oda-loading></oda-loading>
+                </div>
+                <div id="div_valider"></div>
+            </div>
+            <span id="div_deckModifInfos"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8" id="div_graphCout">
+            <oda-loading></oda-loading>
+        </div>
+        <div class="col-md-4" id="div_graphRepart">
+            <oda-loading></oda-loading>
+        </div>
+    </div>
 </script>

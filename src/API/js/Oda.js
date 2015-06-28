@@ -428,9 +428,9 @@
                         if(!p_params.elt.hasOwnProperty("force")){
                             p_params.elt.force = false;
                         }
-                        if(($.Oda.Loader.eltAlreadyLoad.hasOwnProperty(p_params.elt.elt))
-                            && ($.Oda.Loader.eltAlreadyLoad[p_params.elt.elt] === $.Oda.Loader.Status.loaded)
-                            && (p_params.elt.force === false))
+                        if(($.Oda.Loader.eltAlreadyLoad.hasOwnProperty(p_params.elt.elt)) &&
+                            ($.Oda.Loader.eltAlreadyLoad[p_params.elt.elt] === $.Oda.Loader.Status.loaded) &&
+                            (p_params.elt.force === false))
                         {
                             p_params.elt.state = $.Oda.Loader.Status.loaded;
                             $.Oda.Log.debug("Dependency element already loaded : "+ p_params.elt.elt + " of grp : "+ p_params.grp.name + " of  with code : " + p_params.elt.state);
@@ -1244,6 +1244,9 @@
                         delete p_tabInput.keyAuthODA;
                     }
 
+                    if(p_tabInput === undefined){
+                        p_tabInput = {};
+                    }
                     p_tabInput.milis = $.Oda.Tooling.getMilise();
                     p_tabInput.ctrl = "OK";
                     p_tabInput.keyAuthODA = key;
@@ -2065,8 +2068,8 @@
              */
             deepEqual: function (elt1, elt2) {
                 try {
-                    if ((typeof elt1 == "object" && elt1 != null) && (typeof elt2 == "object" && elt2 != null)) {
-                        if (Object.keys(elt1).length != Object.keys(elt2).length)
+                    if ((typeof elt1 === "object" && elt1 !== null) && (typeof elt2 === "object" && elt2 !== null)) {
+                        if (Object.keys(elt1).length !== Object.keys(elt2).length)
                             return false;
 
                         for (var prop in elt1) {
@@ -3271,7 +3274,7 @@
                             if(url === p_request.route){
                                 $.Oda.Router.current = p_request;
 
-                                if($.Oda.Session.code_user != ""){
+                                if($.Oda.Session.code_user !== ""){
                                     $.Oda.Interface.addStat($.Oda.Session.code_user, $.Oda.Router.current.route, "request");
                                 }
                                 
