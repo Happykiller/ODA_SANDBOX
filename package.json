@@ -16,6 +16,7 @@
     "gulp-open": "^0.2.8",
     "gulp-plumber": "^0.6.5",
     "gulp-uglify": "*",
-    "gulp-rename": "*"
+    "gulp-rename": "*",
+    "gulp-replace" : "*"
   }
 }

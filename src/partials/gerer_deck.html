@@ -13,5 +13,59 @@
 </script>
 
 <style>
-
+    .chart-wrapper {
+        position: relative;
+        width:100%;
+    }
 </style>
+
+<script id="deck-details" type="text/template">
+    <form>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="checkbox">
+                    <label>
+                        <input id="deckActif" type="checkbox" {{(deckActif==='1')?'checked':''}}> <span oda-label="gerer-deck.deckActif"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="deckName" oda-label="gerer-deck.deckName">name</label>*
+                    <input type="text" class="form-control" oda-input-text="deckName" oda-input-text-tips="gerer-deck.deckName-tips"
+                           oda-input-text-placeholder="gerer-deck.deckName-placeholder" oda-input-text-check="^[a-zA-Z0-9]{3,}$" value="{{deckName}}">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="deckType" oda-label="gerer-deck.deckType">deckType</label>*
+                    <input type="text" class="form-control" oda-input-text="deckType"
+                           oda-input-text-tips="gerer-deck.deckType-tips"
+                           oda-input-text-placeholder="gerer-deck.deckType-placeholder"
+                           oda-input-text-check="^[a-z]{4,}$"
+                           value="{{deckType}}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="deckCmt" oda-label="gerer-deck.deckCmt">deckCmt</label>
+                    <input type="text" class="form-control" oda-input-text="deckCmt"
+                           oda-input-text-tips="gerer-deck.deckCmt-tips"
+                           oda-input-text-placeholder="gerer-deck.deckCmt-placeholder"
+                           oda-input-text-check="Oda.Regexs:noInjection"
+                           value="{{deckCmt}}">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8" id="div_graphCout">
+                <oda-loading></oda-loading>
+            </div>
+            <div class="col-md-4" id="div_graphRepart">
+                <oda-loading></oda-loading>
+            </div>
+        </div>
+    </form>
+</script>

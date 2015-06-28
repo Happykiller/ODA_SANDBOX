@@ -59,7 +59,12 @@
         "groupName" : "gerer-deck"
           , "fr" : {
               "title" : "Gérer ses decks",
-              "listDeck" : "Liste des decks"
+              "listDeck" : "Liste des decks",
+              "detailsDeck" : "Détails du deck",
+              "deckActif" : "Actif",
+              "deckName" : "Nom",
+              "deckType" : "Type",
+              "deckCmt" : "Commentaires"
         }
         , "en" : {
             "title" : "Manage yours decks",

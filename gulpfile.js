@@ -10,6 +10,7 @@ var launch = require('gulp-open');
 var plumber = require('gulp-plumber');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
+var replace = require('gulp-replace');
 
 var opt = {
   port: 3000,
@@ -117,6 +118,17 @@ gulp.task('open', function() {
     .pipe(launch('', {
       url: 'http://localhost:'+opt.port+'/index.html'
     }));
+});
+
+gulp.task('buildApp', function() {
+    gulp.src(['src/index.html'])
+        .pipe(replace('Oda.js', 'Oda.min.js'))
+        .pipe(gulp.dest('target/index.html'));
+
+
+    gulp.src(['src/API/js/Oda.js'])
+        .pipe(replace('OdaApp.js', 'OdaApp.min.js'))
+        .pipe(gulp.dest('target/API/js/Oda.js'));
 });
 
 gulp.task('dev', ['bower', 'compress', 'watch', 'server', 'open']);
