@@ -61,20 +61,6 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
         tab_sets : ['Tous', 'Expert' , 'La Malédiction de Naxxramas', 'Gobelins et Gnomes', 'Mont Rochenoire'],
 
         /**
-         * @param {object} p_params
-         * @param p_params.id
-         * @returns {$.Oda.App}
-         */
-        example: function (p_params) {
-            try {
-                return true;
-            } catch (er) {
-                $.Oda.Log.error("$.Oda.App.example : " + er.message);
-                return null;
-            }
-        },
-
-        /**
          * @param {Object} p_params
          * @param p_params.attr
          * @returns {$.Oda.App}
@@ -126,6 +112,30 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                     "path" : "partials/gerer_deck.html",
                     "title" : "gerer-deck.title",
                     "urls" : ["gerer_deck"],
+                    "dependencies" : ["dataTables", "hightcharts", "wowhead"],
+                    "middleWares":["support","auth"]
+                });
+
+                $.Oda.Router.addRoute("saisir_matchs", {
+                    "path" : "partials/rec_matchs.html",
+                    "title" : "rec-matchs.title",
+                    "urls" : ["saisir_matchs"],
+                    "dependencies" : ["dataTables", "hightcharts", "wowhead"],
+                    "middleWares":["support","auth"]
+                });
+
+                $.Oda.Router.addRoute("rapports_matchs", {
+                    "path" : "partials/rapports_matchs.html",
+                    "title" : "rapports-matchs.title",
+                    "urls" : ["rapports_matchs"],
+                    "dependencies" : ["dataTables", "hightcharts", "wowhead"],
+                    "middleWares":["support","auth"]
+                });
+
+                $.Oda.Router.addRoute("rapports_meta", {
+                    "path" : "partials/rapports_meta.html",
+                    "title" : "rapports-meta.title",
+                    "urls" : ["rapports_meta"],
                     "dependencies" : ["dataTables", "hightcharts", "wowhead"],
                     "middleWares":["support","auth"]
                 });
@@ -268,13 +278,44 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                         $.Oda.App.Controler.GererDeck.editTheDeck({id : p_params.id});
 
                         $.Oda.Display.Popup.open({size : "lg", label : '<span oda-label="gerer-deck.detailsDeck"></span> : '+p_params.name, details : strHtmlDetails});
-
                         return this;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.App.Controler.GererDeck.editDeck : " + er.message);
                         return null;
                     }
                 },
+                /**
+                 * @param {object} p_params
+                 * @returns {$.Oda.App.Controler.GererDeck}
+                 */
+                newDeck: function (p_params) {
+                    try {
+                        $.Oda.Scope.refresh = function(){
+                            if(($("#deckName").data("isOk")) && ($("#deckCmt").data("isOk")) && ($("#deckClass").data("isOk")) && ($("#deckType").data("isOk"))){
+                                $("#bt_valider").removeClass("disabled");
+                            }else{
+                                $("#bt_valider").addClass("disabled");
+                            }
+                        };
+
+                        var strHtmlDetails = $.Oda.Display.TemplateHtml.create({
+                            template : "deck-new",
+                            scope : {}
+                        });
+
+                        var strHtmlFooter = '';
+                        strHtmlFooter += '<button type="button" onclick="$.Oda.App.Controler.GererDeck.recNewDeck();" class="btn btn-primary disabled" oda-submit="bt_valider"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> '+ $.Oda.I8n.get('oda-main','bt-submit')+'</button>';
+                        strHtmlFooter += '<a href="javascript:$.Oda.Display.Popup.close();" class="btn btn-default" id="bt_annuler_user"><span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span> '+ $.Oda.I8n.get('oda-main','bt-cancel')+'</a>';
+
+                        $.Oda.Display.Popup.open({size : "lg", label : '<span oda-label="gerer-deck.newDeck"></span>', details : strHtmlDetails, footer : strHtmlFooter});
+
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.GererDeck.newDeck : " + er.message);
+                        return null;
+                    }
+                },
+
                 /**
                  * @param {object} p_params
                  * @param p_params.id
@@ -549,7 +590,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                             });
 
                             var strHtmlFooter = '';
-                            strHtmlFooter += '<button type="button" onclick="$.Oda.App.Controler.GererDeck.recHeaderDeck({deckId : '+p_params.id+', oldName : \''+data.data.resultat.nom_deck+'\'});" class="btn btn-primary" oda-submit="bt_valider"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> '+ $.Oda.I8n.get('oda-main','bt-submit')+'</button>';
+                            strHtmlFooter += '<button type="button" onclick="$.Oda.App.Controler.GererDeck.recHeaderDeck({deckId : '+p_params.id+', oldName : \''+data.data.resultat.nom_deck+'\'});" class="btn btn-primary disabled" oda-submit="bt_valider"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> '+ $.Oda.I8n.get('oda-main','bt-submit')+'</button>';
                             strHtmlFooter += '<a href="javascript:$.Oda.Display.Popup.close();" class="btn btn-default" id="bt_annuler_user"><span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span> '+ $.Oda.I8n.get('oda-main','bt-cancel')+'</a>';
 
                             $.Oda.Display.Popup.open({size : "lg", label : '<span oda-label="gerer-deck.detailsDeck"></span> : '+data.data.resultat.nom_deck, details : strHtmlDetails, footer : strHtmlFooter, callback : function(data){
@@ -633,7 +674,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                             }});
 
                             $.Oda.Scope.refresh = function(){
-                                if(($("#deckName").data("isOk")) && ($("#deckType").data("isOk"))){
+                                if(($("#deckName").data("isOk")) && ($("#deckCmt").data("isOk"))){
                                     $("#bt_valider").removeClass("disabled");
                                 }else{
                                     $("#bt_valider").addClass("disabled");
@@ -644,6 +685,41 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                         return this;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.App.Controler.GererDeck.seeDeck : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @param {object} p_params
+                 * @returns {$.Oda.App.Controler.GererDeck}
+                 */
+                recNewDeck: function (p_params) {
+                    try {
+                        var input_actif = $('#deckActif').val();
+                        var input_nom = $('#deckName').val();
+                        var input_type = $('#deckType').val();
+
+                        var tabInput = { code_user : $.Oda.Session.code_user, nomDeck : input_nom };
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/checkNomDeck.php", {functionRetour : function(json_retour){
+                            if(json_retour["data"]["resultat"]["exists"] !== "0"){
+                                $.Oda.Display.Notification.warning( "Nom du deck déjà existant.");
+                            }else{
+                                var tabInput = {
+                                    nom_deck : input_nom,
+                                    type : input_type,
+                                    classe : $('#deckClass').val(),
+                                    code_user : $.Oda.Session.code_user
+                                };
+                                var json_retour = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/validerDeck.php", {functionRetour : function(json_retour){
+                                    $.Oda.App.Controler.GererDeck.loadListDeck();
+                                    $.Oda.Display.Popup.close();
+                                    $.Oda.Display.Notification.success( "Création réussi.");
+                                }}, tabInput);
+                            }
+                        }}, tabInput);
+
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.GererDeck.recNewDeck : " + er.message);
                         return null;
                     }
                 },
@@ -724,17 +800,17 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
 
                         var data = { name : "Vie", color: '#BA1F1F'};
                         var array = [];
-                        for (var indice in p_datas["vieRepartition"]["data"]) {
-                            array[array.length] = parseInt(p_datas["vieRepartition"]["data"][indice]["nb"]);
+                        for (var indice in p_datas.vieRepartition.data) {
+                            array[array.length] = parseInt(p_datas.vieRepartition.data[indice].nb);
                         }
-                        array[array.length] = parseInt(p_datas["vieSum"])/10;
+                        array[array.length] = parseInt(p_datas.vieSum)/10;
                         data.data = array;
                         obj.series[obj.series.length] = data;
 
                         var data = { name : "Attaque", color: '#D8E524'};
                         var array = [];
-                        for (var indice in p_datas["attaqueRepartition"]["data"]) {
-                            array[array.length] = parseInt(p_datas["attaqueRepartition"]["data"][indice]["nb"]);
+                        for (var indice in p_datas.attaqueRepartition.data) {
+                            array[array.length] = parseInt(p_datas.attaqueRepartition.data[indice].nb);
                         }
                         array[array.length] = parseInt(p_datas["attaqueSum"])/10;
                         data.data = array;

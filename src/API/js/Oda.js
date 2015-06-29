@@ -81,7 +81,7 @@
             pass : "^[a-zA-Z0-9]{4,}$",
             fristName : "^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{3,}$",
             lastName : "^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{3,}$",
-            noInjection : "^(?!.*?function())"
+            noInjection : "^(?!.*?function())",
         },
 
         Cache : {
@@ -2923,10 +2923,13 @@
                         var id = $(value).attr("oda-input-text");
                         
                         $(value).attr("id",id);
+                        $(value).attr("name",id);
 
                         $.Oda.Scope.checkInputText({elt:value});
-                        
-                        $(value).keyup(function(elt){$.Oda.Scope.checkInputText({elt:elt.target});});
+                        $(value).keyup(function(elt){
+                            $.Oda.Scope.checkInputText({elt:elt.target});
+                            $.Oda.Scope.refresh();
+                        });
                         
                         var placeHolder = $(value).attr("oda-input-text-placeholder");
                         if(placeHolder !== undefined){
@@ -2951,6 +2954,19 @@
                         }
                     });
 
+                    //oda-input-select
+                    $(divTarget+'[oda-input-select]').each(function(index, value){
+                        var id = $(value).attr("oda-input-select");
+
+                        $(value).attr("id",id);
+                        $(value).attr("name",id);
+
+                        $.Oda.Scope.checkInputSelect({elt:value});
+                        $(value).change(function(elt){
+                            $.Oda.Scope.checkInputSelect({elt:elt.target});
+                            $.Oda.Scope.refresh();
+                        });
+                    });
 
                     //oda-label
                     $(divTarget+'[oda-label]').each(function(index, value){
@@ -2992,27 +3008,54 @@
             checkInputText: function (p_params) {
                 try {
                     var $elt = $(p_params.elt);
-                    var odaCheck = $elt.attr("oda-input-text-check");
-                    if(odaCheck !== undefined){
-                        if(odaCheck.startsWith("Oda.Regexs:")){
-                            odaCheck = odaCheck.replace("Oda.Regexs:", '');
-                            odaCheck = $.Oda.Regexs[odaCheck];
-                        }
+                    var required = !$.Oda.Tooling.isUndefined($elt.attr("required"));
+                    if(required && (($elt.val() === undefined) || ($elt.val() === ""))){
+                        $elt.data("isOk", false);
+                        $elt.css("border-color","#FF0000");
+                    }else{
+                        var odaCheck = $elt.attr("oda-input-text-check");
+                        if(odaCheck !== undefined){
+                            if(odaCheck.startsWith("Oda.Regexs:")){
+                                odaCheck = odaCheck.replace("Oda.Regexs:", '');
+                                odaCheck = $.Oda.Regexs[odaCheck];
+                            }
 
-                        var patt = new RegExp(odaCheck, "g");
-                        var res = patt.test($elt.val());
-                        if(res){
-                            $elt.data("isOk", true);
-                            $elt.css("border-color","#04B404");
-                        }else{
-                            $elt.data("isOk", false);
-                            $elt.css("border-color","#FF0000");
+                            var patt = new RegExp(odaCheck, "g");
+                            var res = patt.test($elt.val());
+                            if(res){
+                                $elt.data("isOk", true);
+                                $elt.css("border-color","#04B404");
+                            }else{
+                                $elt.data("isOk", false);
+                                $elt.css("border-color","#FF0000");
+                            }
                         }
                     }
-                    $.Oda.Scope.refresh();
-                    return true;
+                    return this;
                 } catch (er) {
                     $.Oda.Log.error("$.Oda.Scope.checkInputText : " + er.message);
+                    return null;
+                }
+            },
+            /**
+             * @param {Object} p_params
+             * @param p_params.elt
+             * @returns {$.Oda.Scope.checkInputSelect}
+             */
+            checkInputSelect : function (p_params) {
+                try {
+                    var $elt = $(p_params.elt);
+                    var required = !$.Oda.Tooling.isUndefined($elt.attr("required"));
+                    if(required && (($elt.val() === undefined) || ($elt.val() === ""))){
+                        $elt.data("isOk", false);
+                        $elt.css("border-color","#FF0000");
+                    }else{
+                        $elt.data("isOk", true);
+                        $elt.css("border-color","#04B404");
+                    }
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Scope.checkInputSelect : " + er.message);
                     return null;
                 }
             },
@@ -3694,7 +3737,8 @@
     if (params.hasOwnProperty("modeExecution")){
         switch(params.modeExecution) {
             case "full":
-                $.Oda.Context.ModeExecution.rooter = true;
+                $.Oda.Context.ModeExecution.app = true;
+                $.Oda.Context.ModeExecution.scene = true;
                 $.Oda.Context.ModeExecution.init = true;
                 $.Oda.Context.ModeExecution.notification = true;
                 $.Oda.Context.ModeExecution.popup = true;
@@ -3702,7 +3746,6 @@
                 break;
             case "app":
                 $.Oda.Context.ModeExecution.app = true;
-                $.Oda.Context.ModeExecution.scene = true;
                 $.Oda.Context.ModeExecution.init = true;
                 $.Oda.Context.ModeExecution.notification = true;
                 $.Oda.Context.ModeExecution.popup = true;

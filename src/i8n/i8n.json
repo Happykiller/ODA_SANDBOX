@@ -64,7 +64,9 @@
               "deckActif" : "Actif",
               "deckName" : "Nom",
               "deckType" : "Type",
-              "deckCmt" : "Commentaires"
+              "deckCmt" : "Commentaires",
+              "newDeck" : "Nouveau Deck",
+              "deckClass" : "La classe"
         }
         , "en" : {
             "title" : "Manage yours decks",
