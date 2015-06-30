@@ -1,5 +1,6 @@
 /* global er */
 // Library of tools for the exemple
+// TODO Oda.js doit venir de bower, quid du deploy ?
 
 /**
  * @author FRO

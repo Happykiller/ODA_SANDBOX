@@ -830,6 +830,46 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                         $.Oda.Log.error("buildSimpleSeriesForSimpleColumn :" + er.message);
                     }
                 }
+            },
+            RecMatchs : {
+                /**
+                 * @param {Object} p_params
+                 * @param p_params.id
+                 * @returns {$.Oda.App.Controler.RecMatchs.start}
+                 */
+                start : function (p_params) {
+                    try {
+                        $.Oda.App.Controler.RecMatchs.getMatch({id:0});
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RecMatchs.start : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @param {Object} p_params
+                 * @param p_params.id
+                 * @returns {$.Oda.App.Controler.RecMatchs.getMatch}
+                 */
+                getMatch : function (p_params) {
+                    try {
+                        var tabInput = { id_match : p_params.id, code_user : $.Oda.Session.code_user };
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getMatch.php", {functionRetour : function(p_retour){
+                            //TODO match
+                            if(typeof p_retour.data.match.id != "undefined"){
+                                //match non fini trouvé, on reprend
+                                $.Oda.Log.info("trouvé");
+                            }else{
+                                //pas trouvé donc creation
+                                $.Oda.Log.info("pas trouvé");
+                            }
+                        }}, tabInput);
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RecMatchs.getMatch : " + er.message);
+                        return null;
+                    }
+                },
             }
         }
     };

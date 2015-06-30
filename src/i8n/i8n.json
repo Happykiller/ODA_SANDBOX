@@ -72,5 +72,14 @@
             "title" : "Manage yours decks",
             "listDeck" : "List decks"
         }
+    },
+    {
+      "groupName" : "rec-matchs"
+      , "fr" : {
+          "title" : "Saisir les matchs"
+        }
+      , "en" : {
+          "title" : "Record matchs"
+      }
     }
 ]
