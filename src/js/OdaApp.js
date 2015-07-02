@@ -860,13 +860,106 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                                 //match non fini trouvé, on reprend
                                 $.Oda.Log.info("trouvé");
                             }else{
-                                //pas trouvé donc creation
-                                $.Oda.Log.info("pas trouvé");
+                                $.Oda.App.Controler.RecMatchs.newMatch();
                             }
                         }}, tabInput);
                         return this;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.App.Controler.RecMatchs.getMatch : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @param {Object} p_params
+                 * @param p_params.id
+                 * @returns {$.Oda.App.Controler.RecMatchs.newMatch}
+                 */
+                newMatch : function (p_params) {
+                    try {
+                        var strHtml = $.Oda.Display.TemplateHtml.create({
+                            template : "recMatchNew",
+                            scope : {
+
+                            }
+                        });
+                        $('#content-recMatchs').html(strHtml);
+                        $.Oda.Scope.init({id:'content-recMatchs'});
+                        $.Oda.Scope.refresh = function(){
+                            if(($("#matchType").data("isOk")) && ($("#matchNameAdv").data("isOk")) && ($("#matchClass").data("isOk")) && ($("#input_deck").data("isOk")) ){
+                                $("#bt_valider").removeClass("disabled");
+                            }else{
+                                $("#bt_valider").addClass("disabled");
+                            }
+                        };
+                        $('#matchType').on('change', function (event) {
+                            var optionSelected = $("option:selected", this);
+                            var valueSelected = this.value;
+                            $.Oda.App.Controler.RecMatchs.chargerListDeck({optionSelected : optionSelected, valueSelected : valueSelected});
+                        });
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RecMatchs.newMatch : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @param {Object} p_params
+                 * @param p_params.optionSelected
+                 * @param p_params.valueSelected
+                 * @returns {$.Oda.App.Controler.RecMatchs.chargerListDeck}
+                 */
+                chargerListDeck : function (p_params) {
+                    try {
+                        var type = "";
+                        switch (p_params.valueSelected)
+                        {
+                            case "Classé":
+                            case "Non classé":
+                                type = "regular";
+                                break;
+                            case "Arène":
+                                type = "arene";
+                                break;
+                        }
+
+                        var tabInput = { code_user : $.Oda.Session.code_user, option_actif : 1, type :  type, typeMatch : p_params.valueSelected};
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getListDeck.php", {functionRetour : function(json_retour){
+                            var strHtml = '<div class="form-group"><label for="input_deck" class="select">Deck choisi :</label>';
+                            strHtml += '<select class="form-control" oda-input-select="input_deck" required>';
+                            strHtml += '<option value="" oda-label="oda-main.select-default"></option>';
+                            for (var indice in json_retour.data.listDeck.data) {
+                                strHtml += '<option value="'+json_retour.data.listDeck.data[indice].id+'">'+json_retour.data.listDeck.data[indice].classe+' - '+json_retour.data.listDeck.data[indice].nom_deck+' ('+json_retour.data.listDeck.data[indice].quote+'%)</option>';
+                            }
+                            strHtml += '</select></div>';
+                            $.Oda.Display.render({id:'div_nom_deck', html : strHtml});
+                        }}, tabInput);
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RecMatchs.chargerListDeck : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @param {Object} p_params
+                 * @param p_params.id
+                 * @returns {$.Oda.App.Controler.RecMatchs.recNewMatch}
+                 */
+                recNewMatch : function (p_params) {
+                    try {
+                        var id_deck = $('#input_deck').val();
+                        var type = $('#matchType').val();
+                        var nom_adv = $('#matchNameAdv').val();
+                        var input_coin = $('#matchCoin').val();
+                        var classe_adv = $('#matchClass').val();
+
+                        var tabInput = { id_deck : id_deck, type : type, nom_adv : nom_adv, classe_adv : classe_adv, code_user : $.Oda.Session.code_user, coin : input_coin };
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/creerMatch.php", {functionRetour : function(json_retour){
+                            $('#content-recMatchs').html("");
+                            $.Oda.App.Controler.RecMatchs.getMatch({id:json_retour.data.resultatInsert});
+                        }}, tabInput);
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RecMatchs.recNewMatch : " + er.message);
                         return null;
                     }
                 },

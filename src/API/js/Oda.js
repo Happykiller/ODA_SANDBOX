@@ -1222,6 +1222,7 @@
              * @param{json} p_tabInput
              * @returns {json}
              */
+                //TODO option de lecture seul pour forcer le cache, il faut modif le fichier de conf du cache avec l'option et appeler la methode avec une option de plus qu'on verifiera dans la methode cache
             callRest: function(p_url, p_tabSetting, p_tabInput) {
                 try {
                     var interfaces = $.Oda.Tooling.clone($.Oda.Context.modeInterface);
@@ -1554,6 +1555,22 @@
         },
 
         Display : {
+            /**
+             * @param {Object} p_params
+             * @param p_params.id
+             * @param p_params.html
+             * @returns {$.Oda.Display.render}
+             */
+            render : function (p_params) {
+                try {
+                    $('#'+p_params.id).html(p_params.html);
+                    $.Oda.Scope.init({id:p_params.id});
+                    return this;
+                } catch (er) {
+                    $.Oda.Log.error("$.Oda.Display.render : " + er.message);
+                    return null;
+                }
+            },
             Notification : {
                 id : 0,
                 success : function(p_message){
