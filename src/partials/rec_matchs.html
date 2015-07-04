@@ -6,6 +6,12 @@
             <oda-loading></oda-loading>
         </div>
     </div>
+    <br>
+    <div class="row">
+        <div class="col-md-12" id="content-histoMatchs">
+            <oda-loading></oda-loading>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -71,6 +77,62 @@
     <div class="row">
         <div class="col-md-12">
             <button type="button" onclick="$.Oda.App.Controler.RecMatchs.recNewMatch();" class="btn btn-primary disabled" oda-submit="bt_valider"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> <label oda-label="oda-main.bt-submit>"></label></button>
+        </div>
+    </div>
+</script>
+
+<script id="seeMatchNew" type="text/template">
+    <div class="row">
+        <div class="col-md-5">
+            <h3>{{deckName}}</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="leftLive" oda-label="rec-matchs.leftLive">leftLive</label>
+                        <input type="number" class="form-control" oda-input-text="leftLive" oda-input-text-tips="rec-matchs.leftLive-tips"
+                               oda-input-text-placeholder="rec-matchs.leftLive-placeholder" oda-input-text-check="Oda.Regexs:noInjection" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="myRank" oda-label="rec-matchs.myRank">myRank</label>
+                        <input type="number" class="form-control" oda-input-text="myRank" oda-input-text-tips="rec-matchs.myRank-tips"
+                               oda-input-text-placeholder="rec-matchs.myRank-placeholder" oda-input-text-check="Oda.Regexs:noInjection">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <img src="./img/icon_versus.png" title="Versus!">
+        </div>
+        <div class="col-md-5">
+            <h3>{{advName}}</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="advType" oda-label="rec-matchs.advType">advType</label>
+                        <select class="form-control" oda-input-select="advType" required>
+                            <option value="" oda-label="oda-main.select-default"></option>
+                            <option value="Agressif">Agressif</option>
+                            <option value="Midrange">Midrange</option>
+                            <option value="Contrôle">Contrôle</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="advRank" oda-label="rec-matchs.advRank">advRank</label>
+                        <input type="number" class="form-control" oda-input-text="advRank" oda-input-text-tips="rec-matchs.advRank-tips"
+                               oda-input-text-placeholder="rec-matchs.advRank-placeholder" oda-input-text-check="Oda.Regexs:noInjection">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <button type="button" onclick="$.Oda.App.Controler.RecMatchs.updateNewMatch({id: {{idMatch}} });" class="btn btn-primary disabled" oda-submit="bt_valider"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> <label oda-label="oda-main.bt-submit>"></label></button>
+            <button type="button" onclick="$.Oda.App.Controler.RecMatchs.filterByAdv({name: '{{advName}}' });" class="btn btn-primary" id="bt_filter"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> <label oda-label="rec-matchs.bt-filter>"></label></button>
         </div>
     </div>
 </script>

@@ -139,6 +139,7 @@
              * @param {object} p_params
              * @param p_params.key
              * @param p_params.attrs
+             * @param p_params.demande
              * @returns {$.Oda.Cache}
              */
             load: function (p_params) {
@@ -150,8 +151,13 @@
                         for (var indice in $.Oda.Cache.config) {
                             eltConfig = $.Oda.Cache.config[indice];
                             if (p_params.key.includes(eltConfig.key)) {
-                                founded = true;
-                                break;
+                                if (eltConfig.hasOwnProperty("onDemande") && (eltConfig.onDemande) && p_params.demande) {
+                                    founded = true;
+                                    break;
+                                } else if ((eltConfig.hasOwnProperty("onDemande") && (eltConfig.onDemande === false)) || (!eltConfig.hasOwnProperty("onDemande"))) {
+                                    founded = true;
+                                    break;
+                                }
                             }
                         }
 
@@ -1216,13 +1222,13 @@
             /**
              * @name callRest
              * @desc Hello
-             * @param{string} p_url
-             * @param{json} p_tabSetting
-             * @param{json} p_tabSetting.functionRetour (opt)
-             * @param{json} p_tabInput
-             * @returns {json}
+             * @param {String} p_url
+             * @param {Object} p_tabSetting
+             * @param p_tabSetting.functionRetour
+             * @param p_tabSetting.odaCacheOnDemande
+             * @param {Object} p_tabInput
+             * @returns {Object}
              */
-                //TODO option de lecture seul pour forcer le cache, il faut modif le fichier de conf du cache avec l'option et appeler la methode avec une option de plus qu'on verifiera dans la methode cache
             callRest: function(p_url, p_tabSetting, p_tabInput) {
                 try {
                     var interfaces = $.Oda.Tooling.clone($.Oda.Context.modeInterface);
@@ -1235,6 +1241,10 @@
                         odaInterface:interfaces,
                         context : {}
                     };
+
+                    if(!p_tabSetting.hasOwnProperty("odaCacheOnDemande")){
+                        p_tabSetting.odaCacheOnDemande = false;
+                    }
 
                     //création du jeton pour la secu
                     var session = $.Oda.Storage.get("ODA-SESSION");
@@ -1358,7 +1368,7 @@
                     if(attrs.hasOwnProperty("keyAuthODA")){
                         delete attrs.keyAuthODA;
                     }
-                    var retour = $.Oda.Cache.load({key: params.url, attrs: attrs});
+                    var retour = $.Oda.Cache.load({key: params.url, attrs: attrs, demande : params.odaCacheOnDemande});
 
                     if(retour){
                         var datas = retour.datas;

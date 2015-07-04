@@ -14,5 +14,10 @@
     {
       "key" : "phpsql/getPaquet.php",
       "ttl" : 3
-    }
+    },
+  {
+    "key" : "getListDeck.php",
+    "ttl" : 60,
+    "onDemande" : true
+  }
 ]

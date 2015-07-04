@@ -832,14 +832,18 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                 }
             },
             RecMatchs : {
+                oTableListMatchs : null,
+                advName : null,
+                deckName : null,
                 /**
                  * @param {Object} p_params
                  * @param p_params.id
-                 * @returns {$.Oda.App.Controler.RecMatchs.start}
+                 * @returns {$.Oda.App.Controler.RecMatchs}
                  */
                 start : function (p_params) {
                     try {
-                        $.Oda.App.Controler.RecMatchs.getMatch({id:0});
+                        $.Oda.App.Controler.RecMatchs.getMatch();
+                        $.Oda.App.Controler.RecMatchs.histoMatchs();
                         return this;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.App.Controler.RecMatchs.start : " + er.message);
@@ -849,16 +853,21 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                 /**
                  * @param {Object} p_params
                  * @param p_params.id
-                 * @returns {$.Oda.App.Controler.RecMatchs.getMatch}
+                 * @returns {$.Oda.App.Controler.RecMatchs}
                  */
                 getMatch : function (p_params) {
                     try {
+                        if($.Oda.Tooling.isUndefined(p_params)){
+                            p_params = {
+                                id : 0
+                            };
+                        }
                         var tabInput = { id_match : p_params.id, code_user : $.Oda.Session.code_user };
                         var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getMatch.php", {functionRetour : function(p_retour){
-                            //TODO match
                             if(typeof p_retour.data.match.id != "undefined"){
-                                //match non fini trouvé, on reprend
-                                $.Oda.Log.info("trouvé");
+                                $.Oda.App.Controler.RecMatchs.advName = p_retour.data.match.nom_adversaire;
+                                $.Oda.App.Controler.RecMatchs.deckName = p_retour.data.match.nom_deck;
+                                $.Oda.App.Controler.RecMatchs.seeMatch({id : p_retour.data.match.id});
                             }else{
                                 $.Oda.App.Controler.RecMatchs.newMatch();
                             }
@@ -872,7 +881,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                 /**
                  * @param {Object} p_params
                  * @param p_params.id
-                 * @returns {$.Oda.App.Controler.RecMatchs.newMatch}
+                 * @returns {$.Oda.App.Controler.RecMatchs}
                  */
                 newMatch : function (p_params) {
                     try {
@@ -906,7 +915,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                  * @param {Object} p_params
                  * @param p_params.optionSelected
                  * @param p_params.valueSelected
-                 * @returns {$.Oda.App.Controler.RecMatchs.chargerListDeck}
+                 * @returns {$.Oda.App.Controler.RecMatchs}
                  */
                 chargerListDeck : function (p_params) {
                     try {
@@ -923,7 +932,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                         }
 
                         var tabInput = { code_user : $.Oda.Session.code_user, option_actif : 1, type :  type, typeMatch : p_params.valueSelected};
-                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getListDeck.php", {functionRetour : function(json_retour){
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getListDeck.php", { odaCacheOnDemande : true, functionRetour : function(json_retour){
                             var strHtml = '<div class="form-group"><label for="input_deck" class="select">Deck choisi :</label>';
                             strHtml += '<select class="form-control" oda-input-select="input_deck" required>';
                             strHtml += '<option value="" oda-label="oda-main.select-default"></option>';
@@ -932,6 +941,11 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                             }
                             strHtml += '</select></div>';
                             $.Oda.Display.render({id:'div_nom_deck', html : strHtml});
+                            $('#input_deck').on('change', function (event) {
+                                var optionSelected = $("option:selected", this);
+                                var valueSelected = this.value;
+                                $.Oda.App.Controler.RecMatchs.deckName = optionSelected;
+                            });
                         }}, tabInput);
                         return this;
                     } catch (er) {
@@ -942,17 +956,17 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                 /**
                  * @param {Object} p_params
                  * @param p_params.id
-                 * @returns {$.Oda.App.Controler.RecMatchs.recNewMatch}
+                 * @returns {$.Oda.App.Controler.RecMatchs}
                  */
                 recNewMatch : function (p_params) {
                     try {
-                        var id_deck = $('#input_deck').val();
+                        $.Oda.App.Controler.RecMatchs.idDeck = $('#input_deck').val();
                         var type = $('#matchType').val();
-                        var nom_adv = $('#matchNameAdv').val();
+                        $.Oda.App.Controler.RecMatchs.advName = $('#matchNameAdv').val();
                         var input_coin = $('#matchCoin').val();
                         var classe_adv = $('#matchClass').val();
 
-                        var tabInput = { id_deck : id_deck, type : type, nom_adv : nom_adv, classe_adv : classe_adv, code_user : $.Oda.Session.code_user, coin : input_coin };
+                        var tabInput = { id_deck : $.Oda.App.Controler.RecMatchs.idDeck, type : type, nom_adv : $.Oda.App.Controler.RecMatchs.advName, classe_adv : classe_adv, code_user : $.Oda.Session.code_user, coin : input_coin };
                         var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/creerMatch.php", {functionRetour : function(json_retour){
                             $('#content-recMatchs').html("");
                             $.Oda.App.Controler.RecMatchs.getMatch({id:json_retour.data.resultatInsert});
@@ -960,6 +974,178 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                         return this;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.App.Controler.RecMatchs.recNewMatch : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @param {object} p_params
+                 * @param p_params.id
+                 * @returns {$.Oda.App.Controler.RecMatchs}
+                 */
+                seeMatch: function (p_params) {
+                    try {
+                        var strHtml = $.Oda.Display.TemplateHtml.create({
+                            template : "seeMatchNew",
+                            scope : {
+                                idMatch : p_params.id,
+                                deckName : $.Oda.App.Controler.RecMatchs.deckName,
+                                advName : $.Oda.App.Controler.RecMatchs.advName
+                            }
+                        });
+                        $('#content-recMatchs').html(strHtml);
+                        $.Oda.Scope.init({id:'content-recMatchs'});
+                        $.Oda.Scope.refresh = function(){
+                            if(($("#leftLive").data("isOk")) && ($("#advType").data("isOk")) && ($("#myRank").data("isOk")) && ($("#advRank").data("isOk")) ){
+                                $("#bt_valider").removeClass("disabled");
+                            }else{
+                                $("#bt_valider").addClass("disabled");
+                            }
+                        };
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RecMatchs.seeMatch : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @param {object} p_params
+                 * @param p_params.id
+                 * @returns {$.Oda.App.Controler.RecMatchs}
+                 */
+                updateNewMatch: function (p_params) {
+                    try {
+                        var leftLive = $('#leftLive').val();
+                        var typeAdv = $('#advType').val();
+                        var myRank = $('#myRank').val();
+                        var advRank = $('#advRank').val();
+                        var tabInput = { id_match : p_params.id, vie : leftLive, type_adversaire : typeAdv, code_user : $.Oda.Session.code_user, my_rang : myRank, adv_rang : advRank };
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/finirMatch.php", {functionRetour : function(){
+                            $('#content-recMatchs').html("");
+                            $.Oda.App.Controler.RecMatchs.getMatch();
+                        }}, tabInput);
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RecMatchs.updateNewMatch.updateNewMatch : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @param {object} p_params
+                 * @param p_params.id
+                 * @returns {$.Oda.App.Controler.RecMatchs}
+                 */
+                histoMatchs: function (p_params) {
+                    try {
+                        var tabInput = { code_user : $.Oda.Session.code_user };
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getMatchs.php", {functionRetour : function(p_retour){
+                            var strhtml = '<table cellpadding="0" cellspacing="0" border="0" class="display hover" id="table_matchs" width="100%"></table>';
+                            $('#content-histoMatchs').html(strhtml);
+
+                            var objDataTable = $.Oda.Tooling.objDataTableFromJsonArray(p_retour.data.matchs.data);
+                            $.Oda.App.Controler.RecMatchs.oTableListMatchs = $('#table_matchs').dataTable( {
+                                "sPaginationType": "full_numbers",
+                                "aaData": objDataTable.data,
+                                "aaSorting": [[0,'desc']],
+                                "aoColumns": [
+                                    { sTitle: "Date", sClass: "left", sWidth : 180},
+                                    { sTitle: "Type match", sClass: "left"},
+                                    { sTitle: "Pièce", sClass: "left"},
+                                    { sTitle: "Mon deck", sClass: "left"  },
+                                    { sTitle: "Ma classe", sClass: "left"  },
+                                    { sTitle: "Adversaire", sClass: "left"  },
+                                    { sTitle: "Classe adver", sClass: "left"},
+                                    { sTitle: "Ma vie", sClass: "left"},
+                                    { sTitle: "Durée", sClass: "left"}
+                                ],
+                                aoColumnDefs: [
+                                    {
+                                        mRender: function ( data, type, row ) {
+                                            var strHtml = String(row[objDataTable.entete["date_start"]]);
+                                            return strHtml;
+                                        },
+                                        aTargets: [ 0 ]
+                                    },
+                                    {
+                                        mRender: function ( data, type, row ) {
+                                            var strHtml = String(row[objDataTable.entete["type"]]);
+                                            return strHtml;
+                                        },
+                                        aTargets: [ 1 ]
+                                    },
+                                    {
+                                        mRender: function ( data, type, row ) {
+                                            var strHtml = String(row[objDataTable.entete["coin"]]);
+                                            return strHtml;
+                                        },
+                                        aTargets: [ 2 ]
+                                    },
+                                    {
+                                        mRender: function ( data, type, row ) {
+                                            var strHtml = String(row[objDataTable.entete["nom_deck"]]);
+                                            return strHtml;
+                                        },
+                                        aTargets: [ 3 ]
+                                    },
+                                    {
+                                        mRender: function ( data, type, row ) {
+                                            var strHtml = String(row[objDataTable.entete["ma_classe"]]);
+                                            return strHtml;
+                                        },
+                                        aTargets: [ 4 ]
+                                    },
+                                    {
+                                        mRender: function ( data, type, row ) {
+                                            var strHtml = String(row[objDataTable.entete["nom_adversaire"]]);
+                                            return strHtml;
+                                        },
+                                        aTargets: [ 5 ]
+                                    },
+                                    {
+                                        mRender: function ( data, type, row ) {
+                                            var strHtml = String(row[objDataTable.entete["classe_adversaire"]]);
+                                            return strHtml;
+                                        },
+                                        aTargets: [ 6 ]
+                                    },
+                                    {
+                                        mRender: function ( data, type, row ) {
+                                            var strHtml = String(row[objDataTable.entete["vie"]]);
+                                            return strHtml;
+                                        },
+                                        aTargets: [ 7 ]
+                                    },
+                                    {
+                                        mRender: function ( data, type, row ) {
+                                            var strHtml = String(row[objDataTable.entete["duree"]]);
+                                            return strHtml;
+                                        },
+                                        aTargets: [ 8 ]
+                                    }
+                                ],
+                                "fnDrawCallback": function( oSettings ) {
+                                    $('#table_matchs')
+                                        .removeClass( 'display' )
+                                        .addClass('table table-striped table-bordered');
+                                }
+                            });
+                        }}, tabInput);
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RecMatchs.histoMatchs : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @param {object} p_params
+                 * @param p_params.name
+                 * @returns {$.Oda.App.Controler.RecMatchs}
+                 */
+                filterByAdv: function (p_params) {
+                    try {
+                        $.Oda.App.Controler.RecMatchs.oTableListMatchs.fnFilter( p_params.name );
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RecMatchs.filterByAdv : " + er.message);
                         return null;
                     }
                 },
