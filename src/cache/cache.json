@@ -19,5 +19,10 @@
     "key" : "getListDeck.php",
     "ttl" : 60,
     "onDemande" : true
+  },
+  {
+    "key" : "getMatchs.php",
+    "ttl" : 60,
+    "onDemande" : true
   }
 ]

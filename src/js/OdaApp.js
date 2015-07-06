@@ -1031,13 +1031,17 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                 },
                 /**
                  * @param {object} p_params
-                 * @param p_params.id
+                 * @param p_params.onDemande
                  * @returns {$.Oda.App.Controler.RecMatchs}
                  */
                 histoMatchs: function (p_params) {
                     try {
+                        if($.Oda.Tooling.isUndefined(p_params)){
+                            p_params : {onDemande : false};
+                        }
+
                         var tabInput = { code_user : $.Oda.Session.code_user };
-                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getMatchs.php", {functionRetour : function(p_retour){
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getMatchs.php", {odaCacheOnDemande : p_params.onDemande, functionRetour : function(p_retour){
                             var strhtml = '<table cellpadding="0" cellspacing="0" border="0" class="display hover" id="table_matchs" width="100%"></table>';
                             $('#content-histoMatchs').html(strhtml);
 
@@ -1146,6 +1150,56 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                         return this;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.App.Controler.RecMatchs.filterByAdv : " + er.message);
+                        return null;
+                    }
+                },
+            },
+            RapportsMatchs : {
+                setting : {},
+                /**
+                 * @param {object} p_params
+                 * @param p_params.filter
+                 * @returns {$.Oda.App.Controler.RapportsMatchs}
+                 */
+                start: function (p_params) {
+                    try {
+                        if($.Oda.Tooling.isUndefined(p_params)){
+                            $.Oda.App.Controler.RapportsMatchs.setting = $.Oda.Storage.get("RAPPORTS-MATCHS-"+ $.Oda.Session.code_user, {filter : "all"});
+                        }else{
+                            if(p_params.hasOwnProperty("filter")){
+                                $.Oda.App.Controler.RapportsMatchs.setting.filter = p_params.filter;
+                                $.Oda.Storage.set("RAPPORTS-MATCHS-"+ $.Oda.Session.code_user, $.Oda.App.Controler.RapportsMatchs.setting);
+                            }
+                        }
+
+                        $('[id^="li-"]').each(function(index, value){
+                            var elt = $(value);
+                            if(elt.attr('id') === ('li-'+$.Oda.App.Controler.RapportsMatchs.setting.filter)){
+                                elt.addClass("active");
+                            }else{
+                                elt.removeClass("active");
+                            }
+                        });
+
+                        $.Oda.App.Controler.RecMatchs.histoMatchs({onDemande : true});
+                        switch ($.Oda.App.Controler.RapportsMatchs.setting.filter) {
+                            case "all" :
+                                $.Oda.App.Controler.RecMatchs.oTableListMatchs.fnFilter("");
+                                break;
+                            case "nonClasse" :
+                                $.Oda.App.Controler.RecMatchs.oTableListMatchs.fnFilter("Non classé");
+                                break;
+                            case "classe" :
+                                $.Oda.App.Controler.RecMatchs.oTableListMatchs.fnFilter("Classé");
+                                break;
+                            case "arene" :
+                                $.Oda.App.Controler.RecMatchs.oTableListMatchs.fnFilter("Arène");
+                                break;
+                        }
+
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RapportsMatchs.start : " + er.message);
                         return null;
                     }
                 },
