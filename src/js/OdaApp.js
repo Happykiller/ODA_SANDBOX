@@ -1037,7 +1037,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                 histoMatchs: function (p_params) {
                     try {
                         if($.Oda.Tooling.isUndefined(p_params)){
-                            p_params : {onDemande : false};
+                            p_params = {onDemande : false};
                         }
 
                         var tabInput = { code_user : $.Oda.Session.code_user };
