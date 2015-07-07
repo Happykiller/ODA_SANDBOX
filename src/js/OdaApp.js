@@ -1182,24 +1182,179 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                         });
 
                         $.Oda.App.Controler.RecMatchs.histoMatchs({onDemande : true});
-                        switch ($.Oda.App.Controler.RapportsMatchs.setting.filter) {
-                            case "all" :
-                                $.Oda.App.Controler.RecMatchs.oTableListMatchs.fnFilter("");
-                                break;
-                            case "nonClasse" :
-                                $.Oda.App.Controler.RecMatchs.oTableListMatchs.fnFilter("Non classé");
-                                break;
-                            case "classe" :
-                                $.Oda.App.Controler.RecMatchs.oTableListMatchs.fnFilter("Classé");
-                                break;
-                            case "arene" :
-                                $.Oda.App.Controler.RecMatchs.oTableListMatchs.fnFilter("Arène");
-                                break;
-                        }
+                        $.Oda.App.Controler.RapportsMatchs.chargerDureesMatchs();
+                        $.Oda.App.Controler.RapportsMatchs.chargerEvolRatioMatchs();
 
                         return this;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.App.Controler.RapportsMatchs.start : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @param {object} p_params
+                 * @param p_params.id
+                 * @returns {$.Oda.App.Controler.RapportsMatchs}
+                 */
+                chargerDureesMatchs: function (p_params) {
+                    try {
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getRepartitionDureeMatchs.php", {odaCacheOnDemande : true, functionRetour : function(p_retour){
+                            var categories = new Array();
+                            categories = $.Oda.Tooling.getListValeurPourAttribut(p_retour.data.resultat.data,"minutes");
+
+                            var serie = new Array();
+                            serie = $.Oda.Tooling.getListValeurPourAttribut(p_retour.data.resultat.data,"nb","int");
+
+                            var series = [{name:$.Oda.Session.code_user, data:serie}];
+
+                            var retour = $('#div_dureesMatchs').highcharts({
+                                chart: {
+                                    backgroundColor:'rgba(255, 255, 255, 0.1)',
+                                    type: 'column'
+                                },
+                                title: {
+                                    text: 'Répartition de la durée des matchs (sur 6 mois)'
+                                },
+                                xAxis: {
+                                    categories: categories
+                                },
+                                tooltip: {
+                                    headerFormat: '<span style="font-size:10px">Nombre de match de {point.key} minute(s) </span>',
+                                    pointFormat: '<span style="font-size:10px">pour {series.name} => {point.y}</span>',
+                                    footerFormat: '<span style="font-size:10px">.</span>',
+                                    shared: true,
+                                    useHTML: true
+                                },
+                                series: series
+                            });
+                        }}, {code_user : $.Oda.Session.code_user});
+
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RapportsMatchs.chargerDureesMatchs : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @param {object} p_params
+                 * @param p_params.id
+                 * @returns {$.Oda.App.Controler.RapportsMatchs}
+                 */
+                chargerEvolRatioMatchs: function (p_params) {
+                    try {
+                        var currentTime = new Date();
+                        currentTime.setDate(currentTime.getDate() - 90);
+
+                        var annee = currentTime.getFullYear();
+                        var mois = $.Oda.Tooling.pad2(currentTime.getMonth()+1);
+                        var jour = $.Oda.Tooling.pad2(currentTime.getDate());
+
+                        var strDate = annee+"-"+mois+"-"+jour;
+
+                        var tabInput = { code_user : $.Oda.Session.code_user,
+                            dateDebut : strDate,
+                            filtre_nonClasse : (($.Oda.App.Controler.RapportsMatchs.setting.filter === "nonClasse")||($.Oda.App.Controler.RapportsMatchs.setting.filter === "all"))?true:false,
+                            filtre_classe : (($.Oda.App.Controler.RapportsMatchs.setting.filter === "classe")||($.Oda.App.Controler.RapportsMatchs.setting.filter === "all"))?true:false,
+                            filtre_arene : (($.Oda.App.Controler.RapportsMatchs.setting.filter === "arene")||($.Oda.App.Controler.RapportsMatchs.setting.filter === "all"))?true:false
+                        };
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getEvolRatioMatchs.php", {odaCacheOnDemande : true, functionRetour : function(json_retour){
+                            var dbDatas = json_retour.data.evolRatioMatchs.data;
+                            var datas = new Array();
+                            for (var indice in dbDatas) {
+                                datas[datas.length] = {
+                                    y : parseFloat(dbDatas[indice]["ratio"]),
+                                    name : $.Oda.Date.getStrDateFrFromUs(dbDatas[indice]["date"]) + " : " + dbDatas[indice]["win"] + "/" + dbDatas[indice]["total"] +  " (" + $.Oda.Tooling.arrondir(parseInt(dbDatas[indice]["win"])/parseInt(dbDatas[indice]["total"])*100,2)+ "%)"
+                                };
+                            }
+
+                            // Create the chart
+                            $('#div_evolRatioMatchs').highcharts({
+                                chart: {
+                                    type: 'spline',
+                                    backgroundColor:'rgba(255, 255, 255, 0.1)'
+                                },
+                                title: {
+                                    text: 'Ratio sur le temps'
+                                },
+                                subtitle: {
+                                    text: 'Score de victoire'
+                                },
+                                legend:{
+                                    enabled: false
+                                },
+                                xAxis:{
+                                    labels:
+                                    {
+                                        enabled: false
+                                    }
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: ''
+                                    },
+                                    min: 0,
+                                    max: 800,
+                                    minorGridLineWidth: 0,
+                                    gridLineWidth: 0,
+                                    alternateGridColor: null,
+                                    plotBands: [{ // Light air
+                                        from: 0,
+                                        to: 150,
+                                        color: 'rgba(223, 58, 1, 0.1)',
+                                        label: {
+                                            text: 'Mauvais',
+                                            style: {
+                                                color: '#606060'
+                                            }
+                                        }
+                                    }, { // Light breeze
+                                        from: 150,
+                                        to: 300,
+                                        color: 'rgba(0, 128, 255, 0.1)',
+                                        label: {
+                                            text: 'Bon',
+                                            style: {
+                                                color: '#606060'
+                                            }
+                                        }
+                                    }, { // Gentle breeze
+                                        from: 300,
+                                        to: 800,
+                                        color: 'rgba(1, 223, 1, 0.1)',
+                                        label: {
+                                            text: 'Excellent',
+                                            style: {
+                                                color: '#606060'
+                                            }
+                                        }
+                                    }]
+                                },
+                                tooltip: {
+                                    valueSuffix: ''
+                                },
+                                plotOptions: {
+                                    spline: {
+                                        lineWidth: 4,
+                                        states: {
+                                            hover: {
+                                                lineWidth: 5
+                                            }
+                                        },
+                                        marker: {
+                                            enabled: false
+                                        }
+                                    }
+                                },
+                                series: [{
+                                    name: 'Score',
+                                    data: datas
+
+                                }]
+                            });
+                        }}, tabInput);
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RapportsMatchs.chargerEvolRatioMatchs : " + er.message);
                         return null;
                     }
                 },

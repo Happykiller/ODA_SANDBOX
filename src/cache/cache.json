@@ -24,5 +24,15 @@
     "key" : "getMatchs.php",
     "ttl" : 60,
     "onDemande" : true
+  },
+  {
+    "key" : "getRepartitionDureeMatchs.php",
+    "ttl" : 60,
+    "onDemande" : true
+  },
+  {
+    "key" : "getEvolRatioMatchs.php",
+    "ttl" : 60,
+    "onDemande" : true
   }
 ]
