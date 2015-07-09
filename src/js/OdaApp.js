@@ -1155,7 +1155,7 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                 },
             },
             RapportsMatchs : {
-                setting : {},
+                setting: {},
                 /**
                  * @param {object} p_params
                  * @param p_params.filter
@@ -1163,27 +1163,31 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                  */
                 start: function (p_params) {
                     try {
-                        if($.Oda.Tooling.isUndefined(p_params)){
-                            $.Oda.App.Controler.RapportsMatchs.setting = $.Oda.Storage.get("RAPPORTS-MATCHS-"+ $.Oda.Session.code_user, {filter : "all"});
-                        }else{
-                            if(p_params.hasOwnProperty("filter")){
+                        if ($.Oda.Tooling.isUndefined(p_params)) {
+                            $.Oda.App.Controler.RapportsMatchs.setting = $.Oda.Storage.get("RAPPORTS-MATCHS-" + $.Oda.Session.code_user, {filter: "all"});
+                        } else {
+                            if (p_params.hasOwnProperty("filter")) {
                                 $.Oda.App.Controler.RapportsMatchs.setting.filter = p_params.filter;
-                                $.Oda.Storage.set("RAPPORTS-MATCHS-"+ $.Oda.Session.code_user, $.Oda.App.Controler.RapportsMatchs.setting);
+                                $.Oda.Storage.set("RAPPORTS-MATCHS-" + $.Oda.Session.code_user, $.Oda.App.Controler.RapportsMatchs.setting);
                             }
                         }
 
-                        $('[id^="li-"]').each(function(index, value){
+                        $('[id^="li-"]').each(function (index, value) {
                             var elt = $(value);
-                            if(elt.attr('id') === ('li-'+$.Oda.App.Controler.RapportsMatchs.setting.filter)){
+                            if (elt.attr('id') === ('li-' + $.Oda.App.Controler.RapportsMatchs.setting.filter)) {
                                 elt.addClass("active");
-                            }else{
+                            } else {
                                 elt.removeClass("active");
                             }
                         });
 
-                        $.Oda.App.Controler.RecMatchs.histoMatchs({onDemande : true});
+                        $.Oda.App.Controler.RecMatchs.histoMatchs({onDemande: true});
                         $.Oda.App.Controler.RapportsMatchs.chargerDureesMatchs();
                         $.Oda.App.Controler.RapportsMatchs.chargerEvolRatioMatchs();
+                        $.Oda.App.Controler.RapportsMatchs.chargerMetricsMatchs();
+                        $.Oda.App.Controler.RapportsMatchs.chargerMetricsMatchsWeek();
+                        $.Oda.App.Controler.RapportsMatchs.chargerDetailsMatchs();
+                        $.Oda.App.Controler.RapportsMatchs.chargerMetricsCoin();
 
                         return this;
                     } catch (er) {
@@ -1198,36 +1202,38 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                  */
                 chargerDureesMatchs: function (p_params) {
                     try {
-                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getRepartitionDureeMatchs.php", {odaCacheOnDemande : true, functionRetour : function(p_retour){
-                            var categories = new Array();
-                            categories = $.Oda.Tooling.getListValeurPourAttribut(p_retour.data.resultat.data,"minutes");
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest + "phpsql/getRepartitionDureeMatchs.php", {
+                            odaCacheOnDemande: true, functionRetour: function (p_retour) {
+                                var categories = new Array();
+                                categories = $.Oda.Tooling.getListValeurPourAttribut(p_retour.data.resultat.data, "minutes");
 
-                            var serie = new Array();
-                            serie = $.Oda.Tooling.getListValeurPourAttribut(p_retour.data.resultat.data,"nb","int");
+                                var serie = new Array();
+                                serie = $.Oda.Tooling.getListValeurPourAttribut(p_retour.data.resultat.data, "nb", "int");
 
-                            var series = [{name:$.Oda.Session.code_user, data:serie}];
+                                var series = [{name: $.Oda.Session.code_user, data: serie}];
 
-                            var retour = $('#div_dureesMatchs').highcharts({
-                                chart: {
-                                    backgroundColor:'rgba(255, 255, 255, 0.1)',
-                                    type: 'column'
-                                },
-                                title: {
-                                    text: 'Répartition de la durée des matchs (sur 6 mois)'
-                                },
-                                xAxis: {
-                                    categories: categories
-                                },
-                                tooltip: {
-                                    headerFormat: '<span style="font-size:10px">Nombre de match de {point.key} minute(s) </span>',
-                                    pointFormat: '<span style="font-size:10px">pour {series.name} => {point.y}</span>',
-                                    footerFormat: '<span style="font-size:10px">.</span>',
-                                    shared: true,
-                                    useHTML: true
-                                },
-                                series: series
-                            });
-                        }}, {code_user : $.Oda.Session.code_user});
+                                var retour = $('#div_dureesMatchs').highcharts({
+                                    chart: {
+                                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                        type: 'column'
+                                    },
+                                    title: {
+                                        text: 'Répartition de la durée des matchs (sur 6 mois)'
+                                    },
+                                    xAxis: {
+                                        categories: categories
+                                    },
+                                    tooltip: {
+                                        headerFormat: '<span style="font-size:10px">Nombre de match de {point.key} minute(s) </span>',
+                                        pointFormat: '<span style="font-size:10px">pour {series.name} => {point.y}</span>',
+                                        footerFormat: '<span style="font-size:10px">.</span>',
+                                        shared: true,
+                                        useHTML: true
+                                    },
+                                    series: series
+                                });
+                            }
+                        }, {code_user: $.Oda.Session.code_user});
 
                         return this;
                     } catch (er) {
@@ -1246,118 +1252,618 @@ var wowhead_tooltips = { "colorlinks": true, "iconizelinks": true, "renamelinks"
                         currentTime.setDate(currentTime.getDate() - 90);
 
                         var annee = currentTime.getFullYear();
-                        var mois = $.Oda.Tooling.pad2(currentTime.getMonth()+1);
+                        var mois = $.Oda.Tooling.pad2(currentTime.getMonth() + 1);
                         var jour = $.Oda.Tooling.pad2(currentTime.getDate());
 
-                        var strDate = annee+"-"+mois+"-"+jour;
+                        var strDate = annee + "-" + mois + "-" + jour;
 
-                        var tabInput = { code_user : $.Oda.Session.code_user,
-                            dateDebut : strDate,
-                            filtre_nonClasse : (($.Oda.App.Controler.RapportsMatchs.setting.filter === "nonClasse")||($.Oda.App.Controler.RapportsMatchs.setting.filter === "all"))?true:false,
-                            filtre_classe : (($.Oda.App.Controler.RapportsMatchs.setting.filter === "classe")||($.Oda.App.Controler.RapportsMatchs.setting.filter === "all"))?true:false,
-                            filtre_arene : (($.Oda.App.Controler.RapportsMatchs.setting.filter === "arene")||($.Oda.App.Controler.RapportsMatchs.setting.filter === "all"))?true:false
+                        var tabInput = {
+                            code_user: $.Oda.Session.code_user,
+                            dateDebut: strDate,
+                            filtre_nonClasse: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "nonClasse") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false,
+                            filtre_classe: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "classe") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false,
+                            filtre_arene: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "arene") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false
                         };
-                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getEvolRatioMatchs.php", {odaCacheOnDemande : true, functionRetour : function(json_retour){
-                            var dbDatas = json_retour.data.evolRatioMatchs.data;
-                            var datas = new Array();
-                            for (var indice in dbDatas) {
-                                datas[datas.length] = {
-                                    y : parseFloat(dbDatas[indice]["ratio"]),
-                                    name : $.Oda.Date.getStrDateFrFromUs(dbDatas[indice]["date"]) + " : " + dbDatas[indice]["win"] + "/" + dbDatas[indice]["total"] +  " (" + $.Oda.Tooling.arrondir(parseInt(dbDatas[indice]["win"])/parseInt(dbDatas[indice]["total"])*100,2)+ "%)"
-                                };
-                            }
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest + "phpsql/getEvolRatioMatchs.php", {
+                            odaCacheOnDemande: true, functionRetour: function (json_retour) {
+                                var dbDatas = json_retour.data.evolRatioMatchs.data;
+                                var datas = new Array();
+                                for (var indice in dbDatas) {
+                                    datas[datas.length] = {
+                                        y: parseFloat(dbDatas[indice]["ratio"]),
+                                        name: $.Oda.Date.getStrDateFrFromUs(dbDatas[indice]["date"]) + " : " + dbDatas[indice]["win"] + "/" + dbDatas[indice]["total"] + " (" + $.Oda.Tooling.arrondir(parseInt(dbDatas[indice]["win"]) / parseInt(dbDatas[indice]["total"]) * 100, 2) + "%)"
+                                    };
+                                }
 
-                            // Create the chart
-                            $('#div_evolRatioMatchs').highcharts({
-                                chart: {
-                                    type: 'spline',
-                                    backgroundColor:'rgba(255, 255, 255, 0.1)'
-                                },
-                                title: {
-                                    text: 'Ratio sur le temps'
-                                },
-                                subtitle: {
-                                    text: 'Score de victoire'
-                                },
-                                legend:{
-                                    enabled: false
-                                },
-                                xAxis:{
-                                    labels:
-                                    {
-                                        enabled: false
-                                    }
-                                },
-                                yAxis: {
-                                    title: {
-                                        text: ''
+                                // Create the chart
+                                $('#div_evolRatioMatchs').highcharts({
+                                    chart: {
+                                        type: 'spline',
+                                        backgroundColor: 'rgba(255, 255, 255, 0.1)'
                                     },
-                                    min: 0,
-                                    max: 800,
-                                    minorGridLineWidth: 0,
-                                    gridLineWidth: 0,
-                                    alternateGridColor: null,
-                                    plotBands: [{ // Light air
-                                        from: 0,
-                                        to: 150,
-                                        color: 'rgba(223, 58, 1, 0.1)',
-                                        label: {
-                                            text: 'Mauvais',
-                                            style: {
-                                                color: '#606060'
-                                            }
-                                        }
-                                    }, { // Light breeze
-                                        from: 150,
-                                        to: 300,
-                                        color: 'rgba(0, 128, 255, 0.1)',
-                                        label: {
-                                            text: 'Bon',
-                                            style: {
-                                                color: '#606060'
-                                            }
-                                        }
-                                    }, { // Gentle breeze
-                                        from: 300,
-                                        to: 800,
-                                        color: 'rgba(1, 223, 1, 0.1)',
-                                        label: {
-                                            text: 'Excellent',
-                                            style: {
-                                                color: '#606060'
-                                            }
-                                        }
-                                    }]
-                                },
-                                tooltip: {
-                                    valueSuffix: ''
-                                },
-                                plotOptions: {
-                                    spline: {
-                                        lineWidth: 4,
-                                        states: {
-                                            hover: {
-                                                lineWidth: 5
-                                            }
-                                        },
-                                        marker: {
+                                    title: {
+                                        text: 'Ratio sur le temps'
+                                    },
+                                    subtitle: {
+                                        text: 'Score de victoire'
+                                    },
+                                    legend: {
+                                        enabled: false
+                                    },
+                                    xAxis: {
+                                        labels: {
                                             enabled: false
                                         }
-                                    }
-                                },
-                                series: [{
-                                    name: 'Score',
-                                    data: datas
+                                    },
+                                    yAxis: {
+                                        title: {
+                                            text: ''
+                                        },
+                                        min: 0,
+                                        max: 800,
+                                        minorGridLineWidth: 0,
+                                        gridLineWidth: 0,
+                                        alternateGridColor: null,
+                                        plotBands: [{ // Light air
+                                            from: 0,
+                                            to: 150,
+                                            color: 'rgba(223, 58, 1, 0.1)',
+                                            label: {
+                                                text: 'Mauvais',
+                                                style: {
+                                                    color: '#606060'
+                                                }
+                                            }
+                                        }, { // Light breeze
+                                            from: 150,
+                                            to: 300,
+                                            color: 'rgba(0, 128, 255, 0.1)',
+                                            label: {
+                                                text: 'Bon',
+                                                style: {
+                                                    color: '#606060'
+                                                }
+                                            }
+                                        }, { // Gentle breeze
+                                            from: 300,
+                                            to: 800,
+                                            color: 'rgba(1, 223, 1, 0.1)',
+                                            label: {
+                                                text: 'Excellent',
+                                                style: {
+                                                    color: '#606060'
+                                                }
+                                            }
+                                        }]
+                                    },
+                                    tooltip: {
+                                        valueSuffix: ''
+                                    },
+                                    plotOptions: {
+                                        spline: {
+                                            lineWidth: 4,
+                                            states: {
+                                                hover: {
+                                                    lineWidth: 5
+                                                }
+                                            },
+                                            marker: {
+                                                enabled: false
+                                            }
+                                        }
+                                    },
+                                    series: [{
+                                        name: 'Score',
+                                        data: datas
 
-                                }]
-                            });
-                        }}, tabInput);
+                                    }]
+                                });
+                            }
+                        }, tabInput);
                         return this;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.App.Controler.RapportsMatchs.chargerEvolRatioMatchs : " + er.message);
                         return null;
                     }
                 },
+                /**
+                 * chargerMetricsMatchs
+                 */
+                chargerMetricsMatchs : function (){
+                    try {
+                        var tabInput = {
+                            div_graph : "div_metrics_matchs",
+                            titre : "Réussite par classe totale",
+                            filtre_nonClasse: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "nonClasse") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false,
+                            filtre_classe: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "classe") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false,
+                            filtre_arene: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "arene") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false
+                        };
+                        $.Oda.App.Controler.RapportsMatchs.chargerMetricsGenerique(tabInput);
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RapportsMatchs.chargerMetricsMatchs : " + er.message);
+                    }
+                },
+                /**
+                 * chargerMetricsMatchsWeek
+                 */
+                chargerMetricsMatchsWeek : function(){
+                    try {
+                        var currentTime = new Date();
+                        currentTime.setDate(currentTime.getDate() - 7);
+
+                        var annee = currentTime.getFullYear();
+                        var mois = $.Oda.Tooling.pad2(currentTime.getMonth()+1);
+                        var jour = $.Oda.Tooling.pad2(currentTime.getDate());
+
+                        var strDate = annee+"-"+mois+"-"+jour;
+
+                        var tabInput = {
+                            div_graph : "div_metrics_matchs_week",
+                            titre : "Réussite par deck de la semaine",
+                            dateDebut : strDate,
+                            regrp : "nom_deck",
+                            filtre_nonClasse: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "nonClasse") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false,
+                            filtre_classe: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "classe") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false,
+                            filtre_arene: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "arene") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false
+                        };
+                        $.Oda.App.Controler.RapportsMatchs.chargerMetricsGenerique(tabInput);
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RapportsMatchs.chargerMetricsMatchsWeek : " + er.message);
+                    }
+                },
+                /**
+                 * chargerDetailsMatchs
+                 */
+                chargerDetailsMatchs : function(){
+                    try {
+                        for (var i=0;i<9;i++) {
+                            $('#div_1_'+i+'_metrics_matchs').text('');
+                            $('#fromdiv_1_'+i+'_metrics_matchs').remove();
+                            $('#div_2_'+i+'_metrics_matchs').text('');
+                            $('#fromdiv_1_'+i+'_metrics_matchs').remove();
+                        }
+
+                        var currentTime = new Date();
+                        currentTime.setDate(currentTime.getDate() - 30);
+
+                        var annee = currentTime.getFullYear();
+                        var mois = $.Oda.Tooling.pad2(currentTime.getMonth()+1);
+                        var jour = $.Oda.Tooling.pad2(currentTime.getDate());
+
+                        var strDate = annee+"-"+mois+"-"+jour;
+
+                        var tabInput = {
+                            code_user : $.Oda.Session.code_user,
+                            dateDebut : strDate,
+                            filtre_nonClasse: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "nonClasse") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false,
+                            filtre_classe: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "classe") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false,
+                            filtre_arene: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "arene") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false
+                        };
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getClassementClasse.php", {functionRetour : function(json_retour){
+                            var tabInput = {
+                                legend : "false",
+                                dateDebut : strDate,
+                                regrp : "classe_adversaire",
+                                filtre_nonClasse: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "nonClasse") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false,
+                                filtre_classe: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "classe") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false,
+                                filtre_arene: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "arene") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false
+                            };
+
+                            for (var indice in json_retour["data"]["classement"]["data"]) {
+                                var classe = json_retour["data"]["classement"]["data"][indice]["classe"];
+                                var ite = parseInt(indice)+1;
+                                tabInput.div_graph = "div_1_"+ite+"_metrics_matchs";
+                                tabInput.titre = classe;
+                                tabInput.classe = tabInput.titre;
+                                $.Oda.App.Controler.RapportsMatchs.chargerMetricsGenerique(tabInput);
+                            }
+                        }}, tabInput);
+
+                        //------------------------------------------------------------------
+                        var tabInput = {
+                            code_user : $.Oda.Session.code_user,
+                            dateDebut : "",
+                            filtre_nonClasse: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "nonClasse") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false,
+                            filtre_classe: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "classe") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false,
+                            filtre_arene: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "arene") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false
+                        };
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getClassementClasse.php", {functionRetour : function(json_retour){
+                            var tabInput = {
+                                legend : "false",
+                                dateDebut : "",
+                                regrp : "classe_adversaire",
+                                filtre_nonClasse: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "nonClasse") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false,
+                                filtre_classe: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "classe") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false,
+                                filtre_arene: (($.Oda.App.Controler.RapportsMatchs.setting.filter === "arene") || ($.Oda.App.Controler.RapportsMatchs.setting.filter === "all")) ? true : false
+                            };
+
+                            for (var indice in json_retour["data"]["classement"]["data"]) {
+                                var classe = json_retour["data"]["classement"]["data"][indice]["classe"];
+                                var ite = parseInt(indice)+1;
+                                tabInput.div_graph = "div_2_"+ite+"_metrics_matchs";
+                                tabInput.titre = classe;
+                                tabInput.classe = tabInput.titre;
+                                $.Oda.App.Controler.RapportsMatchs.chargerMetricsGenerique(tabInput);
+                            }
+                        }}, tabInput);
+                    } catch (er) {
+                        $.Oda.Log.error("chargerDetailsMatchs : " + er.message);
+                    }
+                },
+                /**
+                 * @param {Object} p_tabInput
+                 * @returns {$.Oda.App.Controler.RapportsMatchs.chargerMetricsGenerique}
+                 */
+                chargerMetricsGenerique: function (p_tabInput) {
+                    try {
+                        var tabInput = $.Oda.App.Controler.RapportsMatchs.buildInput(p_tabInput);
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest + "phpsql/getMetricsMatchs.php", {functionRetour : function(json_retour){
+                            var div_graph = json_retour["data"]["div_graph"];
+                            var legend = (json_retour["data"]["legend"] === 'true');
+                            var titre = json_retour["data"]["titre"];
+                            var regrp = json_retour["data"]["regrp"];
+
+                            if((json_retour["data"]["metricsMatchsWin"]["nombre"] == "0")&&(json_retour["data"]["metricsMatchsLoss"]["nombre"] == "0")){
+                                $('#from'+div_graph).remove();
+                                $('#'+div_graph).html(json_retour["data"]["titre"]+"<br>Pas de match.");
+                            }else if(json_retour["data"]["metricsMatchsWin"]["nombre"] == "0"){
+                                $('#from'+div_graph).remove();
+                                $('#'+div_graph).html(json_retour["data"]["titre"]+"<br>"+json_retour.data.metricsMatchsLoss.nombre+" perdu(s)");
+                            }else if(json_retour["data"]["metricsMatchsLoss"]["nombre"] == "0"){
+                                $('#from'+div_graph).remove();
+                                $('#'+div_graph).html(json_retour["data"]["titre"]+"<br>"+json_retour["data"]["metricsMatchsWin"]["nombre"]+" gagn&eacute;(s)");
+                            }else{
+                                var victoire = json_retour["data"]["metricsMatchsWin"]["data"];
+                                var countVictoire = parseInt(victoire[0]["countReussite"]);
+                                var categoriesVictoire = $.Oda.Tooling.getListValeurPourAttribut(victoire,"regrp");
+                                var classesVictoire = $.Oda.Tooling.getListValeurPourAttribut(victoire,"classe");
+                                var dataVictoire = $.Oda.Tooling.getListValeurPourAttribut(victoire,"nb",Number);
+                                var colorsDataVictoire = new Array();
+                                for (var indice in categoriesVictoire) {
+                                    switch (regrp) {
+                                        case 'classe_adversaire':
+                                        case "classe":
+                                            colorsDataVictoire[colorsDataVictoire.length] = $.Oda.App.colorClasse[categoriesVictoire[indice]];
+                                            break;
+                                        case "nom_deck":
+                                            colorsDataVictoire[colorsDataVictoire.length] = $.Oda.App.colorClasse[classesVictoire[indice]];
+                                            break;
+                                        default:
+                                            colorsDataVictoire[colorsDataVictoire.length] = $.Oda.App.colorClasse[classesVictoire[indice]];
+                                            break;
+                                    }
+                                }
+
+                                var defaite = json_retour["data"]["metricsMatchsLoss"]["data"];
+                                var countDefaite = parseInt(defaite[0]["countReussite"]);
+                                var categoriesDefaite = $.Oda.Tooling.getListValeurPourAttribut(defaite,"regrp");
+                                var classesDefaite = $.Oda.Tooling.getListValeurPourAttribut(defaite,"classe");
+                                var dataDefaite = $.Oda.Tooling.getListValeurPourAttribut(defaite,"nb",Number);
+                                var colorsDataDefaite  = new Array();
+                                for (var indice in categoriesDefaite) {
+                                    switch (regrp) {
+                                        case 'classe_adversaire':
+                                        case "classe":
+                                            colorsDataDefaite[colorsDataDefaite.length] = $.Oda.App.colorClasse[categoriesDefaite[indice]];
+                                            break;
+                                        case "nom_deck":
+                                            colorsDataDefaite[colorsDataDefaite.length] = $.Oda.App.colorClasse[classesDefaite[indice]];
+                                            break;
+                                        default:
+                                            colorsDataDefaite[colorsDataDefaite.length] = $.Oda.App.colorClasse[classesDefaite[indice]];
+                                            break;
+                                    }
+                                }
+
+                                var colors = Highcharts.getOptions().colors,
+                                    categories = ['Victoires', 'Defaites'],
+                                    name = 'Réussite',
+                                    data = [{
+                                        y: countVictoire,
+                                        color: colors[0],
+                                        drilldown: {
+                                            name: 'Victoire',
+                                            categories: categoriesVictoire,
+                                            data: dataVictoire,
+                                            color: colorsDataVictoire
+                                        }
+                                    }, {
+                                        y: countDefaite,
+                                        color: colors[1],
+                                        drilldown: {
+                                            name: 'Defaite',
+                                            categories: categoriesDefaite,
+                                            data: dataDefaite,
+                                            color: colorsDataDefaite
+                                        }
+                                    }];
+
+
+                                // Build the data arrays
+                                var browserData = [];
+                                var versionsData = [];
+                                for (var i = 0; i < data.length; i++) {
+
+                                    // add browser data
+                                    browserData.push({
+                                        name: categories[i],
+                                        y: data[i].y,
+                                        color: data[i].color
+                                    });
+
+                                    // add version data
+                                    for (var j = 0; j < data[i].drilldown.data.length; j++) {
+                                        var brightness = 0.2 - (j / data[i].drilldown.data.length) / 5 ;
+                                        versionsData.push({
+                                            name: data[i].drilldown.categories[j],
+                                            y: data[i].drilldown.data[j],
+                                            color: data[i].drilldown.color[j]
+                                        });
+                                    }
+                                }
+
+                                // Create the chart
+                                $('#'+div_graph).highcharts({
+                                    chart: {
+                                        type: 'pie',
+                                        backgroundColor:'rgba(255, 255, 255, 0.1)'
+                                    },
+                                    exporting: {
+                                        enabled: false
+                                    },
+                                    title: {
+                                        text: titre
+                                    },
+                                    yAxis: {
+                                        title: {
+                                            text: 'Répartition'
+                                        }
+                                    },
+                                    plotOptions: {
+                                        pie: {
+                                            shadow: true,
+                                            center: ['50%', '50%']
+                                        }
+                                    },
+                                    tooltip: {
+                                        formatter: function() {
+                                            var s;
+                                            if(legend){
+                                                s = this.point.name +' : '+$.Oda.Tooling.arrondir(this.point.percentage,2)+"% ("+this.y+")";
+                                            }else{
+                                                s = this.point.name.substring(0,2) +':'+$.Oda.Tooling.arrondir(this.point.percentage,2)+"%("+this.y+")";
+                                            }
+                                            return s;
+                                        }
+                                    },
+                                    series: [{
+                                        name: 'Réussite',
+                                        data: browserData,
+                                        size: '63%',
+                                        dataLabels: {
+                                            formatter: function() {
+                                                return this.y > 5 ? this.point.name : null;
+                                            },
+                                            color: 'white',
+                                            distance: -60,
+                                            enabled : legend
+                                        }
+                                    }, {
+                                        name: 'Deck',
+                                        data: versionsData,
+                                        size: '90%',
+                                        innerSize: '70%',
+                                        dataLabels: {
+                                            formatter: function() {
+                                                var s;
+                                                if (this.point.percentage > 2) { // the pie chart
+                                                    s = this.point.name;
+                                                }
+                                                return s;
+                                            },
+                                            enabled : legend
+                                        }
+                                    }]
+                                });
+                                var nb = parseInt(json_retour["data"]["metricsMatchsWin"]["data"][0]["countReussite"])+parseInt(json_retour["data"]["metricsMatchsLoss"]["data"][0]["countReussite"]);
+                                $('#from'+div_graph).remove();
+                                $('#'+div_graph).after('<div id="from'+div_graph+'" style="text-align:right;"><label style="font-size:70%;color:#BDBDBD;">From:'+nb+'</label><div>');
+                            }
+                        }}, tabInput);
+                       return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RapportsMatchs.chargerMetricsGenerique : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * Ajouter les params par defaut
+                 * @param {type} p_input
+                 * @returns {buildInput.input_defaut}
+                 */
+                buildInput : function (p_input) {
+                    try {
+                        var input_defaut = {
+                            code_user : $.Oda.Session.code_user,
+                            div_graph : "",
+                            titre : "",
+                            legend : "true",
+                            dateDebut : "",
+                            type : "",
+                            classeAdv : "",
+                            regrp : "classe",
+                            classe : "",
+                            deck : "",
+                            filtre_nonClasse : "false",
+                            filtre_classe : "false",
+                            filtre_arene : "false"
+                        };
+            
+                        for(var indice in p_input){
+                            input_defaut[indice] = p_input[indice];
+                        }
+            
+                        return input_defaut;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RapportsMatchs.buildInput : " + er.message);
+                    }
+                },
+                /**
+                 * chargerMetricsCoin
+                 */
+                chargerMetricsCoin : function (){
+                    try {
+                        var tabInput = { code_user : $.Oda.Session.code_user };
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getMetricsCoin.php", {functionRetour : function(p_retour){
+                            var strHtml = "";
+                            var txPieceWeek = $.Oda.Tooling.arrondir(parseInt(p_retour["data"]["nbAvecPieceWeek"]) / parseInt(p_retour["data"]["totalWeek"])*100,2);
+                            var txPiece = $.Oda.Tooling.arrondir(parseInt(p_retour["data"]["nbAvecPieceAll"]) / parseInt(p_retour["data"]["totalAll"])*100,2);
+                            strHtml += 'Taux de piece : '+txPieceWeek+'%. (depuis le d&eacute;but : '+txPiece+'%)<br>';
+
+                            var txVicPieceWeek = $.Oda.Tooling.arrondir(parseInt(p_retour["data"]["vicAvecPieceWeek"]) / parseInt(p_retour["data"]["nbAvecPieceWeek"])*100,2);
+                            var txVicPiece = $.Oda.Tooling.arrondir(parseInt(p_retour["data"]["vicAvecPieceAll"]) / parseInt(p_retour["data"]["nbAvecPieceAll"])*100,2);
+                            strHtml += 'Taux de victoire avec piece : '+txVicPieceWeek+'%. (depuis le d&eacute;but : '+txVicPiece+'%)<br>';
+
+                            var txVicSansPieceWeek = $.Oda.Tooling.arrondir(parseInt(p_retour["data"]["vicSansPieceWeek"]) / (parseInt(p_retour["data"]["totalWeek"])-parseInt(p_retour["data"]["nbAvecPieceWeek"]))*100,2);
+                            var txVicSansPiece = $.Oda.Tooling.arrondir(parseInt(p_retour["data"]["vicSansPieceAll"]) / (parseInt(p_retour["data"]["totalAll"])-parseInt(p_retour["data"]["nbAvecPieceAll"]))*100,2);
+                            strHtml += 'Taux de victoire sans piece : '+txVicSansPieceWeek+'%. (depuis le d&eacute;but : '+txVicSansPiece+'%)<br>';
+                            $('#div_metricsCoin').html(strHtml);
+                        }}, tabInput);
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RapportsMatchs.chargerMetricsCoin : " + er.message);
+                    }
+                },
+            },
+            RapportsMeta : {
+                /**
+                 * @param {Object} p_params
+                 * @param p_params.id
+                 * @returns {$.Oda.App.Controler.RapportsMeta.start}
+                 */
+                start : function (p_params) {
+                    try {
+                        $.Oda.App.Controler.RapportsMeta.chargerRepartitionMetaG();
+                        $.Oda.App.Controler.RapportsMeta.chargerRepartitionMetaNC();
+                        $.Oda.App.Controler.RapportsMeta.chargerRepartitionMetaC();
+                        $.Oda.App.Controler.RapportsMeta.chargerRepartitionMetaA();
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RapportsMeta.start : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * chargerRepartitionMetaG
+                 */
+                chargerRepartitionMetaG : function (){
+                    try {
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getRepartitionMeta.php", {functionRetour : function(json_retour){
+                            $.Oda.App.Controler.RapportsMeta.afficherMeta('Meta Générale', '#div_repartitionMetaG', json_retour);
+                        }}, { type : '' });
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RapportsMeta.chargerRepartitionMetaG : " + er.message);
+                    }
+                },
+                /**
+                 * chargerRepartitionMetaNC
+                 */
+                chargerRepartitionMetaNC : function (){
+                    try {
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getRepartitionMeta.php", {functionRetour : function(json_retour){
+                            $.Oda.App.Controler.RapportsMeta.afficherMeta('Meta Non Classé', '#div_repartitionMetaNC', json_retour);
+                        }}, { type : 'Non classé' });
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RapportsMeta.chargerRepartitionMetaNC : " + er.message);
+                    }
+                },
+                /**
+                 * chargerRepartitionMetaC
+                 */
+                chargerRepartitionMetaC : function (){
+                    try {
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getRepartitionMeta.php", {functionRetour : function(json_retour){
+                            $.Oda.App.Controler.RapportsMeta.afficherMeta('Meta Classé', '#div_repartitionMetaC', json_retour);
+                        }}, { type : 'Classé' });
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RapportsMeta.chargerRepartitionMetaC : " + er.message);
+                    }
+                },
+                /**
+                 * chargerRepartitionMetaA
+                 */
+                chargerRepartitionMetaA : function (){
+                    try {
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"phpsql/getRepartitionMeta.php", {functionRetour : function(json_retour){
+                            $.Oda.App.Controler.RapportsMeta.afficherMeta('Meta Arène', '#div_repartitionMetaA', json_retour);
+                        }}, { type : 'Arene' });
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RapportsMeta.chargerRepartitionMetaA : " + er.message);
+                    }
+                },
+                /**
+                 * @name afficherMeta
+                 * @desc Affiche la répartition de la meta
+                 * @param {type} p_div
+                 * @param {type} p_dbDatas
+                 * @returns {undefined}
+                 */
+                afficherMeta : function (p_titre, p_div, p_json_retour){
+                    try {
+                        var pieDbDatas = p_json_retour["data"]["resultats"]["data"];
+                        var pieDatas = new Array();
+                        for (var indice in pieDbDatas) {
+                            pieDatas[pieDatas.length] = {
+                                name : pieDbDatas[indice]["classe_adversaire"],
+                                color : $.Oda.App.colorClasse[pieDbDatas[indice]["classe_adversaire"]],
+                                y : parseInt(pieDbDatas[indice]["nb"])
+                            };
+                        }
+
+                        // Create the chart
+                        $(p_div).highcharts({
+                            chart: {
+                                type: 'pie',
+                                backgroundColor:'rgba(255, 255, 255, 0.1)'
+                            },
+                            exporting: {
+                                enabled: false
+                            },
+                            title: {
+                                text: p_titre
+                            },
+                            plotOptions: {
+                                pie: {
+                                    shadow: true,
+                                    center: ['50%', '50%']
+                                }
+                            },
+                            tooltip: {
+                                formatter: function() {
+                                    var s;
+                                    s = this.point.name +' : '+$.Oda.Tooling.arrondir(this.point.percentage,2)+"% ("+this.y+")";
+                                    return s;
+                                }
+                            },
+                            series: [{
+                                name: 'Classe',
+                                data: pieDatas,
+                                dataLabels: {
+                                    formatter: function() {
+                                        var s;
+                                        if (this.point.percentage > 2) { // the pie chart
+                                            s = this.point.name +':'+$.Oda.Tooling.arrondir(this.point.percentage,2)+"%";
+                                        }
+                                        return s;
+                                    }
+                                }
+                            }]
+                        });
+                        var nb = parseInt(p_json_retour["data"]["resultat"]["nb"]);
+                        $(p_div).after('<label style="font-size:70%;color:#BDBDBD;">From:'+nb+'</label>');
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controler.RapportsMeta.afficherMeta : " + er.message);
+                    }
+                }
             }
         }
     };
