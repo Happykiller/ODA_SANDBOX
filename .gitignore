@@ -1,7 +1,3 @@
-/src/API/libs/
-/src/libs/
-src/config/config.js
-bower_components/
-node_modules/
-nbproject/
-.idea/
+/.idea/*
+/vendor/*
+/config/config.php
