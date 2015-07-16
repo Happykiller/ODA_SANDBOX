@@ -11,5 +11,8 @@
   ],
   "require": {
     "happykiller/oda": "@dev"
+  },
+  "autoload": {
+    "psr-4": { "How\\": "class" }
   }
 }
