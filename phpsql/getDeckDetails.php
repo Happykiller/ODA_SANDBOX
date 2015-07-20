@@ -1,10 +1,11 @@
 <?php
 namespace How;
-use stdClass, \Oda\SimpleObject\OdaPrepareInterface, \Oda\SimpleObject\OdaPrepareReqSql, \Oda\OdaLibBd;
-//--------------------------------------------------------------------------
-//Header
-require("../API/php/header.php");
-require("../php/class/HowInterface.php");
+
+require '../header.php';
+require '../vendor/autoload.php';
+require '../include/config.php';
+
+use \stdClass, \Oda\SimpleObject\OdaPrepareInterface, \Oda\SimpleObject\OdaPrepareReqSql, \Oda\OdaLibBd;
 
 //--------------------------------------------------------------------------
 //Build the interface
