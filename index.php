@@ -11,10 +11,4 @@ require 'include/config.php';
  * Time: 10:02
  */
 
-use stdClass, \Oda\SimpleObject\OdaPrepareInterface, \Oda\SimpleObject\OdaPrepareReqSql, \Oda\OdaLibBd;
-
-//--------------------------------------------------------------------------
-//Build the interface
-$params = new OdaPrepareInterface();
-$params->arrayInput = array("param_name");
-$INTERFACE = new HowInterface($params);
+echo 'Hello World';

@@ -1,6 +1,6 @@
 <?php
 $config = \Oda\SimpleObject\OdaConfig::getInstance();
-$config->urlServer = "http://localhost/ODA_HOW/server/";
+$config->urlServer = "http://localhost/ODA_SANDBOX/";
 
 //for bd engine
 $config->BD_ENGINE->base = 'how';
