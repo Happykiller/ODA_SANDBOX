@@ -25,5 +25,5 @@ bpmn:
     - "The terminate end event immediately stop the process. The end event only terminate the current branch. All branch need to be finished for a process to stop.": true
     - "false": false
   - "Which transition should always be defined when using Exclusive gateways?":
-    - "On the output:  always define one as the default transition to avoid a lock and conditions on all the others to avoid unpredictable behavior.": true
+    - "On the output: always define one as the default transition to avoid a lock and conditions on all the others to avoid unpredictable behavior.": true
     - "false": false

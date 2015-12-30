@@ -1,0 +1,34 @@
+BBPM:
+  - "Quels sont les trois principales composantes de Bonita BPM?":
+    - "Serveur, Internet, Alcool": false
+    - "Bonita studio, Portal et Bonita Bonita moteur": true
+  - Que ferez-vous utiliser studio pour bonita ?:
+    - "Café": false
+    - "vrai": true
+    - "Processus de la conception, la création de formulaires, la gestion des organisations": true
+  - "Quelles sont .bos et .bar fichiers utiles pour?":
+    - "Bos pour le payé, bar pour dring": false
+    - "Bos pour le partage des processus et .Bar pour le déploiement sur les serveurs": true
+BPMN:
+  - "Quels sont les différents types de tâches disponibles?":
+    - "Humain, le service, l'activité d'appel, le script, résumé, le message": true
+    - "vrai": true
+    - "False": false
+    - "False": false
+  - "Pouvez-vous donner des exemples de tâches humaines et services?":
+    - "Human Quelqu'un a besoin de valider une demande faite par quelqu'un d'autre tâche Service une tâche de mettre à jour la base de données.": True
+    - "False": false
+  - "Quel est le comportement du processus quand il ya des entrées multiples directs dans une tâche (pas de passerelle)?":
+    - "Exclusif la première transition pour arriver (activé et complété) aura préséance L'autre branche (es) peuvent encore atteindre la tâche et conduire à la duplication..": True
+    - "False": false
+  - "Quelle est la différence entre un événement Terminate d'extrémité et un événement de fin":
+    - "L'événement de fin fin à arrêter immédiatement le processus L'événement de fin seulement mettre fin à la branche courante Tout branche besoin d'être fini pour un processus à arrêter...": True
+    - "False": false
+  - "Quelle transition doit toujours être défini lors de l'utilisation des passerelles exclusives?":
+    - "Sur la sortie toujours définir un comme la transition par défaut pour éviter une serrure et conditions sur tous les autres pour éviter un comportement imprévisible.": True
+    - "False": false
+soirée:
+  - "Comment c'est passé ta soirée":
+    - "Bien": true
+    - "Bof": true
+    - "mal": false
