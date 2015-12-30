@@ -1,0 +1,17 @@
+{
+	"name": "chop",
+	"version": "1.0.0",
+	"homepage": "https://github.com/Happykiller/ODA_HOW",
+	"authors": ["Fabrice Rosito <fabrice.rosito@gmail.com>"],
+	"description": "Client for ODA-HOW",
+	"keywords": ["heartstone"],
+	"license": "MIT",
+	"private": true,
+	"ignore": [
+		"**/.*",
+		"node_modules"
+	],
+	"dependencies": {
+	  "Oda" : "*"
+	}
+}

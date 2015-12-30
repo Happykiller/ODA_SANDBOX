@@ -10,9 +10,10 @@
     }
   ],
   "require": {
-    "happykiller/oda": "@dev"
+    "happykiller/oda": "@dev",
+    "symfony/yaml": "^2.7.8"
   },
   "autoload": {
-    "psr-4": { "How\\": "class" }
+    "psr-4": { "Chop\\": "class" }
   }
 }

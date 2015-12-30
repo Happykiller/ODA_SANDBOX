@@ -1,0 +1,29 @@
+bbpm:
+  - "What are the three main components of Bonita BPM?":
+    - "Server, Internet, Alcool": false
+    - "Bonita Studio, Bonita Portal and Bonita Engine": true
+  - What will you use bonita studio for?:
+    - "Coffee": false
+    - "true": true
+    - "designing processes, creating forms, managing organizations": true
+  - what are .bos and .bar files useful for ?:
+    - "bos for the paid, bar for dring": false
+    - "Bos for sharing processes and .bar for deploying on servers": true
+bpmn:
+  - "What are the different types of tasks available?":
+    - "Human, service, call activity, script, abstract, message": true
+    - "true": true
+    - "false": false
+    - "false": false
+  - "Can you provide examples of human and service tasks?":
+    - "Human: Someone needs to validate a request made by someone else. Service task:  a task to update the database": true
+    - "false": false
+  - "What is the behavior of the process when there are multiple direct inputs into a task (no gateway)?":
+    - "Exclusive: the first transition to arrive (activated and completed) will take precedence. The other branch(es) may still reach the task and lead to duplication.": true
+    - "false": false
+  - "What is the difference between a Terminate end event and an End event":
+    - "The terminate end event immediately stop the process. The end event only terminate the current branch. All branch need to be finished for a process to stop.": true
+    - "false": false
+  - "Which transition should always be defined when using Exclusive gateways?":
+    - "On the output:  always define one as the default transition to avoid a lock and conditions on all the others to avoid unpredictable behavior.": true
+    - "false": false

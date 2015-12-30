@@ -1,0 +1,27 @@
+<div class="container">
+    <h2 oda-label="home.title"></h2>
+
+    <div class="row">
+        <div class="col-md-12">
+            <span oda-label="home.hello"></span>
+        </div>
+        <div class="col-md-12" id="qcm">
+        </div>
+    </div>
+</div>
+
+<script>
+    $.Oda.App.Controller.Qcm.start();
+</script>
+
+<script id="qcmElt" type="text/template">
+    <ul>
+        <li> {{title}}
+            <ul>
+                <li>
+                    Bidule
+                </li>
+            </ul>
+        </li>
+    </ul>
+</script>
