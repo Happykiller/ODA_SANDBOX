@@ -15,11 +15,41 @@
 </script>
 
 <script id="qcmElt" type="text/template">
-    <ul>
-        <li> {{title}}
-            <ul>
+    <div>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                {{title}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
                 {{questions}}
-            </ul>
-        </li>
-    </ul>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="qcmQuestion" type="text/template">
+    {{title}}<br/>
+    <div class="row">
+        <div class="col-md-11 col-md-offset-1">
+            {{responses}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-right">
+            <button type="button" oda-label="oda-main.bt-submit" oda-submit="submit" onclick="$.Oda.App.Controler.Activity.submitEditEvent({id:'+response.data.id+', date:\''+date+'\', googleId:\''+response.data.googleId+'\'});" class="btn btn-primary disabled" disabled>Submit</button >
+        </div>
+    </div>
+</script>
+
+<script id="qcmResponse" type="text/template">
+    <div class="form-group">
+        <div class="checkbox">
+            <input type="checkbox">
+            <label>
+                {{title}} ({{responseBody}})
+            </label>
+        </div>
+    </div>
 </script>

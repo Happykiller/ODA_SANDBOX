@@ -86,15 +86,26 @@
                                 for(var questionIndice in qcmPart){
                                     for(var questionTitle in qcmPart[questionIndice]){
                                         var question = qcmPart[questionIndice][questionTitle];
-                                        strQuestions += '<li>'+questionTitle+'</li>';
-                                        strQuestions += '<ul>';
+                                        var strResponses = "";
                                         for(var responseIndice in question){
                                             for(var responseTitle in question[responseIndice]){
                                                 var responseBody = question[responseIndice][responseTitle];
-                                                strQuestions += '<li>'+responseTitle+' : '+responseBody+'</li>';
+                                                strResponses += $.Oda.Display.TemplateHtml.create({
+                                                    template : "qcmResponse"
+                                                    , scope : {
+                                                        "title" : responseTitle,
+                                                        "responseBody" : responseBody
+                                                    }
+                                                });
                                             }
                                         }
-                                        strQuestions += '</ul>';
+                                        strQuestions +=  $.Oda.Display.TemplateHtml.create({
+                                            template : "qcmQuestion"
+                                            , scope : {
+                                                "title" : questionTitle,
+                                                "responses" : strResponses
+                                            }
+                                        });
                                     }
                                 }
 
