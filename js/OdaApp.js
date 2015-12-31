@@ -13,23 +13,12 @@
         /* version */
         VERSION = '0.1'
     ;
-    
-    ////////////////////////// PRIVATE METHODS ////////////////////////
-    /**
-     * @name _init
-     * @desc Initialize
-     */
-    function _init() {
-        $.Oda.Event.addListener({name : "oda-fully-loaded", callback : function(e){
-            $.Oda.App.startApp();
-        }});
-    }
 
     ////////////////////////// PUBLIC METHODS /////////////////////////
     $.Oda.App = {
         /* Version number */
         version: VERSION,
-        
+
         /**
          * @returns {$.Oda.App}
          */
@@ -41,10 +30,24 @@
                     "urls" : ["","home"]
                 });
 
-                $.Oda.Router.addRoute("qcm", {
+                $.Oda.Router.startRooter();
+
+                return this;
+            } catch (er) {
+                $.Oda.Log.error("$.Oda.App.startApp : " + er.message);
+                return null;
+            }
+        },
+
+        /**
+         * @returns {$.Oda.App}
+         */
+        startQcm: function () {
+            try {
+                $.Oda.Router.addRoute("home", {
                     "path" : "partials/qcm.html",
-                    "title" : "oda-main.home-title",
-                    "urls" : ["qcm"]
+                    "title" : "qcm.title",
+                    "urls" : ["","home"]
                 });
 
                 $.Oda.Router.startRooter();
@@ -59,11 +62,9 @@
         "Controller" : {
             "Home": {
                 /**
-                 * @param {object} p_params
-                 * @param p_params.id
                  * @returns {$.Oda.App.Controller.Home}
                  */
-                start: function (p_params) {
+                start: function () {
                     try {
                         return this;
                     } catch (er) {
@@ -80,12 +81,28 @@
                     try {
                         var call = $.Oda.Interface.callRest($.Oda.Context.rest+"api/rest/qcm/"+"bpad", { functionRetour : function(response){
                             for(var indice in response.data){
-                                var elt = response.data[indice];
-                                $.Oda.Log.trace(elt);
+                                var qcmPart = response.data[indice];
+                                var strQuestions = "";
+                                for(var questionIndice in qcmPart){
+                                    for(var questionTitle in qcmPart[questionIndice]){
+                                        var question = qcmPart[questionIndice][questionTitle];
+                                        strQuestions += '<li>'+questionTitle+'</li>';
+                                        strQuestions += '<ul>';
+                                        for(var responseIndice in question){
+                                            for(var responseTitle in question[responseIndice]){
+                                                var responseBody = question[responseIndice][responseTitle];
+                                                strQuestions += '<li>'+responseTitle+' : '+responseBody+'</li>';
+                                            }
+                                        }
+                                        strQuestions += '</ul>';
+                                    }
+                                }
+
                                 var strHtml = $.Oda.Display.TemplateHtml.create({
                                     template : "qcmElt"
                                     , scope : {
-                                        "title" : indice
+                                        "title" : indice,
+                                        "questions" : strQuestions
                                     }
                                 });
                                 $('#qcm').append(strHtml);
@@ -100,8 +117,5 @@
             }
         }
     };
-
-    // Initialize
-    _init();
 
 })();

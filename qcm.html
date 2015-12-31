@@ -21,6 +21,12 @@
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="bower_components/Oda/dist/Oda.js?modeExecution=app&debug=true"></script>
+
+    <script>
+        $.Oda.Event.addListener({name : "oda-fully-loaded", callback : function(e){
+            $.Oda.App.startQcm();
+        }});
+    </script>
 </head>
 <body>
 </body>
