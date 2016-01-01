@@ -75,12 +75,14 @@
             },
             "Qcm": {
                 map: {},
+                listCheckbox: [],
+                current: "",
                 /**
                  * @returns {$.Oda.App.Controller.Home}
                  */
                 start: function () {
                     try {
-                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"api/rest/qcm/"+"bpad", { functionRetour : function(response){
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"api/rest/qcm/bpad/en", { functionRetour : function(response){
                             var iteratorPart = 0;
                             var iteratorQuestion = 0;
                             for(var indice in response.data){
@@ -99,21 +101,27 @@
                                 for(var questionIndice in qcmPart){
                                     for(var questionTitle in qcmPart[questionIndice]){
                                         var question = qcmPart[questionIndice][questionTitle];
+                                        iteratorQuestion++;
                                         var strResponses = "";
+                                        var iteratorResponse = 0;
                                         for(var responseIndice in question){
                                             for(var responseTitle in question[responseIndice]){
                                                 var responseBody = question[responseIndice][responseTitle];
+                                                iteratorResponse++;
+                                                var strOptional = "";
+                                                if(responseBody){
+                                                    strOptional = "required"
+                                                }
                                                 strResponses += $.Oda.Display.TemplateHtml.create({
                                                     template : "qcmResponse"
                                                     , scope : {
-                                                        "id": "qcmId_"+iteratorPart+"_"+iteratorQuestion,
+                                                        "id": "qcmId_"+iteratorPart+"_"+iteratorQuestion+"_"+iteratorResponse,
                                                         "title" : responseTitle,
-                                                        "responseBody" : responseBody
+                                                        "responseBody" : strOptional
                                                     }
                                                 });
                                             }
                                         }
-                                        iteratorQuestion++;
                                         $.Oda.App.Controller.Qcm.map["qcmId_"+iteratorPart+"_"+iteratorQuestion] = false;
                                         var strQuestions =  $.Oda.Display.TemplateHtml.create({
                                             template : "qcmQuestion"
@@ -150,7 +158,9 @@
                         for(var key in $.Oda.App.Controller.Qcm.map){
                             if(!$.Oda.App.Controller.Qcm.map[key]){
                                 $.Oda.App.Controller.Qcm.map[key] = true;
-                                $("#"+key).show();
+                                $.Oda.Scope.Gardian.remove({id:"qcm"});
+                                $("#"+key).fadeIn("slow");
+                                $.Oda.App.Controller.Qcm.current = key;
                                 break;
                             }
                         }
@@ -159,7 +169,44 @@
                         $.Oda.Log.error("$.Oda.App.Controller.Qcm.moveNext : " + er.message);
                         return null;
                     }
-                }
+                },
+                /**
+                 * @returns {$.Oda.App.Controller.Qcm}
+                 */
+                validate: function () {
+                    try {
+                        var list = $( "[id^='"+$.Oda.App.Controller.Qcm.current+"_']");
+                        $.Oda.App.Controller.Qcm.listCheckbox = [];
+                        for(var indice in list){
+                            var elt = list[indice];
+                            if(elt.id !== undefined){
+                                $.Oda.App.Controller.Qcm.listCheckbox.push(elt.id);
+                            }
+                        }
+
+                        var gardian = 0;
+                        for(var indice in $.Oda.App.Controller.Qcm.listCheckbox){
+                            var elt = $("#"+$.Oda.App.Controller.Qcm.listCheckbox[indice]);
+                            if(!( (elt.prop("checked") && (elt.data('attempt') === "required") ) || (!elt.prop("checked") && (elt.data('attempt') === "")) )){
+                                gardian++;
+                            }
+                        }
+
+                        if( gardian === 0 ){
+                            var btValidte = $("#validate-"+$.Oda.App.Controller.Qcm.current);
+                            btValidte.hide();
+                            var btSubmit = $("#submit-"+$.Oda.App.Controller.Qcm.current);
+                            btSubmit.fadeIn();
+                        }else{
+                            $.Oda.Display.Notification.warning(gardian + $.Oda.I8n.get("qcm","ErrorMessage"));
+                        }
+
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controller.Qcm.validate : " + er.message);
+                        return null;
+                    }
+                },
             }
         }
     };

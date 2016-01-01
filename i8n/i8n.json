@@ -15,12 +15,18 @@
         , "fr" : {
             "title" : "QCM",
             "hello" : "qcm par Oda",
-            "next" : "Suivant"
+            "start" : "Commencer",
+            "next" : "Suivant",
+            "validate" : "Valider",
+            "ErrorMessage" : " mauvaise(s) réponse(s) !"
         }
         , "en" : {
             "title" : "QCM",
             "hello" : "Oda qcm",
-            "next" : "Next"
+            "start" : "Start",
+            "next" : "Suivant",
+            "validate" : "Validate",
+            "ErrorMessage" : " bad response(s) !"
         }
     }
 ]

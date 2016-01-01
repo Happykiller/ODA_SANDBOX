@@ -34,11 +34,11 @@ $slim->get('/entity/:id', function ($id) use ($slim) {
 
 //--------------------------------------------------------------------------
 //---------------------------- QCM -----------------------------------------
-$slim->get('/qcm/:name', function ($name) use ($slim) {
+$slim->get('/qcm/:name/:lang', function ($name,$lang) use ($slim) {
     $params = new OdaPrepareInterface();
     $params->slim = $slim;
     $INTERFACE = new QcmInterface($params);
-    $INTERFACE->getByName($name);
+    $INTERFACE->getByName($name,$lang);
 });
 
 //--------------------------------------------------------------------------

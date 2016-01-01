@@ -19,9 +19,9 @@ use Symfony\Component\Yaml\Yaml;
 class QcmInterface extends OdaRestInterface {
     /**
      */
-    function getByName($name) {
+    function getByName($name,$lang) {
         try {
-            $qcm = __DIR__  . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "resources" . DIRECTORY_SEPARATOR . "qcm" . DIRECTORY_SEPARATOR . $name .'.en.yaml';
+            $qcm = __DIR__  . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "resources" . DIRECTORY_SEPARATOR . "qcm" . DIRECTORY_SEPARATOR . $name .'.'.$lang.'.yaml';
             $content = Yaml::parse(file_get_contents($qcm));
 
             $this->addDataObject($content);
