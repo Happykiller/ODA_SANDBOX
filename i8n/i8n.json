@@ -18,7 +18,8 @@
             "start" : "Commencer",
             "next" : "Suivant",
             "validate" : "Valider",
-            "ErrorMessage" : " mauvaise(s) réponse(s) !"
+            "ErrorMessage" : " mauvaise(s) réponse(s) !",
+            "SuccessMessage" : "Bravo vous pouvez aller à la suite quant vous êtes prêt !"
         }
         , "en" : {
             "title" : "QCM",
@@ -26,7 +27,8 @@
             "start" : "Start",
             "next" : "Suivant",
             "validate" : "Validate",
-            "ErrorMessage" : " bad response(s) !"
+            "SuccessMessage" : " bad response(s) !",
+            "SuccessMessage" : "Bravo you can go to next when your are ready !"
         }
     }
 ]

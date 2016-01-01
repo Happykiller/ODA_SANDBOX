@@ -175,6 +175,7 @@
                  */
                 validate: function () {
                     try {
+                        $.Oda.Display.Notification.removeAll();
                         var list = $( "[id^='"+$.Oda.App.Controller.Qcm.current+"_']");
                         $.Oda.App.Controller.Qcm.listCheckbox = [];
                         for(var indice in list){
@@ -193,12 +194,17 @@
                         }
 
                         if( gardian === 0 ){
+                            for(var indice in $.Oda.App.Controller.Qcm.listCheckbox){
+                                var elt = $("#"+$.Oda.App.Controller.Qcm.listCheckbox[indice]);
+                                elt.attr("disabled", true);
+                            }
+                            $.Oda.Display.Notification.success($.Oda.I8n.get("qcm","SuccessMessage"));
                             var btValidte = $("#validate-"+$.Oda.App.Controller.Qcm.current);
                             btValidte.hide();
                             var btSubmit = $("#submit-"+$.Oda.App.Controller.Qcm.current);
                             btSubmit.fadeIn();
                         }else{
-                            $.Oda.Display.Notification.warning(gardian + $.Oda.I8n.get("qcm","ErrorMessage"));
+                            $.Oda.Display.Notification.error(gardian + $.Oda.I8n.get("qcm","ErrorMessage"));
                         }
 
                         return this;
