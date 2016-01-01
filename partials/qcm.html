@@ -14,31 +14,33 @@
     $.Oda.App.Controller.Qcm.start();
 </script>
 
-<script id="qcmElt" type="text/template">
-    <div>
+<script id="qcmTitle" type="text/template">
+    <div id="{{id}}" style="display: none;">
         <div class="row">
-            <div class="col-md-12 text-center">
-                {{title}}
+            <div class="col-md-11">
+                <h2>{{title}}</h2>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12">
-                {{questions}}
+            <div class="col-md-12 text-right">
+                <button type="button" oda-label="qcm.next" oda-submit="submit" onclick="$.Oda.App.Controller.Qcm.moveNext();" class="btn btn-primary">qcm.next</button >
             </div>
         </div>
     </div>
 </script>
 
 <script id="qcmQuestion" type="text/template">
-    {{title}}<br/>
-    <div class="row">
-        <div class="col-md-11 col-md-offset-1">
-            {{responses}}
+    <div id="{{id}}" style="display: none;">
+        {{titleQcm}}<br/>
+        <div class="row">
+            <div class="col-md-11 col-md-offset-1">
+                {{responses}}
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 text-right">
-            <button type="button" oda-label="oda-main.bt-submit" oda-submit="submit" onclick="$.Oda.App.Controler.Activity.submitEditEvent({id:'+response.data.id+', date:\''+date+'\', googleId:\''+response.data.googleId+'\'});" class="btn btn-primary disabled" disabled>Submit</button >
+        <div class="row">
+            <div class="col-md-12 text-right">
+                <button type="button" oda-label="qcm.next" oda-submit="submit" onclick="$.Oda.App.Controller.Qcm.moveNext();" class="btn btn-primary">qcm.next</button >
+            </div>
         </div>
     </div>
 </script>

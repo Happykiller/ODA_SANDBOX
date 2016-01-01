@@ -9,5 +9,18 @@
             "title" : "Home",
             "hello" : "Hello with Oda FrameWork"
         }
+    },
+    {
+        "groupName" : "qcm"
+        , "fr" : {
+            "title" : "QCM",
+            "hello" : "qcm par Oda",
+            "next" : "Suivant"
+        }
+        , "en" : {
+            "title" : "QCM",
+            "hello" : "Oda qcm",
+            "next" : "Next"
+        }
     }
 ]

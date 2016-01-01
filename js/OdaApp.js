@@ -74,15 +74,28 @@
                 }
             },
             "Qcm": {
+                map: {},
                 /**
                  * @returns {$.Oda.App.Controller.Home}
                  */
                 start: function () {
                     try {
                         var call = $.Oda.Interface.callRest($.Oda.Context.rest+"api/rest/qcm/"+"bpad", { functionRetour : function(response){
+                            var iteratorPart = 0;
+                            var iteratorQuestion = 0;
                             for(var indice in response.data){
+                                iteratorPart++;
+                                $.Oda.App.Controller.Qcm.map["qcmId_"+iteratorPart] = false;
+                                var strHtml = $.Oda.Display.TemplateHtml.create({
+                                    template : "qcmTitle"
+                                    , scope : {
+                                        "id" : "qcmId_"+iteratorPart,
+                                        "title" : indice
+                                    }
+                                });
+                                $('#qcm').append(strHtml);
+
                                 var qcmPart = response.data[indice];
-                                var strQuestions = "";
                                 for(var questionIndice in qcmPart){
                                     for(var questionTitle in qcmPart[questionIndice]){
                                         var question = qcmPart[questionIndice][questionTitle];
@@ -93,35 +106,57 @@
                                                 strResponses += $.Oda.Display.TemplateHtml.create({
                                                     template : "qcmResponse"
                                                     , scope : {
+                                                        "id": "qcmId_"+iteratorPart+"_"+iteratorQuestion,
                                                         "title" : responseTitle,
                                                         "responseBody" : responseBody
                                                     }
                                                 });
                                             }
                                         }
-                                        strQuestions +=  $.Oda.Display.TemplateHtml.create({
+                                        iteratorQuestion++;
+                                        $.Oda.App.Controller.Qcm.map["qcmId_"+iteratorPart+"_"+iteratorQuestion] = false;
+                                        var strQuestions =  $.Oda.Display.TemplateHtml.create({
                                             template : "qcmQuestion"
                                             , scope : {
+                                                "id": "qcmId_"+iteratorPart+"_"+iteratorQuestion,
+                                                "titleQcm" : indice,
                                                 "title" : questionTitle,
                                                 "responses" : strResponses
                                             }
                                         });
+                                        $('#qcm').append(strQuestions);
                                     }
                                 }
-
-                                var strHtml = $.Oda.Display.TemplateHtml.create({
-                                    template : "qcmElt"
-                                    , scope : {
-                                        "title" : indice,
-                                        "questions" : strQuestions
-                                    }
-                                });
-                                $('#qcm').append(strHtml);
                             }
+                            $.Oda.App.Controller.Qcm.moveNext();
                         }});
                         return this;
                     } catch (er) {
                         $.Oda.Log.error("$.Oda.App.Controller.Qcm.start : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @returns {$.Oda.App.Controller.Qcm}
+                 */
+                moveNext: function () {
+                    try {
+                        for(var key in $.Oda.App.Controller.Qcm.map){
+                            if($.Oda.App.Controller.Qcm.map[key]){
+                                $("#"+key).hide();
+                            }
+                        }
+
+                        for(var key in $.Oda.App.Controller.Qcm.map){
+                            if(!$.Oda.App.Controller.Qcm.map[key]){
+                                $.Oda.App.Controller.Qcm.map[key] = true;
+                                $("#"+key).show();
+                                break;
+                            }
+                        }
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controller.Qcm.moveNext : " + er.message);
                         return null;
                     }
                 }
