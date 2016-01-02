@@ -30,5 +30,17 @@
             "SuccessMessage" : " bad response(s) !",
             "SuccessMessage" : "Bravo you can go to next when your are ready !"
         }
+    },
+    {
+        "groupName" : "qcm-manage",
+        "fr" : {
+            "title" : "Gérer les QCM",
+            "hello" : "Pour la gestion des qcm",
+            "createQcm": "Créer une nouvelle session QCM",
+            "fr": "Français",
+            "en": "Anglais",
+            "name" : "Nom",
+            "lang": "Langue"
+        }
     }
 ]

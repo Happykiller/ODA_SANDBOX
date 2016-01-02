@@ -27,7 +27,16 @@
                 $.Oda.Router.addRoute("home", {
                     "path" : "partials/home.html",
                     "title" : "oda-main.home-title",
-                    "urls" : ["","home"]
+                    "urls" : ["","home"],
+                    "middleWares":["support","auth"]
+                });
+
+                $.Oda.Router.addRoute("qcm-manage", {
+                    "path" : "partials/qcm-manage.html",
+                    "title" : "qcm-manage.title",
+                    "urls" : ["qcm-manage"],
+                    "middleWares":["support","auth"],
+                    "dependencies" : ["dataTables"]
                 });
 
                 $.Oda.Router.startRooter();
@@ -73,16 +82,146 @@
                     }
                 }
             },
+            "ManageQcm": {
+                /**
+                 * @returns {$.Oda.App.Controller.ManageQcm}
+                 */
+                start: function () {
+                    try {
+                        $.Oda.App.Controller.ManageQcm.displayQcm();
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controller.ManageQcm.start : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @returns {$.Oda.App.Controller.ManageQcm}
+                 */
+                displayQcm: function () {
+                    try {
+                        var retour = $.Oda.Interface.callRest($.Oda.Context.rest+"api/rest/qcm/", { functionRetour : function(response) {
+                            var objDataTable = $.Oda.Tooling.objDataTableFromJsonArray(response.data);
+                            var strhtml = '<table style="width: 100%" cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered hover" id="tableQcm"></table>';
+                            $('#divTabQcm').html(strhtml);
+
+                            var oTable = $('#tableQcm').DataTable({
+                                "pageLength": 25,
+                                "sPaginationType": "full_numbers",
+                                "aaData": objDataTable.data,
+                                "aaSorting": [[0, 'desc']],
+                                "aoColumns": [
+                                    {"sTitle": "Id", "sClass": "dataTableColCenter"},
+                                    {"sTitle": "Name", "sClass": "Left"},
+                                    {"sTitle": "Lang", "sClass": "Left"},
+                                    {"sTitle": "Link", "sClass": "Left"}
+                                ],
+                                "aoColumnDefs": [
+                                    {
+                                        "mRender": function (data, type, row) {
+                                            return row[objDataTable.entete["id"]];
+                                        },
+                                        "aTargets": [0]
+                                    },
+                                    {
+                                        "mRender": function (data, type, row) {
+                                            return row[objDataTable.entete["name"]];
+                                        },
+                                        "aTargets": [1]
+                                    },
+                                    {
+                                        "mRender": function (data, type, row) {
+                                            return $.Oda.I8n.get("qcm-manage",row[objDataTable.entete["lang"]]);
+                                        },
+                                        "aTargets": [2]
+                                    },
+                                    {
+                                        "mRender": function (data, type, row) {
+                                            var url = $.Oda.Context.host+"qcm.html?id="+row[objDataTable.entete["id"]]+"&name="+row[objDataTable.entete["name"]]+"&lang="+row[objDataTable.entete["lang"]];
+                                            return url;
+                                        },
+                                        "aTargets": [3]
+                                    }
+                                ]
+                            });
+                        }});
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controller.ManageQcm.start : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @returns {$.Oda.App.Controller.ManageQcm}
+                 */
+                formQcm: function () {
+                    try {
+                        var strHtml = $.Oda.Display.TemplateHtml.create({
+                            template : "formQcm"
+                            , scope : {}
+                        });
+
+                        $.Oda.Display.Popup.open({
+                            "name" : "createQcm",
+                            "label" : $.Oda.I8n.get('qcm-manage','createQcm'),
+                            "details" : strHtml,
+                            "footer" : '<button type="button" oda-label="oda-main.bt-submit" oda-submit="submit" onclick="$.Oda.App.Controller.ManageQcm.submitQcm();" class="btn btn-primary disabled" disabled>Submit</button>',
+                            "callback" : function(){
+                                $.Oda.Scope.Gardian.add({
+                                    id : "createQcm",
+                                    listElt : ["name", "lang"],
+                                    function : function(e){
+                                        if( ($("#name").data("isOk")) && ($("#lang").data("isOk")) ){
+                                            $("#submit").removeClass("disabled");
+                                            $("#submit").removeAttr("disabled");
+                                        }else{
+                                            $("#submit").addClass("disabled");
+                                            $("#submit").attr("disabled", true);
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controller.ManageQcm.formQcm : " + er.message);
+                        return null;
+                    }
+                },
+                /**
+                 * @returns {$.Oda.App.Controller.ManageQcm}
+                 */
+                submitQcm: function () {
+                    try {
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"api/rest/qcm/", {type:'POST',functionRetour : function(response){
+                            $.Oda.Display.Popup.close({name:"createQcm"});
+                        }},{
+                            "name":$('#name').val(),
+                            "lang":$('#lang').val(),
+                            "userId": $.Oda.Session.id
+                        });
+                        return this;
+                    } catch (er) {
+                        $.Oda.Log.error("$.Oda.App.Controller.ManageQcm.formQcm : " + er.message);
+                        return null;
+                    }
+                },
+            },
             "Qcm": {
                 map: {},
                 listCheckbox: [],
                 current: "",
+                steps: 0,
+                currentStep: 0,
                 /**
                  * @returns {$.Oda.App.Controller.Home}
                  */
                 start: function () {
                     try {
-                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"api/rest/qcm/bpad/en", { functionRetour : function(response){
+                        var id = $.Oda.Router.current.args["id"];
+                        var name = $.Oda.Router.current.args["name"];
+                        var lang = $.Oda.Router.current.args["lang"];
+                        var call = $.Oda.Interface.callRest($.Oda.Context.rest+"api/rest/qcm/"+name+"/"+lang, { functionRetour : function(response){
                             var iteratorPart = 0;
                             var iteratorQuestion = 0;
                             for(var indice in response.data){
@@ -96,6 +235,7 @@
                                     }
                                 });
                                 $('#qcm').append(strHtml);
+                                $.Oda.App.Controller.Qcm.steps++;
 
                                 var qcmPart = response.data[indice];
                                 for(var questionIndice in qcmPart){
@@ -133,6 +273,7 @@
                                             }
                                         });
                                         $('#qcm').append(strQuestions);
+                                        $.Oda.App.Controller.Qcm.steps++;
                                     }
                                 }
                             }
@@ -149,6 +290,8 @@
                  */
                 moveNext: function () {
                     try {
+                        $.Oda.App.Controller.Qcm.currentStep++;
+                        $('#progressBar').width($.Oda.App.Controller.Qcm.currentStep/$.Oda.App.Controller.Qcm.steps*100);
                         for(var key in $.Oda.App.Controller.Qcm.map){
                             if($.Oda.App.Controller.Qcm.map[key]){
                                 $("#"+key).hide();

@@ -34,6 +34,22 @@ $slim->get('/entity/:id', function ($id) use ($slim) {
 
 //--------------------------------------------------------------------------
 //---------------------------- QCM -----------------------------------------
+$slim->get('/qcm/', function () use ($slim) {
+    $params = new OdaPrepareInterface();
+    $params->slim = $slim;
+    $INTERFACE = new QcmInterface($params);
+    $INTERFACE->get();
+});
+
+$slim->post('/qcm/', function () use ($slim) {
+    $params = new OdaPrepareInterface();
+    $params->arrayInput = array("userId","name","lang");
+    $params->modePublic = false;
+    $params->slim = $slim;
+    $INTERFACE = new QcmInterface($params);
+    $INTERFACE->create();
+});
+
 $slim->get('/qcm/:name/:lang', function ($name,$lang) use ($slim) {
     $params = new OdaPrepareInterface();
     $params->slim = $slim;
