@@ -127,7 +127,8 @@
                                     {"sTitle": "Id", "sClass": "dataTableColCenter"},
                                     {"sTitle": "Name", "sClass": "Left"},
                                     {"sTitle": "Lang", "sClass": "Left"},
-                                    {"sTitle": "Link", "sClass": "Left"}
+                                    {"sTitle": "Link", "sClass": "Left"},
+                                    {"sTitle": "Success", "sClass": "Left"}
                                 ],
                                 "aoColumnDefs": [
                                     {
@@ -154,6 +155,13 @@
                                             return url;
                                         },
                                         "aTargets": [3]
+                                    }
+                                    ,
+                                    {
+                                        "mRender": function (data, type, row) {
+                                            return row[objDataTable.entete["perc"]];
+                                        },
+                                        "aTargets": [4]
                                     }
                                 ]
                             });
@@ -304,6 +312,9 @@
                                     }
                                 }
                             }
+                            if($.Oda.App.Controller.Qcm.Session.state !== null){
+                                $.Oda.App.Controller.Qcm.map = $.Oda.App.Controller.Qcm.Session.state;
+                            }
                             $.Oda.App.Controller.Qcm.moveNext();
                         }});
                         return this;
@@ -317,16 +328,20 @@
                  */
                 moveNext: function () {
                     try {
-                        $.Oda.App.Controller.Qcm.currentStep++;
-                        $('#progressBar').width($.Oda.App.Controller.Qcm.currentStep/$.Oda.App.Controller.Qcm.steps*100);
+                        $.Oda.App.Controller.Qcm.currentStep = 0;
                         for(var key in $.Oda.App.Controller.Qcm.map){
                             if($.Oda.App.Controller.Qcm.map[key]){
+                                $.Oda.App.Controller.Qcm.currentStep++;
                                 $("#"+key).hide();
                             }
                         }
 
+                        $('#progressBar').width(($.Oda.App.Controller.Qcm.currentStep/$.Oda.App.Controller.Qcm.steps*100)+"%");
+
                         for(var key in $.Oda.App.Controller.Qcm.map){
                             if(!$.Oda.App.Controller.Qcm.map[key]){
+                                $.Oda.App.Controller.Qcm.Session.state = $.Oda.App.Controller.Qcm.map;
+                                $.Oda.Storage.set("QCM-SESSION",$.Oda.App.Controller.Qcm.Session);
                                 $.Oda.App.Controller.Qcm.map[key] = true;
                                 $.Oda.Scope.Gardian.remove({id:"qcm"});
                                 $("#"+key).fadeIn("slow");

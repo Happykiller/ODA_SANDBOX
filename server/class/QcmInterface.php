@@ -22,7 +22,14 @@ class QcmInterface extends OdaRestInterface {
     function get() {
         try {
             $params = new OdaPrepareReqSql();
-            $params->sql = "SELECT a.`id`, a.`author` as 'authorId', b.`code_user` as 'authorCode', a.`creationDate`, a.`name`, a.`lang`
+            $params->sql = "SELECT a.`id`, a.`author` as 'authorId', b.`code_user` as 'authorCode', a.`creationDate`, a.`name`, a.`lang`,
+                (SELECT count(*) as 'perc'
+                  FROM `tab_qcm_sessions_user` d, `tab_sessions_user_record` e
+                  WHERE 1=1
+                  AND d.`id` = e.`sessionUserId`
+                  AND d.`qcmId` = a.`id`
+                  AND e.`nbErrors` = 0
+                ) as 'perc'
                 FROM `tab_qcm_sessions` a, `api_tab_utilisateurs` b
                 WHERE 1=1
                 AND a.`author` = b.`id`
