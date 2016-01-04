@@ -42,5 +42,16 @@
             "name" : "Nom",
             "lang": "Langue"
         }
+    },
+    {
+        "groupName": "301",
+        "fr": {
+            "title": "Erreur",
+            "error": "Session invalide."
+        },
+        "en": {
+            "title": "Error",
+            "error": "Invalid session."
+        }
     }
 ]

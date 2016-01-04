@@ -58,5 +58,23 @@ $slim->get('/qcm/:name/:lang', function ($name,$lang) use ($slim) {
 });
 
 //--------------------------------------------------------------------------
+//---------------------------- SESSION_USER --------------------------------
+$slim->post('/sessionUser/', function () use ($slim) {
+    $params = new OdaPrepareInterface();
+    $params->arrayInput = array("firstName","lastName","qcmId","qcmName","qcmLang");
+    $params->slim = $slim;
+    $INTERFACE = new SessionUserInterface($params);
+    $INTERFACE->create();
+});
+
+$slim->post('/sessionUser/record/', function () use ($slim) {
+    $params = new OdaPrepareInterface();
+    $params->arrayInput = array("question","nbErrors","sessionUserId");
+    $params->slim = $slim;
+    $INTERFACE = new SessionUserInterface($params);
+    $INTERFACE->createRecord();
+});
+
+//--------------------------------------------------------------------------
 
 $slim->run();
