@@ -1,7 +1,0 @@
-/.idea/
-/.idea/*
-/vendor/
-/vendor/*
-/node_modules/
-/node_modules/*
-/include/config.php
